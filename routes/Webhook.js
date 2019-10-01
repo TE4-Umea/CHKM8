@@ -7,7 +7,10 @@ class Webhook {
          * TODO: Verify webhook request is from Github
          */
         server.app.post("/webhook", async (req, res) => {
-            if (server.config.branch) require("child_process").exec("git pull origin " + server.config.branch)
+            if (server.config.branch) {
+                require("child_process").exec("git pull origin " + server.config.branch)
+                server.log("Reloading via webhook")
+            }
         })
     }
 }
