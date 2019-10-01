@@ -12,13 +12,15 @@
 4. Configure mysql and web-port `config.json`
 5. Run tests and make sure everything checks out ```npm test```
 
-## REST API Documentation
+## Resources
 Native docs https://hs.ygstr.com/docs
 
 Wiki docs https://github.com/te4umea2019/Tidsapp-HS/wiki
 
+Trello board https://trello.com/b/hxbEuuSt/chkm8
+
 ## Diagram
-![](img/diagram.png)
+![](press/diagram.png)
 
 
 ## MySQL tables
