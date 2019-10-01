@@ -1,5 +1,4 @@
 class Slack {
-//test
     constructor(server) {
 
         server.app.get("/auth", async (req, res) => {
