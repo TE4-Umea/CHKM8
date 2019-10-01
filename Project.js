@@ -30,9 +30,9 @@ class Project {
 
 
     /**
-     * 
-     * @param {*} user_id 
-     * @param {*} project_id 
+     * Returns boolean weather or not the user is apart of a project (owner or jointed)
+     * @param {*} user_id ID of the user
+     * @param {*} project_id ID of the project
      */
     async is_joined(user_id, project_id) {
         if (user_id && project_id) {
@@ -46,31 +46,47 @@ class Project {
     }
 
     /**
-     * 
-     * @param {*} project_id 
-     * @param {*} user 
+     * Get data about project
+     * Returns {
+     *      name,
+     *      id,
+     *      owner: {Int id, String username, String name},
+     *      members: [ Member {String username, String name, Int work} ],
+     *      color_top,
+     *      color_bot
+     * }
+     * @param {*} project_id ID of the project
+     * @param {*} user User that did the request (optional) (if the user is unauthorized it will refuse the request)
      */
     async get_data(project_id, user = false) {
+        /** Get project */
         var project = await this.get_from_id(project_id)
         if (project) {
+            /** Get owner of project */
             var owner = await this.server.User.get(project.owner)
+            
+            /** Add owner to project return */
             project.owner = {
                 id: owner.id,
                 username: owner.username,
                 name: owner.name
             }
 
+            /** Create array for members in return */
             project.members = []
+            /** Get all joints associated with the project */
             var joints = await this.server.db.query("SELECT * FROM joints WHERE project = ?", project_id)
 
+            /** Loop through all joints and add the users to the memebers array */
             for (var joint of joints) {
+                /** Get user */
                 user = await this.server.User.get(joint.user)
 
+                /** Push user to the array */
                 project.members.push({
                     username: user.username,
                     name: user.name,
-                    work: joint.work,
-                    owner: user.id == project.owner
+                    work: joint.work
                 })
             }
 
@@ -86,9 +102,9 @@ class Project {
         }
     }
 
-
     /**
-     * 
+     * Get list of projects
+     * TODO: @Alex comment this
      */
     async get_list() {
         var projects = await this.server.db.query("SELECT name FROM projects")
@@ -126,14 +142,21 @@ class Project {
      * @param {User} user User that requests the action
      */
     async remove_user(user_to_remove, project_id, user) {
+
+        /** Makre sure all required attributes are admitted */
         if (!user_to_remove || !project_id || !user) {
             return {
                 success: false,
                 text: "Missing attirbutes"
             }
         }
+        /** Get project */
         var project = await this.get_from_id(project_id)
+        /** Make sure project exists */
         if (project) {
+            /** Make sure the person leaving is not the owner (since they need to delete it to leave it) 
+             *  TODO: Perhaps create a feature for transfering ownerships of projects?
+             */
             if (project.owner == user_to_remove.id) {
                 return {
                     success: false,

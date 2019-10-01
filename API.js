@@ -1,3 +1,7 @@
+/**
+ * REST API
+ */
+
 class API {
 
     constructor(server) {
@@ -174,6 +178,11 @@ class API {
         }
     }
 
+    /**
+     * Create an account
+     * @param {*} req HTTP request
+     * @param {*} res HTTP response
+     */
     async signup(req, res) {
         var username = req.body.username
         var password = req.body.password

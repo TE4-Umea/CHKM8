@@ -76,20 +76,20 @@ describe("Account managing", () => {
 describe("Check in / out testing", () => {
     it("Check in user (toggle, no project)", async () => {
         var user = await server.User.get_from_username(test_username)
-        assert.equal(await server.is_checked_in(user.id), false)
-        var success = await server.check_in(user.id, undefined, undefined, "Test")
+        assert.equal(await server.Check.is_checked_in(user.id), false)
+        var success = await server.Check.check_in(user.id, undefined, undefined, "Test")
 
-        assert.equal(await server.is_checked_in(user.id), true)
+        assert.equal(await server.Check.is_checked_in(user.id), true)
         assert.equal(success.success, true)
     })
 
     it("Check out (toggle, no project)", async () => {
         var user = await server.User.get_from_username(test_username)
-        assert.equal(await server.is_checked_in(user.id), true)
-        var success = await server.check_in(user.id, undefined, undefined, "Test")
+        assert.equal(await server.Check.is_checked_in(user.id), true)
+        var success = await server.Check.check_in(user.id, undefined, undefined, "Test")
 
         assert.equal(success.success, true)
-        assert.equal(await server.is_checked_in(user.id), false)
+        assert.equal(await server.Check.is_checked_in(user.id), false)
     })
 
     it("Create project, " + test_project, async () => {
@@ -113,16 +113,16 @@ describe("Check in / out testing", () => {
 
     it("Check in (force, project name)", async () => {
         var user = await server.User.get_from_username(test_username)
-        var success = await server.check_in(user.id, true, test_project, "Test")
+        var success = await server.Check.check_in(user.id, true, test_project, "Test")
         assert.equal(success.success, true)
-        assert.equal(await server.is_checked_in(user.id), true)
+        assert.equal(await server.Check.is_checked_in(user.id), true)
     })
 
     it("Check in (force, no project)", async () => {
         var user = await server.User.get_from_username(test_username)
-        var success = await server.check_in(user.id, true, null, "Test")
+        var success = await server.Check.check_in(user.id, true, null, "Test")
         assert.equal(success.success, true)
-        var last_checkin = await server.get_last_check(user.id)
+        var last_checkin = await server.Check.get_last_check(user.id)
         assert.equal(last_checkin.check_in, true)
         assert.equal(last_checkin.project, "")
     })
@@ -217,5 +217,9 @@ describe("Delete user and cleanup", () => {
         await server.User.delete(test_username2)
         user = await server.User.get_from_username(test_username)
         assert.equal(user, undefined)
+        /** Shut down server and finnish test */
+        server.server.close()
     })
+
+    
 })

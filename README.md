@@ -1,16 +1,40 @@
 # Tidsapp av Happy Surfers
 
+## Servers
+
+Production branch - https://chk.ygstr.com (Webhooked)
+
+Dev branch - https://dev.chk.ygstr.com (Webhooked)
+
 ## Installtion
 
 ### Prerequisites
+
 * NodeJS
 * MySQL
+
+### Setup database, config and node server
 
 1. Import the database `mysql -u username -p < database.sql`
 2. Install all NPM dependencies `npm install`
 3. Start it and then stop it `sudo node index.js`
 4. Configure mysql and web-port `config.json`
 5. Run tests and make sure everything checks out ```npm test```
+
+## Tests
+
+Run tests with the command ```npm test```
+
+All tests are located in ```/test/test.js```.
+
+## Sructure
+
+All webpages (except docs) is written in PUG, they are found in ```/views```
+
+```/press``` is for images, source psd/ai or concept-art that is not displayed on the website. This can also be logo guides. 
+
+Tests are located in ```/test/test.js```
+
 
 ## Resources
 
