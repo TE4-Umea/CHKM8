@@ -14,7 +14,7 @@ class API {
         var project = req.body.project ? req.body.project : null
         var user = await this.server.User.get_from_token(token)
         if (user) {
-            var result = await this.server.check_in(user.id, check_in, project, "api")
+            var result = await this.server.Check.check_in(user.id, check_in, project, "api")
             res.json(result)
         } else {
             res.json({
