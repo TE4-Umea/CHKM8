@@ -18,7 +18,7 @@ Native docs https://hs.ygstr.com/docs
 Wiki docs https://github.com/te4umea2019/Tidsapp-HS/wiki
 
 ## Diagram
-![](img/diagram.png)
+![](press/diagram.png)
 
 
 ## MySQL tables
