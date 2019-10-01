@@ -1,0 +1,68 @@
+#logo{
+    position: relative;
+    margin: 0 auto;
+    display: block;
+    margin-top: 25px;
+    height: 80px;
+}
+
+.input{
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
+    border-bottom: 3px var(--blu) solid;
+    width: 90%;
+    max-width: 300px;
+}
+
+*:focus{
+    outline: none;
+}
+
+#name{
+    display: none;
+}
+
+#wrap{
+    height: auto;
+    max-width: 400px;
+    margin-top: 25px;
+}
+
+#login-button{
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    margin-top: 25px;
+    height: 45px;
+    margin-bottom: 35px;
+    width: 200px;
+}
+
+#button-container{
+    width: 90%;
+    max-width: 300px;
+    display: block;
+    position: relative;
+    margin: 0 auto
+}
+
+#disclaimer{
+    font-size: 13px;
+    color: rgb(34, 34, 34);
+}
+
+#error-message{
+    display: none;
+    position: relative;
+    color: rgb(255, 24, 74);
+    margin-top: 15px;
+    margin-bottom: 10px;
+}

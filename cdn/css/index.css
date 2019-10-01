@@ -1,0 +1,98 @@
+img{
+    -webkit-user-drag: none;
+}
+
+#index-logo{
+    width: 250px;
+    margin: 0 auto;
+    position: relative;
+    display: block;
+    margin-top: 5vh;
+}
+
+#tag-line{
+    display: block;
+    font-size: 30px;
+    color: var(--blu);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+#index-wrap{
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+}
+
+#index-login-button{
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    z-index: 100;
+}
+
+#index-signup-button{
+    margin: 0 auto;
+    display: block;
+    width: 160px;
+    height: 40px;
+    margin-top: 20px;
+}
+
+#features-list{
+    display: block;
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    height: 200px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+#features-title{
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    color: var(--dark-blu);
+    margin-bottom: 20px;
+}
+
+.features-block{
+    height: 120px;
+    position: relative;
+    display: block;
+}
+
+.features-icon{
+    display: block;
+    position: relative;
+    width: 150px;
+    position: absolute;
+    top: -15px;
+    left: 10px;
+}
+
+.features-heading{
+    position: absolute;
+    display: block;
+    width: 300px;
+    height: 30px;
+    font-size: 25px;
+    font-weight: 700;
+    left: 170px;
+    top: 15px;
+    color: var(--dark-blu);
+}
+
+.features-description{
+    height: 55px;
+    position: absolute;
+    bottom: 15px;
+    left: 170px;
+    overflow: hidden;
+}
