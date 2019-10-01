@@ -8,7 +8,7 @@ class API {
         var token = req.body.token
         var check_in = req.body.check_in
         var project = req.body.project ? req.body.project : null
-        var user = await this.server.get_user_from_token(token)
+        var user = await this.server.User.get_from_token(token)
         if (user) {
             var result = await this.server.check_in(user.id, check_in, project, "api")
             res.json(result)
@@ -30,9 +30,9 @@ class API {
         var token = req.body.token
         var project_name = req.body.project
 
-        var user = await this.server.get_user_from_token(token)
+        var user = await this.server.User.get_from_token(token)
         if (user) {
-            var response = await this.server.create_project(project_name, user)
+            var response = await this.server.Project.create(project_name, user)
             res.json(response)
         } else {
             res.json({
@@ -46,11 +46,11 @@ class API {
         var project_name = req.body.project
         var token = req.body.token
         var username = req.body.username
-        var user = await this.server.get_user_from_token(token)
-        var user_to_add = await this.server.get_user_from_username(username)
+        var user = await this.server.User.get_from_token(token)
+        var user_to_add = await this.server.User.get_from_username(username)
 
-        var project = await this.server.get_project(project_name)
-        var response = await this.server.add_user_to_project(user_to_add, project.id, user)
+        var project = await this.server.Project.get(project_name)
+        var response = await this.server.Project.add_user(user_to_add, project.id, user)
         res.json(response)
     }
 
@@ -59,8 +59,8 @@ class API {
         var token = req.body.token
         var project = req.body.project
 
-        var user_to_remove = await this.server.get_user_from_username(username)
-        var user = await this.server.get_user_from_token(token)
+        var user_to_remove = await this.server.User.get_from_username(username)
+        var user = await this.server.User.get_from_token(token)
 
         var result = await this.server.remove_user_from_project(user_to_remove, project_name, user)
         res.json(result)
@@ -75,13 +75,13 @@ class API {
     async project(req, res) {
         var project_name = req.body.project
         var token = req.body.token
-        var user = await this.server.get_user_from_token(token)
-        var project = await this.server.get_project(project_name)
-        var project_data = await this.server.get_project_data(project.id)
+        var user = await this.server.User.get_from_token(token)
+        var project = await this.server.Project.get(project_name)
+        var project_data = await this.server.Project.get_data(project.id)
 
         if (user) {
             if (project) {
-                var has_access = await this.server.is_joined_in_project(user.id, project.id)
+                var has_access = await this.server.Project.is_joined(user.id, project.id)
                 if (project_data) {
                     if (has_access) {
                         res.json({
@@ -122,9 +122,9 @@ class API {
      */
     async profile(req, res) {
         var token = req.body.token
-        var user = await this.server.get_user_from_token(token)
+        var user = await this.server.User.get_from_token(token)
         if (user) {
-            var data = await this.server.get_user_data(user.id)
+            var data = await this.server.User.get_data(user.id)
             res.json({
                 success: true,
                 profile: data
@@ -154,12 +154,12 @@ class API {
             })
             return
         }
-        var user = await this.server.get_user_from_username(username)
+        var user = await this.server.User.get_from_username(username)
 
         // Sign in
-        user = await this.server.get_user_from_username_and_password(username, password)
+        user = await this.server.User.get_from_username_and_password(username, password)
         if (user) {
-            var token = await this.server.generate_token(user.username)
+            var token = await this.server.User.generate_token(user.username)
             if (token) {
                 res.json({
                     success: true,
@@ -223,9 +223,9 @@ class API {
             })
             return
         }
-        var response = await this.server.create_user(username, password, name)
+        var response = await this.server.User.create(username, password, name)
         if (response.success) {
-            var token = await this.server.generate_token(response.user.username)
+            var token = await this.server.User.generate_token(response.user.username)
             res.json({
                 success: true,
                 token: token
@@ -253,7 +253,7 @@ class API {
             })
             return
         }
-        var user = await this.server.get_user_from_username(username)
+        var user = await this.server.User.get_from_username(username)
         if (user) {
             res.json({
                 success: true,
@@ -278,7 +278,7 @@ class API {
 
         for (var sign of this.server.slack_sign_users) {
             if (sign.token === sign_token) {
-                var user = await this.server.get_user_from_token(token)
+                var user = await this.server.User.get_from_token(token)
                 if (user) {
                     // Fill users slack information
                     await this.server.db.query("UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?", [sign.email, sign.slack_id, sign.slack_domain, sign.access_token, sign.avatar, sign.name, user.id])
@@ -288,49 +288,6 @@ class API {
                     })
                 }
             }
-        }
-    }
-
-    async documentation(req, res) {
-        res.json(this.server.documentation)
-    }
-
-    async document(req, res) {
-        var pack = req.body
-        var user = await this.server.get_user_from_token(pack.token)
-        if (user.admin) {
-            delete pack.token
-            try {
-                this.server.fs.unlinkSync("documentation/" + pack.old_title.split(" ").join("_") + ".json")
-            } catch (__) {}
-            delete pack.old_title
-
-            if (pack.title.length == 0) {
-                res.json({
-                    success: false,
-                    text: "Don't forget the title"
-                })
-                return
-            }
-            try {
-                this.server.fs.writeFileSync("documentation/" + pack.title.split(" ").join("_") + ".json", JSON.stringify(pack))
-                res.json({
-                    success: true,
-                    text: "Success!"
-                })
-                this.server.load_documentation()
-            } catch (e) {
-                this.server.log(e)
-                res.json({
-                    success: false,
-                    text: "Error writing fail, check the title. Make sure there are no weird characters in it."
-                })
-            }
-        } else {
-            res.json({
-                success: false,
-                text: "You need to be admin to do this."
-            })
         }
     }
 }

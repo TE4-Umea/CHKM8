@@ -1,1 +1,0 @@
-{"text":"The name of a project can be at most 30 characters long alphanumeric (a-ö 0-9 _) and cannot include spaces.\n\nAllowed names\n```\ntest_project\n```\n\n```\nTestProject\n```\n\n```\nTäst_Name\n```\n\nNot allowed\n```\nTest Project\n```\n```\ntest-project\n```","type":"variable","pinned":false,"title":"project name","class":"API"}

@@ -1,1 +1,0 @@
-{"text":"### username_taken\n\n```\nPOST api/user\n```\n\nResponse: \n\nIf taken\n```javascript\n{\n    \"success\": true,\n    \"taken\": true\n}\n```\nIf not taken:\n```javascript\n{\n    \"success\": true,\n    \"taken\": false\n}\n```\n","type":"function","pinned":false,"title":"POST username_taken","class":"API"}
