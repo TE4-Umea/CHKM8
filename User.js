@@ -154,10 +154,10 @@ class User {
             delete user.access_token
             delete user.password
 
-            var last_check = await this.server.get_last_check(user.id)
+            var last_check = await this.server.Check.get_last_check(user.id)
 
             // Add new uncashed properties
-            user.checked_in = await this.server.is_checked_in(user.id)
+            user.checked_in = await this.server.Check.is_checked_in(user.id)
             user.checked_in_project = last_check.project
             user.checked_in_time = Date.now() - last_check.date
 
