@@ -1,6 +1,6 @@
 # Tidsapp av Happy Surfers
 
-## Servers
+## Websites
 
 Production branch - https://chk.ygstr.com (Webhooked)
 
