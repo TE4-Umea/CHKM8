@@ -14,6 +14,9 @@ class Controller {
 
         var Slack = require('./SlackRoutes');
         Slack = new Slack(server);
+
+        var Swagger = require('./SwaggerRoutes');
+        Swagger = new Swagger(server);
     }
 }
 
