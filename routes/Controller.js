@@ -3,16 +3,16 @@ class Controller {
         // Enable PUG rendering in the express app
         server.app.set('view engine', 'pug');
 
-        var REST = require('./REST');
+        var REST = require('./RestRoutes');
         REST = new REST(server);
 
-        var Website = require('./Website');
+        var Website = require('./WebsiteRoutes');
         Website = new Website(server);
 
-        var Webhook = require('./Webhook');
+        var Webhook = require('./WebhookRoutes');
         Webhook = new Webhook(server);
 
-        var Slack = require('./Slack');
+        var Slack = require('./SlackRoutes');
         Slack = new Slack(server);
     }
 }
