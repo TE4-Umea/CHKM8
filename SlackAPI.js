@@ -227,7 +227,7 @@ class SlackAPI {
 
             var sig_basestring = 'v0:' + timestamp + ':' + request_body
             var my_signature = 'v0=' +
-                this.serve.crypto.createHmac('sha256', this.config.signing_secret)
+                this.server.crypto.createHmac('sha256', this.config.signing_secret)
                 .update(sig_basestring, 'utf8')
                 .digest('hex')
             if (this.server.crypto.timingSafeEqual(
