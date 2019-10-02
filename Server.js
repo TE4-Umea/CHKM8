@@ -63,7 +63,7 @@ class Server {
         this.app.use(this.express.static(__dirname + '/cdn'))
 
         /** Load Controller class */
-        var routes = require("./routes/Controller")
+        var routes = require("./routes/Routes")
         routes = new routes(this)
 
         /** Load Project class */
