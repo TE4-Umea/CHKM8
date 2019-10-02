@@ -1,5 +1,5 @@
 class SlackAPI {
-
+    
     constructor(server) {
         this.server = server
 
@@ -18,6 +18,13 @@ class SlackAPI {
 
     }
 
+    /**
+     * Authenticate user via login with slack button and link their slack account
+     * to their chkm8 account. They get sent a sign_token and that is managed by
+     * API.sign()
+     * @param {*} req 
+     * @param {*} res 
+     */
     async auth(req, res) {
         if (req.query.code) {
             /* Send a request to slack to get user information from the login */
@@ -152,7 +159,7 @@ class SlackAPI {
     }
 
     async help(req, res) {
-        var response = this.SlackJSON.SlackResponse("Happy Surfers Time App Help Menu", [this.SlackJSON.SlackAttachments(server.fs.readFileSync("commands.md", "utf8"))])
+        var response = this.SlackJSON.SlackResponse("Happy Surfers Time App Help Menu", [this.SlackJSON.SlackAttachments(this.server.fs.readFileSync("commands.md", "utf8"))])
         res.json(response)
     }
 

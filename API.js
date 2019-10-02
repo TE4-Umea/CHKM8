@@ -1,5 +1,5 @@
 /**
- * REST API
+ * REST API for CHKM8
  */
 
 class API {
@@ -8,12 +8,21 @@ class API {
         this.server = server
     }
 
+    /**
+     * Check in or out a user
+     * @param {*} req 
+     * @param {*} res 
+     */
     async checkin(req, res) {
+        /** Get attributes from request */
         var token = req.body.token
         var check_in = req.body.check_in
+        /** Get project name from request, if it doesn't exist, make it null. */
         var project = req.body.project ? req.body.project : null
+        /** Get user safe from token */
         var user = await this.server.User.get_from_token(token)
         if (user) {
+            /** Check in the user */
             var result = await this.server.Check.check_in(user.id, check_in, project, "api")
             res.json(result)
         } else {
@@ -31,12 +40,17 @@ class API {
      * @param {*} res 
      */
     async new_project(req, res) {
+        /** Get attributes from request */
         var token = req.body.token
         var project_name = req.body.project
 
+        /** Get the user safley from token */
         var user = await this.server.User.get_from_token(token)
+        /** Make sure user is loaded correctly */
         if (user) {
+            /** Create the project via the user and project name */
             var response = await this.server.Project.create(project_name, user)
+            /** Respond to the request with res */
             res.json(response)
         } else {
             res.json({
@@ -46,18 +60,34 @@ class API {
         }
     }
 
+    /**
+     * Add user to project
+     * @param {*} req 
+     * @param {*} res 
+     */
     async add(req, res) {
+        /** Get attributes from request */
         var project_name = req.body.project
         var token = req.body.token
         var username = req.body.username
+
+        /** Load user safe from token */
         var user = await this.server.User.get_from_token(token)
+        /** Load user that will be added */
         var user_to_add = await this.server.User.get_from_username(username)
 
         var project = await this.server.Project.get(project_name)
+        /** Add the user to the project via the requesting user */
         var response = await this.server.Project.add_user(user_to_add, project.id, user)
+        /** Responde to the user */
         res.json(response)
     }
 
+    /**
+     * Remove user from project
+     * @param {*} req 
+     * @param {*} res 
+     */
     async remove(req, res) {
         var username = req.body.username
         var token = req.body.token
@@ -66,7 +96,7 @@ class API {
         var user_to_remove = await this.server.User.get_from_username(username)
         var user = await this.server.User.get_from_token(token)
 
-        var result = await this.server.remove_user_from_project(user_to_remove, project_name, user)
+        var result = await this.server.remove_user_from_project(user_to_remove, project, user)
         res.json(result)
     }
 
@@ -77,15 +107,21 @@ class API {
      * @param {*} res 
      */
     async project(req, res) {
+        /** Get attributes from request */
         var project_name = req.body.project
         var token = req.body.token
+        /** Read from server via attributes */
         var user = await this.server.User.get_from_token(token)
         var project = await this.server.Project.get(project_name)
         var project_data = await this.server.Project.get_data(project.id)
 
+        /** Make sure user exists */
         if (user) {
+            /** Make sure project exists */
             if (project) {
+                /** Make sure the user has access to the project (owner or jointed) */
                 var has_access = await this.server.Project.is_joined(user.id, project.id)
+                /** Make sure data has been collected right */
                 if (project_data) {
                     if (has_access) {
                         res.json({
@@ -278,8 +314,8 @@ class API {
 
     /**
      * Sign a client to thier slack account (link)
-     * @param {*} req 
-     * @param {*} res 
+     * @param {*} req
+     * @param {*} res
      */
     async sign(req, res) {
         var token = req.body.token

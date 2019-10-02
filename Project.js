@@ -3,7 +3,6 @@ class Project {
         this.server = server
     }
 
-
     /**
      * Get a project from it's name
      * @param {*} project_name The name of the project
