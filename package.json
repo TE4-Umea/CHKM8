@@ -15,7 +15,8 @@
     "mocha": "^6.2.0",
     "mysql": "^2.17.1",
     "pug": "^2.0.4",
-    "qs": "^6.9.0"
+    "qs": "^6.9.0",
+    "eslint": "^6.5.1"
   },
   "scripts": {
     "test": "mocha"
@@ -29,8 +30,5 @@
   "bugs": {
     "url": "https://github.com/te4umea2019/Tidsapp-HS/issues"
   },
-  "homepage": "https://github.com/te4umea2019/Tidsapp-HS#readme",
-  "devDependencies": {
-    "eslint": "^6.5.1"
-  }
+  "homepage": "https://github.com/te4umea2019/Tidsapp-HS#readme"
 }
