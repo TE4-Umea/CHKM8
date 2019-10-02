@@ -10,10 +10,8 @@ class SwaggerController {
                     version: '1.0.0', // Version (required)
                 },
             },
-            apis: ['/routes/RestRoutes.js'],
+            apis: ['./routes/*.js'],
         };
-        var glob = require('glob');
-        console.log(glob(options));
         // Initialize swagger-jsdoc -> returns validated swagger spec in json format
         this.swaggerJson = swaggerJSDoc(options);
     }
