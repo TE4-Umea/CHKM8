@@ -12,7 +12,7 @@ class User {
         if (success) {
             var body = req.body
             var slack_id = body.user_id
-            var user = await this.get(slack_id)
+            var user = await this.get_from_slack_id(slack_id)
             if (user) {
                 return user
             } else {
