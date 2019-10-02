@@ -13,7 +13,7 @@ class SlackAPI {
 
     async get_slack_id_from_text(user) {
         var slack_id = user.substring(2, 11)
-        user = await this.User.get_from_slack_id(slack_id)
+        user = await this.server.User.get_from_slack_id(slack_id)
         return user
 
     }
@@ -108,11 +108,11 @@ class SlackAPI {
                 if (user_to_remove.startsWith("<@")) {
                     user_to_remove = await this.get_slack_id_from_text(user_to_remove)
                 } else {
-                    user_to_remove = await this.server.get_user_from_username(user_to_remove)
+                    user_to_remove = await this.server.User.get_from_username(user_to_remove)
                 }
                 var project_name = inputs[1]
                 var project = await this.server.Project.get(project_name)
-                var response = await this.server.remove_user_from_project(user_to_remove, project.id, user)
+                var response = await this.server.Project.remove_user(user_to_remove, project.id, user)
                 res.json(this.slack_response(response))
             } else {
                 this.user_not_found(res)
@@ -239,7 +239,7 @@ class SlackAPI {
             }
         } catch (e) {
             console.log(e) // KEEP
-            this.log("ERROR: Make sure your config.json:signing_secret is correct!")
+            this.server.log("ERROR: Make sure your config.json:signing_secret is correct!")
         }
     }
 
