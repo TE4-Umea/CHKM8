@@ -130,12 +130,12 @@ class SlackAPI {
                 if (user_to_add.startsWith("<@")) {
                     user_to_add = await this.get_slack_id_from_text(user_to_add)
                 } else {
-                    user_to_add = await this.server.get_user_from_username(user_to_add)
+                    user_to_add = await this.server.User.get_from_username(user_to_add)
                 }
                 var project_name = inputs[1]
                 var project = await this.server.Project.get(project_name)
 
-                var response = await this.server.add_user_to_project(user_to_add, project ? project.id : -1, user)
+                var response = await this.server.Project.add_user(user_to_add, project ? project.id : -1, user)
                 res.json(this.slack_response(response))
 
             } else {
