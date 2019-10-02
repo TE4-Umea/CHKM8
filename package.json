@@ -29,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/te4umea2019/Tidsapp-HS/issues"
   },
-  "homepage": "https://github.com/te4umea2019/Tidsapp-HS#readme"
+  "homepage": "https://github.com/te4umea2019/Tidsapp-HS#readme",
+  "devDependencies": {
+    "eslint": "^6.5.1"
+  }
 }
