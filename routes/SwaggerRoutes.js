@@ -1,6 +1,6 @@
 class SwaggerRoutes {
     constructor(server) {
-        
+        const SWAGGER_CONTROLLER = new (require('../controllers/SwaggerController'))();
         /**
          * @swagger
          *
@@ -15,7 +15,7 @@ class SwaggerRoutes {
          *         description: Json file containing OpenAPI compliant Api routes
          */
         server.app.get('/docs/swagger.json', async (req, res) => {
-            new (require('../controllers/SwaggerController'))().fetch(
+            SWAGGER_CONTROLLER.fetch(
                 req,
                 res
             );
