@@ -28,7 +28,7 @@ class SlackAPI {
     async auth(req, res) {
         if (req.query.code) {
             /* Send a request to slack to get user information from the login */
-            this.server.https.get(`https://slack.com/api/oauth.access?client_id=${server.config.client_id}&client_secret=${server.config.client_secret}&code=${req.query.code}`, resp => {
+            this.server.https.get(`https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&client_secret=${this.server.config.client_secret}&code=${req.query.code}`, resp => {
                 var data = ''
                 resp.on('data', (chunk) => {
                     data += chunk
@@ -227,7 +227,7 @@ class SlackAPI {
 
             var sig_basestring = 'v0:' + timestamp + ':' + request_body
             var my_signature = 'v0=' +
-                this.server.crypto.createHmac('sha256', this.config.signing_secret)
+                this.server.crypto.createHmac('sha256', this.server.config.signing_secret)
                 .update(sig_basestring, 'utf8')
                 .digest('hex')
             if (this.server.crypto.timingSafeEqual(
