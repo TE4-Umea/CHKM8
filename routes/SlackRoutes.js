@@ -1,4 +1,4 @@
-class Slack {
+class SlackRoutes {
     constructor(server) {
         server.app.get('/auth', async (req, res) => {
             server.SlackAPI.auth(req, res);
@@ -38,4 +38,4 @@ class Slack {
     }
 }
 
-module.exports = Slack;
+module.exports = SlackRoutes;

@@ -1,4 +1,4 @@
-class Website {
+class WebsiteRoutes {
     constructor(server) {
         /* Website pages */
         server.app.get('/dashboard', (req, res) => {
@@ -25,4 +25,4 @@ class Website {
     }
 }
 
-module.exports = Website;
+module.exports = WebsiteRoutes;

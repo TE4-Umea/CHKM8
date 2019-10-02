@@ -1,4 +1,4 @@
-class Webhook {
+class WebhookRoutes {
     constructor(server) {
         /**
          * Github WEBHOOK
@@ -17,4 +17,4 @@ class Webhook {
     }
 }
 
-module.exports = Webhook;
+module.exports = WebhookRoutes;

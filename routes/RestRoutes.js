@@ -1,10 +1,10 @@
-class REST {
+class RestRoutes {
     constructor(server) {
         /* REST API routes */
         server.app.post('/api/checkin', async (req, res) => {
             server.API.checkin(req, res);
         });
-
+        
         server.app.post('/api/add', async (req, res) => {
             server.API.add(req, res);
         });
@@ -43,4 +43,4 @@ class REST {
     }
 }
 
-module.exports = REST;
+module.exports = RestRoutes;
