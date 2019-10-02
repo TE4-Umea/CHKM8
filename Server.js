@@ -38,14 +38,14 @@ class Server {
         /** Array of users ready to be linked to slack, cleared on restart. */
         this.slack_sign_users = []
 
+
         /** Database async handler */
         var Database = require("./Database")
-
-        /** Use port from config.json as the webport */
-        this.port = this.config.port
-
         /** Setup db handler with config */
         this.db = new Database(this.config)
+
+        /** Use port from config.json as the webport */
+        this.port = this.config.port        
 
         /** Setup the web server via express */
         this.app = this.express()

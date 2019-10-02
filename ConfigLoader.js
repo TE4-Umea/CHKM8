@@ -46,7 +46,7 @@ class ConfigLoader {
          * NOTE: If the config is corrupt or invalid, it will be overwritten.
          */
         try {
-            config = JSON.parse(this.fs.readFileSync("config.json"))
+            config = JSON.parse(this.fs.readFileSync(path))
             var updated = false
             for (var key in template) {
                 if (config[key] === undefined) {
@@ -54,11 +54,11 @@ class ConfigLoader {
                     updated = true
                     console.log("Updated config.json with the missing option " + key)
                 }
-                if (updated) this.fs.writeFileSync("config.json", JSON.stringify(config))
+                if (updated) this.fs.writeFileSync(path, JSON.stringify(config))
             }
         } catch (e) {
             console.log("Loading config.json failed, creating a default one.")
-            this.fs.writeFileSync("config.json", JSON.stringify(template))
+            this.fs.writeFileSync(path, JSON.stringify(template))
             config = template
         }
         return config
