@@ -2,7 +2,7 @@ class SlackAPI {
     
     constructor(server) {
         this.server = server
-
+        this.qs = require("qs")
         var SlackJSON = require("./SlackJSON")
         this.SlackJSON = new SlackJSON()
 
@@ -13,7 +13,7 @@ class SlackAPI {
 
     async get_slack_id_from_text(user) {
         var slack_id = user.substring(2, 11)
-        user = await this.User.get_from_slack_id(slack_id)
+        user = await this.server.User.get_from_slack_id(slack_id)
         return user
 
     }
@@ -28,7 +28,7 @@ class SlackAPI {
     async auth(req, res) {
         if (req.query.code) {
             /* Send a request to slack to get user information from the login */
-            this.server.https.get(`https://slack.com/api/oauth.access?client_id=${server.config.client_id}&client_secret=${server.config.client_secret}&code=${req.query.code}`, resp => {
+            this.server.https.get(`https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&client_secret=${this.server.config.client_secret}&code=${req.query.code}`, resp => {
                 var data = ''
                 resp.on('data', (chunk) => {
                     data += chunk
@@ -77,7 +77,7 @@ class SlackAPI {
             var user = await this.server.User.get_from_slack(req)
             if (user) {
                 var project = req.body.text ? req.body.text : ""
-                var response = await this.server.check_in(user.id, true, project, "slack")
+                var response = await this.server.Check.check_in(user.id, true, project, "slack")
                 res.json(this.slack_response(response))
             } else {
                 this.user_not_found(res)
@@ -90,7 +90,7 @@ class SlackAPI {
         if (success) {
             var user = await this.server.User.get_from_slack(req)
             if (user) {
-                var response = await this.server.check_in(user.id, false, null, "slack")
+                var response = await this.server.Check.check_in(user.id, false, null, "slack")
                 res.json(this.slack_response(response))
             } else {
                 this.user_not_found(res)
@@ -108,11 +108,11 @@ class SlackAPI {
                 if (user_to_remove.startsWith("<@")) {
                     user_to_remove = await this.get_slack_id_from_text(user_to_remove)
                 } else {
-                    user_to_remove = await this.server.get_user_from_username(user_to_remove)
+                    user_to_remove = await this.server.User.get_from_username(user_to_remove)
                 }
                 var project_name = inputs[1]
                 var project = await this.server.Project.get(project_name)
-                var response = await this.server.remove_user_from_project(user_to_remove, project.id, user)
+                var response = await this.server.Project.remove_user(user_to_remove, project.id, user)
                 res.json(this.slack_response(response))
             } else {
                 this.user_not_found(res)
@@ -130,12 +130,12 @@ class SlackAPI {
                 if (user_to_add.startsWith("<@")) {
                     user_to_add = await this.get_slack_id_from_text(user_to_add)
                 } else {
-                    user_to_add = await this.server.get_user_from_username(user_to_add)
+                    user_to_add = await this.server.User.get_from_username(user_to_add)
                 }
                 var project_name = inputs[1]
                 var project = await this.server.Project.get(project_name)
 
-                var response = await this.server.add_user_to_project(user_to_add, project ? project.id : -1, user)
+                var response = await this.server.Project.add_user(user_to_add, project ? project.id : -1, user)
                 res.json(this.slack_response(response))
 
             } else {
@@ -150,7 +150,7 @@ class SlackAPI {
             var user = await this.server.User.get_from_slack(req)
             if (user) {
                 var project_name = req.body.text
-                var response = await this.server.create_project(project_name, user)
+                var response = await this.server.Project.create(project_name, user)
                 res.json(this.slack_response(response))
             } else {
                 this.user_not_found(res)
@@ -227,10 +227,10 @@ class SlackAPI {
 
             var sig_basestring = 'v0:' + timestamp + ':' + request_body
             var my_signature = 'v0=' +
-                this.crypto.createHmac('sha256', this.config.signing_secret)
+                this.server.crypto.createHmac('sha256', this.server.config.signing_secret)
                 .update(sig_basestring, 'utf8')
                 .digest('hex')
-            if (this.crypto.timingSafeEqual(
+            if (this.server.crypto.timingSafeEqual(
                     Buffer.from(my_signature, 'utf8'),
                     Buffer.from(slack_signature, 'utf8'))) {
                 return true
@@ -239,7 +239,7 @@ class SlackAPI {
             }
         } catch (e) {
             console.log(e) // KEEP
-            this.log("ERROR: Make sure your config.json:signing_secret is correct!")
+            this.server.log("ERROR: Make sure your config.json:signing_secret is correct!")
         }
     }
 

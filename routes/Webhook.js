@@ -8,7 +8,7 @@ class Webhook {
          */
         server.app.post("/webhook", async (req, res) => {
             if (server.config.branch) {
-                require("child_process").exec("git pull origin " + server.config.branch)
+                require("child_process").exec("git pull origin " + server.config.branch + " --no-edit")
                 server.log("Reloading via webhook")
             }
         })

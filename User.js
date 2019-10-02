@@ -8,11 +8,11 @@ class User {
      * @param {*} req Slack request
      */
     async get_from_slack(req) {
-        var success = this.server.verify_slack_request(req)
+        var success = this.server.SlackAPI.verify_slack_request(req)
         if (success) {
             var body = req.body
             var slack_id = body.user_id
-            var user = await this.get(slack_id)
+            var user = await this.get_from_slack_id(slack_id)
             if (user) {
                 return user
             } else {
