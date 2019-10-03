@@ -75,10 +75,9 @@ class API {
         var user = await this.server.User.get_from_token(token)
         /** Load user that will be added */
         var user_to_add = await this.server.User.get_from_username(username)
-
-        var project = await this.server.Project.get(project_name)
+        
         /** Add the user to the project via the requesting user */
-        var response = await this.server.Project.add_user(user_to_add, project.id, user)
+        var response = await this.server.Project.add_user(user_to_add, project_name, user)
         /** Responde to the user */
         res.json(response)
     }
