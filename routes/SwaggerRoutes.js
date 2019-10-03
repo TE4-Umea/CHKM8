@@ -12,7 +12,7 @@ class SwaggerRoutes {
         /**
          * @swagger
          *
-         * /login:
+         * /docs/swagger.json:
          *   get:
          *     description: Get the Swagger json file
          *     produces:
