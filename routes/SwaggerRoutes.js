@@ -1,6 +1,14 @@
+/**
+ * Route file for Swagger Json generation.
+ */
 class SwaggerRoutes {
+    /**
+     * Constructs the needed swagger json
+     * @param {Server} server 
+     */
     constructor(server) {
         const SWAGGER_CONTROLLER = new (require('../controllers/SwaggerController'))();
+        
         /**
          * @swagger
          *
