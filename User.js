@@ -13,15 +13,12 @@ class User {
 
         this.Check = require('./Check');
         this.Check = new this.Check();
-
-        
     }
 
     /**
      * Get user from slack request, if they are not registered an account will be created.
      * @param {*} req Slack request
      */
-
     hash() {
         return this.crypto
             .randomBytes(20)
@@ -98,7 +95,6 @@ class User {
     }
 
     async generate_token(username) {
-
         var user = await this.get_from_username(username);
         if (user) {
             var token = this.hash();
@@ -115,15 +111,9 @@ class User {
         var user = await this.get_from_username(username);
         if (user) {
             /* Delete user from the database */
-            await this.db.query(
-                'DELETE FROM users WHERE id = ?',
-                user.id
-            );
+            await this.db.query('DELETE FROM users WHERE id = ?', user.id);
             /* Delete all tokens belonging to the user */
-            await this.db.query(
-                'DELETE FROM tokens WHERE user = ?',
-                user.id
-            );
+            await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
         return false;
@@ -229,15 +219,13 @@ class User {
                 'SELECT * FROM joints WHERE user = ?',
                 user.id
             );
+
             let project = require('./Project');
             project = new this.Project();
 
-
             // Load and compile projects the user has joined.
             for (var joint of joints) {
-                let project = await project.get_from_id(
-                    joint.project
-                );
+                let project = await project.get_from_id(joint.project);
                 project.work = joint.work;
                 project.activity = [
                     Math.random(),
