@@ -1,6 +1,36 @@
 class Check {
-    constructor(server) {
-        this.server = server
+    constructor() {
+        this.server = server;
+        /**  Slack API functions (routes are in /routes/Slack) */
+        this.SlackAPI = require("./SlackAPI");
+        this.SlackAPI = new this.SlackAPI(this);
+
+        /**  REST API functions (routes are in /routes/REST) */
+        this.API = require("./API");
+        this.API = new this.API(this);
+
+        /** Database async handler */
+        var Database = require("./Database");
+
+        /** Setup db handler with config */
+        this.db = new Database(this.config);
+
+        /** Load Controller class */
+        var routes = require("./routes/Controller");
+        routes = new routes(this);
+
+        /** Load Project class */
+        this.Project = require("./Project");
+        this.Project = new this.Project(this);
+
+        /** Load User class */
+        this.User = require("./User");
+        this.User = new this.User(this);
+
+        /** Load Check class */
+        this.Check = require("./Check");
+        this.Check = new this.Check(this);
+        this.server.on_loaded();
     }
 
     /**
@@ -14,7 +44,7 @@ class Check {
      */
     async insert_check(user_id, check_in, project = null, type) {
         /** Get user from ID */
-        var user = await this.server.User.get(user_id)
+        var user = await this.User.get(user_id)
         if (user) {
             /** Get the users last check */
             var last_check = await this.get_last_check(user_id)
