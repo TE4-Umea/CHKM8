@@ -1,14 +1,53 @@
 class User {
-    constructor(server) {
-        this.server = server;
+    constructor() {
+        this.md5 = require('md5');
+
+        this.crypto = require('crypto');
+        this.fs = require('file-system');
+
+        var ConfigLoader = require('./ConfigLoader');
+        ConfigLoader = new ConfigLoader();
+
+        this.Database = require('./Database');
+        this.db = new this.Database(ConfigLoader.load());
+
+        this.Check = require('./Check');
+        this.Check = new this.Check();
+
+        
     }
 
     /**
      * Get user from slack request, if they are not registered an account will be created.
      * @param {*} req Slack request
      */
+
+    hash() {
+        return this.crypto
+            .randomBytes(20)
+            .toString('hex')
+            .toUpperCase();
+    }
+
+    /**
+     * Log message with timestamp
+     * Use this when a log should stay in the code
+     * @param {*} message
+     */
+    log(message) {
+        /**  Dont display messages if it's in a test */
+        if (this.isInTest) return;
+        /**  Create timestamp */
+        var date = new Date();
+        /**  Display message with timestamp */
+        console.log(
+            `[${date.getDate()}/${date.getMonth() +
+                1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}] ${message}`
+        );
+    }
+
     async get_from_slack(req) {
-        var success = this.server.SlackAPI.verify_slack_request(req);
+        var success = this.SlackAPI.verify_slack_request(req);
         if (success) {
             var body = req.body;
             var slack_id = body.user_id;
@@ -36,13 +75,13 @@ class User {
             };
         }
         // Insert into the database
-        await this.server.db.query(
+        await this.db.query(
             'INSERT INTO users (username, name, password, created) VALUES (?, ?, ?, ?)',
-            [username, full_name, this.server.md5(password), Date.now()]
+            [username, full_name, this.md5(password), Date.now()]
         );
         var user = await this.get_from_username(username);
         if (user) {
-            this.server.log('Account created for ' + full_name);
+            this.log('Account created for ' + full_name);
             return {
                 success: true,
                 user: user,
@@ -53,16 +92,17 @@ class User {
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (user) {
-            if (user.password === this.server.md5(password)) return user;
+            if (user.password === this.md5(password)) return user;
         }
         return false;
     }
 
     async generate_token(username) {
+
         var user = await this.get_from_username(username);
         if (user) {
-            var token = this.server.hash();
-            await this.server.db.query(
+            var token = this.hash();
+            await this.db.query(
                 'INSERT INTO tokens (token, user) VALUES (?, ?)',
                 [token, user.id]
             );
@@ -75,12 +115,12 @@ class User {
         var user = await this.get_from_username(username);
         if (user) {
             /* Delete user from the database */
-            await this.server.db.query(
+            await this.db.query(
                 'DELETE FROM users WHERE id = ?',
                 user.id
             );
             /* Delete all tokens belonging to the user */
-            await this.server.db.query(
+            await this.db.query(
                 'DELETE FROM tokens WHERE user = ?',
                 user.id
             );
@@ -95,7 +135,7 @@ class User {
      */
     async get_from_slack_id(slack_id) {
         if (!slack_id) return false;
-        var user = await this.server.db.query_one(
+        var user = await this.db.query_one(
             'SELECT * FROM users WHERE slack_id = ?',
             slack_id
         );
@@ -108,7 +148,7 @@ class User {
      * @returns {User} User
      */
     async get(user_id) {
-        var user = await this.server.db.query_one(
+        var user = await this.db.query_one(
             'SELECT * FROM users WHERE id = ?',
             user_id
         );
@@ -121,7 +161,7 @@ class User {
      */
     async get_from_username(username) {
         if (username) {
-            var user = await this.server.db.query_one(
+            var user = await this.db.query_one(
                 'SELECT * FROM users WHERE upper(username) = ?',
                 username.toUpperCase()
             );
@@ -136,7 +176,7 @@ class User {
      */
     async get_from_token(token) {
         if (token) {
-            var db_token = await this.server.db.query_one(
+            var db_token = await this.db.query_one(
                 'SELECT * FROM tokens WHERE token = ?',
                 token
             );
@@ -177,22 +217,25 @@ class User {
             delete user.access_token;
             delete user.password;
 
-            var last_check = await this.server.Check.get_last_check(user.id);
+            var last_check = await this.Check.get_last_check(user.id);
 
             // Add new uncashed properties
-            user.checked_in = await this.server.Check.is_checked_in(user.id);
+            user.checked_in = await this.Check.is_checked_in(user.id);
             user.checked_in_project = last_check.project;
             user.checked_in_time = Date.now() - last_check.date;
 
             user.projects = [];
-            var joints = await this.server.db.query(
+            var joints = await this.db.query(
                 'SELECT * FROM joints WHERE user = ?',
                 user.id
             );
+            let project = require('./Project');
+            project = new this.Project();
+
 
             // Load and compile projects the user has joined.
             for (var joint of joints) {
-                let project = await this.server.Project.get_from_id(
+                let project = await project.get_from_id(
                     joint.project
                 );
                 project.work = joint.work;
