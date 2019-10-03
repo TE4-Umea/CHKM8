@@ -76,7 +76,7 @@ class Server {
 
         /** Load Check class */
         this.Check = require('./Check');
-        this.Check = new this.Check(this);
+        this.Check = new this.Check(this.config);
 
         /** Loading done! */
         this.on_loaded();
