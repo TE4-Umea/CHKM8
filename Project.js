@@ -1,47 +1,81 @@
+/**
+ * Project.js -- CHKM8 NTI TE4 2019
+ * All things projects are handled in here
+ * There are not static functions so make sure you
+ * create a new instance of it before using it!
+ */
 class Project {
-    constructor(server) {
-        this.server = server
-    }
-
     /**
-     * Get a project from it's name
-     * @param {*} project_name The name of the project
+     * Create a new instance of Project.
+     * This requires all dependencies and connectes to the Database.
+     * There are not static functions in this class.
      */
-    async get(project_name) {
-        if (project_name) {
-            var project = await this.server.db.query_one("SELECT * FROM projects WHERE upper(name) = ?", project_name.toUpperCase())
-            return project
-        }
-        return false
+    constructor() {
+        var ConfigLoader = require('./ConfigLoader');
+        ConfigLoader = new ConfigLoader();
+        this.Database = require('./Database');
+        this.db = new this.Database(ConfigLoader.load());
+
+        // Require FS file system to read gradients.json
+        this.fs = require('file-system');
+        // Require the User class
+        this.User = require('./User');
+        this.User = new this.User();
+
+        // JSONResponse is the standard response system for CHKM8
+        this.JSONResponse = require('./JSONResponse');
+        /* this.JSONResponse = new this.JSONResponse() */
+        this.SuccessResponse = this.JSONResponse.SuccessResponse;
+        this.ErrorResponse = this.JSONResponse.ErrorResponse;
     }
 
     /**
      * Get a project from it's ID
-     * @param {*} project_id ID of the project
+     * @param {Number} project_id ID of the project
+     * @returns {Object|Boolean} Project object, false if no project id is specified or if no project is found.
      */
-    async get_from_id(project_id) {
-        if (project_id) {
-            var project = await this.server.db.query_one("SELECT * FROM projects WHERE id = ?", project_id)
-            return project
-        }
-        return false
+    async get(project_id) {
+        if (!project_id) return false;
+
+        var project = await this.db.query_one(
+            'SELECT * FROM projects WHERE id = ?',
+            project_id
+        );
+        return project;
     }
 
+    /**
+     * Get a project from it's name
+     * @param {String} project_name The name of the project
+     * @returns {Object|Boolean} Project object, false if no project name is specified or if no project is found.
+     */
+    async get_from_name(project_name) {
+        if (typeof project_name != 'string') return false;
+        var project = await this.db.query_one(
+            'SELECT * FROM projects WHERE upper(name) = ?',
+            project_name.toUpperCase()
+        );
+        return project;
+    }
 
     /**
      * Returns boolean weather or not the user is apart of a project (owner or jointed)
-     * @param {*} user_id ID of the user
-     * @param {*} project_id ID of the project
+     * @param {Number} user_id ID of the user
+     * @param {Number} project_id ID of the project
+     * @returns {Boolean} true if user is part of the project, otherwise false.
      */
     async is_joined(user_id, project_id) {
         if (user_id && project_id) {
-            var is_joined = await this.server.db.query_one("SELECT * FROM joints WHERE project = ? && user = ?", [project_id, user_id])
-            var project = await this.get_from_id(project_id)
+            var is_joined = await this.db.query_one(
+                'SELECT * FROM joints WHERE project = ? && user = ?',
+                [project_id, user_id]
+            );
+            var project = await this.get(project_id);
             if (project) {
-                if (project.owner == user_id || is_joined) return true
+                if (project.owner == user_id || is_joined) return true;
             }
         }
-        return false
+        return false;
     }
 
     /**
@@ -54,284 +88,280 @@ class Project {
      *      color_top,
      *      color_bot
      * }
-     * @param {*} project_id ID of the project
-     * @param {*} user User that did the request (optional) (if the user is unauthorized it will refuse the request)
+     * @param {Number} project_id ID of the project
+     * @param {User} user User that did the request (optional) (if the user is unauthorized it will refuse the request)
+     * @returns {Object|JSONResponse} Project data contained within an object.
      */
     async get_data(project_id, user = false) {
         /** Get project */
-        var project = await this.get_from_id(project_id)
+        var project = await this.get(project_id);
         if (project) {
             /** Get owner of project */
-            var owner = await this.server.User.get(project.owner)
-            
+            var owner = await this.User.get(project.owner);
+
             /** Add owner to project return */
-            project.owner = {
-                id: owner.id,
-                username: owner.username,
-                name: owner.name
-            }
+            project.owner = new ProjectOwner(
+                owner.id,
+                owner.username,
+                owner.name
+            );
 
             /** Create array for members in return */
-            project.members = []
+            project.members = [];
+
             /** Get all joints associated with the project */
-            var joints = await this.server.db.query("SELECT * FROM joints WHERE project = ?", project_id)
+            var joints = await this.db.query(
+                'SELECT * FROM joints WHERE project = ?',
+                project_id
+            );
 
             /** Loop through all joints and add the users to the memebers array */
             for (var joint of joints) {
                 /** Get user */
-                user = await this.server.User.get(joint.user)
-
+                user = await this.User.get(joint.user);
                 /** Push user to the array */
-                project.members.push({
-                    username: user.username,
-                    name: user.name,
-                    work: joint.work
-                })
+                project.members.push(
+                    new ProjectMember(user.username, user.name, joint.work)
+                );
             }
-
-            return {
-                success: true,
-                text: "Project return",
-                project: project
-            }
+            return new this.SuccessResponse('Project return', { project });
         }
-        return {
-            success: false,
-            text: "Project not found"
-        }
+        return new this.ErrorResponse('Project return');
     }
 
-    /**
-     * Get list of projects
-     * TODO: @Alex comment this
-     */
-    async get_list() {
-        var projects = await this.server.db.query("SELECT name FROM projects")
-        var project_list = "Project name, owner \n"
-        var list_string = JSON.stringify(projects)
-        var list = list_string.split(",")
-        var list_lenght = list.length
-        var to_add = ""
-        var current_project = null
-        var project_owner = ""
-        for (var i = 0; i < list_lenght; i++) {
-            to_add = list[i]
-            to_add = to_add.split(":")[1]
-            if (i == list.length - 1) {
-                to_add = to_add.slice(to_add.indexOf('"') + 1, -3)
-            } else {
-                to_add = to_add.slice(to_add.indexOf('"') + 1, -2)
-            }
-            current_project = await this.get_project(to_add)
-            project_owner = await this.server.User.get(current_project.owner)
-            project_list += to_add + ", " + project_owner.name + "\n"
-        }
-        this.server.log("Getting projects list " + project_list)
-        return {
-            success: true,
-            text: "Returning project list\n" + project_list
-        }
-    }
-
-    
     /**
      * Remove user from project
      * @param {User} user_to_remove User to remove from project (can't be owner, but won't crash)
-     * @param {String} project_name Project name of the project
+     * @param {Number} project_id Project name of the project
      * @param {User} user User that requests the action
+     * @returns {JSONResponse}
      */
     async remove_user(user_to_remove, project_id, user) {
-
         /** Makre sure all required attributes are admitted */
-        if (!user_to_remove || !project_id || !user) {
-            return {
-                success: false,
-                text: "Missing attirbutes"
-            }
-        }
+        if (!user_to_remove || !project_id || !user)
+            return new this.ErrorResponse('Missing attributes');
         /** Get project */
-        var project = await this.get_from_id(project_id)
+        var project = await this.get(project_id);
         /** Make sure project exists */
-        if (project) {
-            /** Make sure the person leaving is not the owner (since they need to delete it to leave it) 
-             *  TODO: Perhaps create a feature for transfering ownerships of projects?
-             */
-            if (project.owner == user_to_remove.id) {
-                return {
-                    success: false,
-                    text: "User is the owner of the project (delete project to leave)"
-                }
-            }
+        if (!project) return new this.ErrorResponse('Project not found');
+        /** Make sure the person leaving is not the owner (since they need to delete it to leave it)
+         *  TODO: Perhaps create a feature for transfering ownerships of projects?
+         */
+        if (project.owner == user_to_remove.id)
+            return new this.ErrorResponse(
+                'User is the owner of the project (delete project to leave)'
+            );
 
-            var is_joined = await this.is_joined(user_to_remove.id, project.id)
-            var has_authority = await this.is_joined(user.id, project.id)
+        /** Make sure the user to be removed is in the project */
+        var is_joined = await this.is_joined(user_to_remove.id, project.id);
+        /** Make sure user that requested the change is also apart of the project  */
+        var has_authority =
+            (await this.is_joined(user.id, project.id)) || user.admin;
 
-            if (is_joined) {
-                if (has_authority) {
-                    await this.server.db.query("DELETE FROM joints WHERE user = ? AND project = ?", [user_to_remove.id, project_id])
-                    return {
-                        success: true,
-                        text: "User removed"
-                    }
-                } else {
-                    return {
-                        success: false,
-                        text: "You are not allowed to modify this project"
-                    }
-                }
-            } else {
-                return {
-                    success: false,
-                    text: "User not found in project"
-                }
-            }
-        } else {
-            return {
-                success: false,
-                text: "Project not found"
-            }
-        }
+        if (!is_joined)
+            return new this.ErrorResponse('User not found in project');
+        if (!has_authority)
+            return new this.ErrorResponse(
+                'You are not allowed to modify this project'
+            );
+
+        await this.db.query(
+            'DELETE FROM joints WHERE user = ? AND project = ?',
+            [user_to_remove.id, project_id]
+        );
+        return new this.SuccessResponse('User removed');
     }
 
-    async delete(project_name, user_id) {
-        var user = await this.server.User.get(user_id)
-        var project = await this.server.db.query_one("SELECT * FROM projects WHERE name = ?", project_name)
-        if ((project.owner === user_id) || user.admin) {
-            await this.server.db.query("DELETE FROM projects WHERE id = ?", project.id)
-            await this.server.db.query("DELETE FROM joints WHERE project = ?", project.id)
-            this.server.log("Project " + project_name + " deleted by: " + user.username)
-            return {
-                success: true,
-                text: "Project deleted by: " + user.username
-            }
-        } else {
-            var owner = await this.server.User.get(project.owner)
-            return {
-                success: false,
-                text: "Permission denied, project is owned by " + owner.name
-            }
-        }
-    }
-
-    
     /**
-     * 
-     * @param {*} user_to_add 
-     * @param {*} project_id 
-     * @param {*} user 
+     * Remove project
+     * @param {String} project_name Name of the project.
+     * @param {Number} user_id ID of the user.
+     * @returns {JSONResponse}
      */
-    async add_user(user_to_add, project_id, user) {
-        if (!user_to_add) {
-            return {
-                success: false,
-                text: "User not found"
-            }
+    async delete(project_name, user_id) {
+        // Get user and project
+        var user = await this.User.get(user_id);
+        var project = await this.get_from_name(project_name);
+        // Return error if user or project not found
+        if (!user || !project)
+            return new this.ErrorResponse('User or project not found');
+        // Make sure the requestor is the owner or an admin
+        if (project.owner !== user_id && !user.admin) {
+            // Get the owners name if the requestor does not have access
+            var owner = await this.User.get(project.owner);
+            // Respond with error
+            return new this.ErrorResponse(
+                'Permission denied, project is owned by ' + owner.name
+            );
         }
+        // Delete all joitns
+        await this.db.query('DELETE FROM joints WHERE project = ?', project.id);
+        // Delete project
+        await this.db.query('DELETE FROM projects WHERE id = ?', project.id);
 
-        if (!user) {
-            return {
-                success: false,
-                text: "Invalid token"
-            }
-        }
-
-        if (!project_id) {
-            return {
-                success: false,
-                text: "Project not found"
-            }
-        }
-
-        var project = await this.get_from_id(project_id)
-        if (project) {
-            // Check if user is already in project
-            var is_joined = await this.is_joined(user_to_add.id, project_id)
-            if (is_joined) {
-                return {
-                    success: false,
-                    text: "User is already apart of project"
-                }
-            }
-
-            if (user) {
-                var has_authority = await this.is_joined(user.id, project_id)
-                if (!has_authority) {
-                    return {
-                        success: false,
-                        text: "You dont have the authority to do this action"
-                    }
-                }
-            }
-            //Add the user to joints
-            await this.server.db.query("INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)", [project_id, user_to_add.id, Date.now(), 0])
-            return {
-                success: true,
-                text: "Added " + user_to_add.name + " to " + project.name + "!"
-            }
-        }
-        return {
-            success: false,
-            text: "Project doesnt exist"
-        }
+        this.log('Project ' + project_name + ' deleted by: ' + user.username);
+        return new this.SuccessResponse('Project deleted by: ' + user.username);
     }
 
+    /**
+     * Add user to project.
+     * @param {User} user_to_add User being added to project
+     * @param {Number} project_id ID of project to add user to.
+     * @param {User} user User that requests the action.
+     * @returns {JSONResponse}
+     */
+    async add_user(user_to_add, project_name, user) {
+        // If user doesn't exist
+        if (!user_to_add)
+            return new this.SuccessResponse(
+                'User: ' + user_to_add.username + ' not found'
+            );
+        // If your token is wrong
+        if (!user) return new this.ErrorResponse('Invalid token');
+
+        var project = await this.get_from_name(project_name);
+
+        // If project doesn't exist
+        if (!project)
+            return new this.ErrorResponse(
+                'Project: ' + project_name + ' not found'
+            );
+        // Check if user is already in project
+        var is_joined = await this.is_joined(user_to_add.id, project.id);
+        // Make sure user has authority to add the user (either project member or admin)
+        var has_authority =
+            (await this.is_joined(user.id, project.id)) || user.admin;
+
+        if (!has_authority)
+            return new this.ErrorResponse(
+                "You dont't have authority to do this."
+            );
+        if (is_joined)
+            return new this.ErrorResponse(
+                'User: ' +
+                    user_to_add.username +
+                    ' is already apart of project.'
+            );
+
+        //Add the user to joints
+        await this.db.query(
+            'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
+            [project_id, user_to_add.id, Date.now(), 0]
+        );
+        return new this.SuccessResponse(
+            'Added ' + user_to_add.name + ' to ' + project.name + '!'
+        );
+    }
 
     /**
-     * 
-     * @param {*} project_name 
-     * @param {*} user 
+     * Create new project
+     * @param {String} project_name Requested name for the new project.
+     * @param {Object} user User that requests the action.
+     * @returns {JSONResponse}
      */
     async create(project_name, user) {
-        if (!project_name || !user) return {
-            success: false,
-            text: "Missing project_name or user"
-        }
+        // Make sure required attributes are admitted
+        if (!project_name || !user)
+            return new this.ErrorResponse('Missing project_name or user');
 
-        var existing_project = await this.get(project_name)
-        if (existing_project) return {
-            success: false,
-            text: "Project name taken"
-        }
+        // Make sure the project doesn't already exist (projcet name taken)
+        var existing_project = await this.get_from_name(project_name);
+        if (existing_project)
+            return new this.ErrorResponse('Project name taken');
 
-        if (project_name.length > 30 || project_name < 3) {
-            return {
-                success: false,
-                text: "Project name has to be between 3 > 30"
-            }
-        }
+        // Make sure project name is less than 30 chars long and more than 3.
+        if (project_name.length > 30 || project_name < 3)
+            return new this.ErrorResponse(
+                'Project name has to be between 3 > 30'
+            );
 
-        if (project_name.replace(/[^a-z0-9_]+|\s+/gmi, "") !== project_name) {
-            return {
-                success: false,
-                text: "Project name forbidden"
-            }
-        }
+        // Make sure project name is valid
+        if (project_name.replace(/[^a-z0-9_]+|\s+/gim, '') !== project_name)
+            new this.ErrorResponse('Project name forbidden');
 
-        var user_joints = await this.server.db.query("SELECT * FROM joints WHERE user = ?", user.id)
-        var gradients = JSON.parse(this.server.fs.readFileSync("gradients.json", "utf8"))
+        /* Generate gradients from project. */
+        var gradiant = this.new_gradient(user.id);
+
+        // Insert the new project into DB
+        await this.db.query(
+            'INSERT INTO projects (name, owner, color_top, color_bot) VALUES (?, ?, ?, ?)',
+            [project_name, user.id, gradiant[0], gradiant[1]]
+        );
+        // Get the project back to get its ID and make sure the creation went smooth
+        var project = await this.get_from_name(project_name);
+        // Inster a new joint for the owner for this project
+        await this.db.query(
+            'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
+            [project.id, user.id, Date.now(), 0]
+        );
+        // Return success
+        return new this.SuccessResponse('Created project ' + project_name);
+    }
+
+    /**
+     * Get a new gradient for a project on creation.
+     * This selects a random gradient from the gradients.json file.
+     * It also tries to not return an already used gradient by the user.
+     *
+     * @param {Int} user_id ID of the user that is creating a new project
+     * @returns {Array} gratident
+     */
+    async new_gradient(user_id) {
+        // Get all projects the user is apart of
+        var user_joints = await this.db.query(
+            'SELECT * FROM joints WHERE user = ?',
+            user_id
+        );
+        // Read gradients file and parse it
+        var gradients = JSON.parse(
+            this.fs.readFileSync('gradients.json', 'utf8')
+        );
+        // Loop through all joints and exlude the used gradients to try and give the project a new unique gradient!
         for (var joint of user_joints) {
-            var project = await this.get_from_id(joint.project)
+            // Get the project from the joint
+            var project = await this.get(joint.project);
+            // Loop through all avalible gradients and remove them if they are the same as the gradient
             for (var i = 0; i < gradients.length; i++) {
+                // Check if the gradients match
                 if (gradients[i][0] == project.color_top) {
-                    gradients.splice(i, 1)
+                    // Remove gradient from list
+                    gradients.splice(i, 1);
                 }
             }
         }
 
-        if (gradients.length == 0) gradients = JSON.parse(this.server.fs.readFileSync("gradients.json", "utf8"))
-        var gradiant = gradients[Math.floor(Math.random() * gradients.length)]
-
-        await this.server.db.query("INSERT INTO projects (name, owner, color_top, color_bot) VALUES (?, ?, ?, ?)", [project_name, user.id, gradiant[0], gradiant[1]])
-        var project = await this.get(project_name)
-        await this.server.db.query("INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)", [project.id, user.id, Date.now(), 0])
-
-        return {
-            success: true,
-            text: "Created project " + project_name
-        }
+        if (gradients.length == 0)
+            gradients = JSON.parse(
+                this.fs.readFileSync('gradients.json', 'utf8')
+            );
+        return gradients[Math.floor(Math.random() * gradients.length)];
     }
-
 }
 
+class ProjectOwner {
+    /**
+     * @param {Number} id
+     * @param {String} username
+     * @param {String} name
+     * @returns {Object}
+     */
+    constructor(id, username, name) {
+        var res = { id, username, name };
+        return res;
+    }
+}
+
+class ProjectMember {
+    /**
+     * @param {String} username
+     * @param {String} name
+     * @param {Number} work
+     * @returns {Object}
+     */
+    constructor(username, name, work) {
+        var res = { username, name, work };
+        return res;
+    }
+}
 
 module.exports = Project;

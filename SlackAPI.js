@@ -133,9 +133,8 @@ class SlackAPI {
                     user_to_add = await this.server.User.get_from_username(user_to_add)
                 }
                 var project_name = inputs[1]
-                var project = await this.server.Project.get(project_name)
 
-                var response = await this.server.Project.add_user(user_to_add, project ? project.id : -1, user)
+                var response = await this.server.Project.add_user(user_to_add, project_name, user)
                 res.json(this.slack_response(response))
 
             } else {
@@ -177,7 +176,6 @@ class SlackAPI {
         }
     }
 
-    
 
     async project(req, res) {
         var success = this.verify_slack_request(req)
