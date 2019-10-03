@@ -24,11 +24,18 @@
         ], */
         "quotes": [
             "error",
-            "single"
+            "single",
+            {
+                "allowTemplateLiterals": true,
+                "avoidEscape": true
+            }
         ],
         "semi": [
             "error",
             "always"
+        ],
+        "no-useless-concat": [
+            "error"
         ]
     } 
 }
