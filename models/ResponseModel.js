@@ -9,6 +9,7 @@ class ResponseModel {
      */
     constructor(res) {
         this.res = res;
+        this.JRES = require('./JSONResponseModel');
     }
     /**
      * This is a abstarction layer function to render a sucess json response.

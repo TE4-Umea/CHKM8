@@ -4,7 +4,6 @@
 
 class API {
     constructor(server) {
-        this.JRES = require('../JSONResponse');
         this.PAYLOAD = require('../models/PayloadModel');
         this.RESPONSE = require('../models/ResponseModel');
         this.server = server;
