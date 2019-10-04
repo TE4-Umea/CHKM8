@@ -281,9 +281,9 @@ class API {
     }
 
     /**
-     * Sign a client to thier slack account (link)
-     * @param {*} req
-     * @param {*} res
+     * will sign a client to their slack account (link)
+     * @param {Request} req
+     * @param {Response} res
      */
     async sign(req, res) {
         var token = req.body.token;
@@ -306,8 +306,7 @@ class API {
                             user.id,
                         ]
                     );
-                    res.json({
-                        success: true,
+                    this.success_response(res, 'success', {
                         redir: '/dashboard',
                     });
                 }
