@@ -32,7 +32,7 @@ class API {
                 )
             );
         } else {
-            res.json(this.JRES.ErrorResponse('Invalid Token'));
+            this.error_response(res, 'Invalid Token');
         }
     }
 
@@ -54,7 +54,7 @@ class API {
             /** Create the project via the user and project name and respond to the request with res */
             res.json(await this.server.Project.create(project_name, user));
         } else {
-            res.json(this.JRES.ErrorResponse('Invalid Token'));
+            this.error_response(res, 'Invalid Token');
         }
     }
 
@@ -94,7 +94,6 @@ class API {
 
         var user_to_remove = await this.server.User.get_from_username(username);
         var user = await this.server.User.get_from_token(token);
-
         res.json(
             await this.server.remove_user_from_project(
                 user_to_remove,
@@ -107,8 +106,8 @@ class API {
     /**
      * POST /api/project. Returns a json with the status of a given project.
      * Get information of a project and all the members
-     * @param {Response} req
-     * @param {*} res
+     * @param {Request} req
+     * @param {Response} res
      */
     async project(req, res) {
         /** Get attributes from request */
@@ -127,26 +126,27 @@ class API {
             // Make sure the project data exists.
             if (project_data) {
                 if (has_access) {
-                    this.success_response('sucess', {
+                    this.success_response(res, 'sucess', {
                         project: project_data,
                     });
                 } else {
                     this.error_response(
+                        res,
                         `You don't have access to this project`
                     );
                 }
             }
         } else if (!user) {
             // If user does not exist, invalid token.
-            this.error_response('Invalid token');
+            this.error_response(res, 'Invalid token');
         } else if (!project) {
             // If project does not exist, then prject not found.
-            this.error_response('Project not found');            
+            this.error_response(res, 'Project not found');
         } else if (!project_data) {
             // If project data does not exist, then project data is corrupt.
-            this.error_response('Project data corrupt');
+            this.error_response(res, 'Project data corrupt');
         } else {
-            this.error_response('Something went wrong.')
+            this.error_response(res, 'Something went wrong.');
         }
     }
 
@@ -161,6 +161,7 @@ class API {
         var user = await this.server.User.get_from_token(token);
         if (user) {
             var data = await this.server.User.get_data(user.id);
+            this.su;
             res.json({
                 success: true,
                 profile: data,
