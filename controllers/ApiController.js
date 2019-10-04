@@ -137,47 +137,16 @@ class API {
                 }
             }
         } else if (!user) {
+            // If user does not exist, invalid token.
             this.error_response('Invalid token');
-        }
-        /** Make sure user exists */
-        if (user) {
-            /** Make sure project exists */
-            if (project) {
-                /** Make sure the user has access to the project (owner or jointed) */
-                var has_access = await this.server.Project.is_joined(
-                    user.id,
-                    project.id
-                );
-                /** Make sure data has been collected right */
-                if (project_data) {
-                    if (has_access) {
-                        res.json({
-                            success: true,
-                            project: project_data,
-                        });
-                    } else {
-                        res.json({
-                            success: false,
-                            text: "You don't have access to this project",
-                        });
-                    }
-                } else {
-                    res.json({
-                        success: false,
-                        text: 'Project data corrupt',
-                    });
-                }
-            } else {
-                res.json({
-                    success: false,
-                    text: 'Project not found',
-                });
-            }
+        } else if (!project) {
+            // If project does not exist, then prject not found.
+            this.error_response('Project not found');            
+        } else if (!project_data) {
+            // If project data does not exist, then project data is corrupt.
+            this.error_response('Project data corrupt');
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            this.error_response('Something went wrong.')
         }
     }
 
