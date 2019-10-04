@@ -384,15 +384,6 @@ class API {
     }
 
     /**
-     * Abstraction layer for sending json responses.
-     * @param {Response} res 
-     * @param {Object} params 
-     */
-    res_json(res, params) {
-        res.json(params);
-    }
-    
-    /**
      * This is a abstarction layer function to render a sucess json response.
      *
      * @param {Response} res
@@ -400,7 +391,7 @@ class API {
      * @param {object=} params optional
      */
     async success_response(res, message = '', params = {}) {
-        this.res_json(res, this.JRES.SuccessResponse(message, params));
+        res.json(res, this.JRES.SuccessResponse(message, params));
     }
 
     /**
@@ -411,7 +402,7 @@ class API {
      * @param {object=} params optional
      */
     async error_response(res, message = '', params = {}) {
-        this.res_json(res, this.JRES.SuccessResponse(message, params));
+        res.json(res, this.JRES.SuccessResponse(message, params));
     }
 }
 
