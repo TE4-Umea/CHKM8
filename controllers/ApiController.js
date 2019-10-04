@@ -201,16 +201,10 @@ class API {
         if (user) {
             var token = await this.server.User.generate_token(user.username);
             if (token) {
-                res.json({
-                    success: true,
-                    token: token,
-                });
+                this.success_response(res, 'success', { token: token });
             }
         } else {
-            res.json({
-                success: false,
-                text: 'Wrong username or password',
-            });
+            this.error_response(res, 'Wrong username or password');
         }
     }
 
