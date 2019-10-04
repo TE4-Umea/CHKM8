@@ -1,4 +1,12 @@
+/**
+ * A ReponseModel for sending returns Json to Requests.
+ */
 class ResponseModel {
+    /**
+     * Constructor for creating the ResponseModel object.
+     * Saves the Response object so it does not need to be called later.
+     * @param {Response} res
+     */
     constructor(res) {
         this.res = res;
     }
@@ -10,7 +18,7 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async success_response(message = '', params = {}) {
-        this.res.json(this.JRES.SuccessResponse(message, params));
+        this.json(this.JRES.SuccessResponse(message, params));
     }
 
     /**
@@ -21,7 +29,14 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async error_response(message = '', params = {}) {
-        this.res.json(this.JRES.SuccessResponse(message, params));
+        this.json(this.JRES.SuccessResponse(message, params));
+    }
+
+    /**
+     * This sends a Json response
+     */
+    async json(params) {
+        this.res.json(params);
     }
 }
 
