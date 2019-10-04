@@ -254,38 +254,29 @@ class API {
             var token = await this.server.User.generate_token(
                 response.user.username
             );
-            this.success_response(res, 'success', { token, token });
+            this.success_response(res, 'success', { token: token });
         } else {
             this.success_response(res, response.text);
         }
     }
 
     /**
-     * POST /api/user
-     * Check if a username is taken
+     * POST /api/user,
+     * Check if a username is taken and returns a json.
      * @param {*} req
      * @param {*} res
      */
     async username_taken(req, res) {
         var username = req.body.username;
-        if (!username) {
-            res.json({
-                success: false,
-                text: 'Missing username attribute',
-            });
-            return;
-        }
-        var user = await this.server.User.get_from_username(username);
-        if (user) {
-            res.json({
-                success: true,
-                taken: true,
-            });
+        if (username) {
+            var user = await this.server.User.get_from_username(username);
+            if (user) {
+                this.success_response(res, 'success', { taken: true });
+            } else {
+                this.success_response(res, 'success', { taken: false });
+            }
         } else {
-            res.json({
-                success: true,
-                taken: false,
-            });
+            this.error_response(res, 'Missing username attribute');
         }
     }
 
