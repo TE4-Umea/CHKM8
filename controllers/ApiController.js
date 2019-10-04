@@ -3,14 +3,13 @@
  */
 
 class API {
-
     constructor(server) {
         this.JRES = require('../JSONResponse');
         this.server = server;
     }
 
     /**
-         * Check in or out a user
+     * Check in or out a user
      * @param {*} req
      * @param {*} res
      */
@@ -24,12 +23,14 @@ class API {
         var user = await this.server.User.get_from_token(token);
         if (user) {
             /** Check in the user */
-            res.json(await this.server.Check.check_in(
-                user.id,
-                check_in,
-                project,
-                'api'
-            ));
+            res.json(
+                await this.server.Check.check_in(
+                    user.id,
+                    check_in,
+                    project,
+                    'api'
+                )
+            );
         } else {
             res.json(this.JRES.ErrorResponse('Invalid Token'));
         }
@@ -55,7 +56,6 @@ class API {
         } else {
             res.json(this.JRES.ErrorResponse('Invalid Token'));
         }
-        
     }
 
     /**
@@ -77,11 +77,9 @@ class API {
         var project = await this.server.Project.get(project_name);
         /** Add the user to the project via the requesting user */
         /** Responde to the user */
-        res.json(await this.server.Project.add_user(
-            user_to_add,
-            project.id,
-            user
-        ));
+        res.json(
+            await this.server.Project.add_user(user_to_add, project.id, user)
+        );
     }
 
     /**
@@ -97,11 +95,13 @@ class API {
         var user_to_remove = await this.server.User.get_from_username(username);
         var user = await this.server.User.get_from_token(token);
 
-        res.json(await this.server.remove_user_from_project(
-            user_to_remove,
-            project,
-            user
-        ));
+        res.json(
+            await this.server.remove_user_from_project(
+                user_to_remove,
+                project,
+                user
+            )
+        );
     }
 
     /**
@@ -118,7 +118,27 @@ class API {
         var user = await this.server.User.get_from_token(token);
         var project = await this.server.Project.get(project_name);
         var project_data = await this.server.Project.get_data(project.id);
-
+        /** Make sure user and project exists */
+        if (user && project) {
+            var has_access = await this.server.Project.is_joined(
+                user.id,
+                project.id
+            );
+            // Make sure the project data exists.
+            if (project_data) {
+                if (has_access) {
+                    this.success_response('sucess', {
+                        project: project_data,
+                    });
+                } else {
+                    this.error_response(
+                        `You don't have access to this project`
+                    );
+                }
+            }
+        } else if (!user) {
+            this.error_response('Invalid token');
+        }
         /** Make sure user exists */
         if (user) {
             /** Make sure project exists */
@@ -361,6 +381,37 @@ class API {
                 }
             }
         }
+    }
+
+    /**
+     * Abstraction layer for sending json responses.
+     * @param {Response} res 
+     * @param {Object} params 
+     */
+    res_json(res, params) {
+        res.json(params);
+    }
+    
+    /**
+     * This is a abstarction layer function to render a sucess json response.
+     *
+     * @param {Response} res
+     * @param {String=} message text message
+     * @param {object=} params optional
+     */
+    async success_response(res, message = '', params = {}) {
+        this.res_json(res, this.JRES.SuccessResponse(message, params));
+    }
+
+    /**
+     * This is a abstarction layer function to render a error json response.
+     *
+     * @param {Response} res
+     * @param {String=} message text message
+     * @param {object=} params optional
+     */
+    async error_response(res, message = '', params = {}) {
+        this.res_json(res, this.JRES.SuccessResponse(message, params));
     }
 }
 
