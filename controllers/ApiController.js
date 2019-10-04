@@ -76,13 +76,12 @@ class API {
 
         var project = await this.server.Project.get(project_name);
         /** Add the user to the project via the requesting user */
-        var response = await this.server.Project.add_user(
+        /** Responde to the user */
+        res.json(await this.server.Project.add_user(
             user_to_add,
             project.id,
             user
-        );
-        /** Responde to the user */
-        res.json(response);
+        ));
     }
 
     /**
@@ -98,12 +97,11 @@ class API {
         var user_to_remove = await this.server.User.get_from_username(username);
         var user = await this.server.User.get_from_token(token);
 
-        var result = await this.server.remove_user_from_project(
+        res.json(await this.server.remove_user_from_project(
             user_to_remove,
             project,
             user
-        );
-        res.json(result);
+        ));
     }
 
     /**
