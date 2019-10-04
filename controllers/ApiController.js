@@ -209,9 +209,9 @@ class API {
     }
 
     /**
-     * Create an account
-     * @param {*} req HTTP request
-     * @param {*} res HTTP response
+     * Creates a new account.
+     * @param {Request} req HTTP request
+     * @param {Response} res HTTP response
      */
     async signup(req, res) {
         var username = req.body.username;
@@ -219,67 +219,44 @@ class API {
         var name = req.body.name;
 
         if (!(username && password && name)) {
-            res.json({
-                success: false,
-                text:
-                    'Missing parameters:' +
-                    (!username ? ' username' : '') +
-                    (!password ? ' password' : '') +
-                    (!name ? ' name' : ''),
-            });
-            return;
+            // A bunch of tenary statements to decide what params are missing.
+            let message =
+                'Missing parameters:' +
+                (!username ? ' username' : '') +
+                (!password ? ' password' : '') +
+                (!name ? ' name' : '');
+            this.error_response(res, message);
+            // If the username contains illegal characters.
+        } else if (username.replace(/[^a-z0-9_]+|\s+/gim, '') !== username) {
+            this.error_response(res, 'Username contains illegal characters');
+            // if the username is shorter than 3 characters.
+        } else if (username.length < 3) {
+            this.error_response(
+                res,
+                'Username has to be at least three characters long'
+            );
+            // if username is longer than 20 characters.
+        } else if (username.length > 20) {
+            this.error_response(res, 'Username cannot exceed 20 characters');
+            // if no space in the name was present
+        } else if (name.indexOf(' ') == -1) {
+            this.error_response(
+                res,
+                'Please provide a full name, ex. Michael Stevens'
+            );
+            // If no password was present
+        } else if (password == '') {
+            this.error_response(res, 'Please enter a password.');
         }
 
-        // Sign up
-        if (username.replace(/[^a-z0-9_]+|\s+/gim, '') !== username) {
-            res.json({
-                success: false,
-                text: 'Username contains illigal characters',
-            });
-            return;
-        }
-        if (username.length < 3) {
-            res.json({
-                success: false,
-                text: 'Username has to be at least three characters long',
-            });
-            return;
-        }
-        if (username.length > 20) {
-            res.json({
-                success: false,
-                text: 'Username cannot exceed 20 characters',
-            });
-            return;
-        }
-        if (name.indexOf(' ') == -1) {
-            res.json({
-                success: false,
-                text: 'Please provide a full name, ex. Michael Stevens',
-            });
-            return;
-        }
-        if (password == '') {
-            res.json({
-                success: false,
-                text: 'Please enter a password',
-            });
-            return;
-        }
         var response = await this.server.User.create(username, password, name);
         if (response.success) {
             var token = await this.server.User.generate_token(
                 response.user.username
             );
-            res.json({
-                success: true,
-                token: token,
-            });
+            this.success_response(res, 'success', { token, token });
         } else {
-            res.json({
-                success: false,
-                text: response.text,
-            });
+            this.success_response(res, response.text);
         }
     }
 
