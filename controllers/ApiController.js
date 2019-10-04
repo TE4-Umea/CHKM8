@@ -4,8 +4,8 @@
 
 class API {
     constructor(server) {
-        this.PAYLOAD = require('../models/PayloadModel');
-        this.RESPONSE = require('../models/ResponseModel');
+        this.Payload = require('../models/PayloadModel');
+        this.Response = require('../models/ResponseModel');
         this.server = server;
     }
 
@@ -16,9 +16,9 @@ class API {
      */
     async checkin(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         /** Get user safe from token */
         var user = await this.server.User.get_from_token(payload.token);
         if (user) {
@@ -44,9 +44,9 @@ class API {
      */
     async new_project(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         /** Get the user safley from token */
         var user = await this.server.User.get_from_token(payload.token);
         /** Make sure user is loaded correctly */
@@ -67,9 +67,9 @@ class API {
      */
     async add(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         /** Load user safe from token */
         var user = await this.server.User.get_from_token(payload.token);
         /** Load user that will be added */
@@ -92,9 +92,9 @@ class API {
      */
     async remove(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         var user_to_remove = await this.server.User.get_from_username(
             payload.username
         );
@@ -116,9 +116,9 @@ class API {
      */
     async project(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
 
         /** Read from server via attributes */
         var user = await this.server.User.get_from_token(payload.token);
@@ -165,7 +165,7 @@ class API {
     async profile(req, res) {
         var token = req.body.token;
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         var user = await this.server.User.get_from_token(token);
 
         if (user) {
@@ -184,9 +184,9 @@ class API {
      */
     async login(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
         //TODO Fix this weird negative.
         if (!payload.username || !payload.password) {
             response.error_response('Missing parameters');
@@ -216,9 +216,9 @@ class API {
      */
     async signup(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
 
         if (!(payload.username && payload.password && payload.name)) {
             // A bunch of tenary statements to decide what params are missing.
@@ -275,9 +275,9 @@ class API {
      */
     async username_taken(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
 
         if (payload.username) {
             var user = await this.server.User.get_from_username(
@@ -300,9 +300,9 @@ class API {
      */
     async sign(req, res) {
         /** Get attributes from request */
-        var payload = new this.PAYLOAD(req);
+        var payload = new this.Payload(req);
         // Loads ResponseModel
-        var response = new this.RESPONSE(res);
+        var response = new this.Response(res);
 
         for (var sign of this.server.slack_sign_users) {
             if (sign.token === payload.sign_token) {

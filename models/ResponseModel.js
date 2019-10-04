@@ -8,8 +8,12 @@ class ResponseModel {
      * @param {Response} res
      */
     constructor(res) {
-        this.res = res;
-        this.JRES = require('./JSONResponseModel');
+        this._res = res;
+        // JSONResponse is the standard response system for CHKM8
+        this._JSONResponse = require('./JSONResponseModel');
+        /* this.JSONResponse = new this.JSONResponse() */
+        this._SuccessResponse = this._JSONResponse.SuccessResponse;
+        this._ErrorResponse = this._JSONResponse.ErrorResponse;
     }
     /**
      * This is a abstarction layer function to render a sucess json response.
@@ -19,7 +23,7 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async success_response(message = '', params = {}) {
-        this.json(this.JRES.SuccessResponse(message, params));
+        this.json(this._SuccessResponse(message, params));
     }
 
     /**
@@ -30,14 +34,14 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async error_response(message = '', params = {}) {
-        this.json(this.JRES.SuccessResponse(message, params));
+        this.json(this._ErrorResponse(message, params));
     }
 
     /**
      * This sends a Json response
      */
     async json(params) {
-        this.res.json(params);
+        this._res.json(params);
     }
 }
 
