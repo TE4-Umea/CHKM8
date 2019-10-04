@@ -296,28 +296,6 @@ class API {
             }
         }
     }
-
-    /**
-     * This is a abstarction layer function to render a sucess json response.
-     *
-     * @param {Response} res
-     * @param {String=} message text message
-     * @param {object=} params optional
-     */
-    async success_response(res, message = '', params = {}) {
-        res.json(res, this.JRES.SuccessResponse(message, params));
-    }
-
-    /**
-     * This is a abstarction layer function to render a error json response.
-     *
-     * @param {Response} res
-     * @param {String=} message text message
-     * @param {object=} params optional
-     */
-    async error_response(res, message = '', params = {}) {
-        res.json(res, this.JRES.SuccessResponse(message, params));
-    }
 }
 
 module.exports = API;

@@ -1,4 +1,4 @@
-class Payload {
+class PayloadModel {
     constructor(req) {
         this.token = req.body.token;
         this.check_in = req.body.check_in;
@@ -11,4 +11,4 @@ class Payload {
     }
 }
 
-module.exports = Payload;
+module.exports = PayloadModel;
