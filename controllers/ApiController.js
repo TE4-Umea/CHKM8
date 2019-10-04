@@ -105,9 +105,9 @@ class API {
     }
 
     /**
-     * POST /api/project
+     * POST /api/project. Returns a json with the status of a given project.
      * Get information of a project and all the members
-     * @param {*} req
+     * @param {Response} req
      * @param {*} res
      */
     async project(req, res) {
