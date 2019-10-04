@@ -3,8 +3,9 @@
  */
 
 class API {
-    CONST JRES = require('../JSONResponse');
+
     constructor(server) {
+        this.JRES = require('../JSONResponse');
         this.server = server;
     }
 
@@ -29,8 +30,9 @@ class API {
                 project,
                 'api'
             ));
+        } else {
+            res.json(this.JRES.ErrorResponse('Invalid Token'));
         }
-        res.json(this.JRES.ErrorResponse('Invalid Token'));
     }
 
     /**
@@ -48,16 +50,12 @@ class API {
         var user = await this.server.User.get_from_token(token);
         /** Make sure user is loaded correctly */
         if (user) {
-            /** Create the project via the user and project name */
-            var response = await this.server.Project.create(project_name, user);
-            /** Respond to the request with res */
-            res.json(response);
+            /** Create the project via the user and project name and respond to the request with res */
+            res.json(await this.server.Project.create(project_name, user));
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            res.json(this.JRES.ErrorResponse('Invalid Token'));
         }
+        
     }
 
     /**
