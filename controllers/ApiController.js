@@ -3,8 +3,10 @@
  */
 
 class API {
+    
     constructor(server) {
         this.JRES = require('../JSONResponse');
+        this.PAYLOAD = require('../model/Payload');
         this.server = server;
     }
 
@@ -15,19 +17,16 @@ class API {
      */
     async checkin(req, res) {
         /** Get attributes from request */
-        var token = req.body.token;
-        var check_in = req.body.check_in;
-        /** Get project name from request, if it doesn't exist, make it null. */
-        var project = req.body.project ? req.body.project : null;
+        var payload = new this.PAYLOAD(req);
         /** Get user safe from token */
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.server.User.get_from_token(payload.token);
         if (user) {
             /** Check in the user */
             res.json(
                 await this.server.Check.check_in(
                     user.id,
-                    check_in,
-                    project,
+                    payload.check_in,
+                    payload.project,
                     'api'
                 )
             );
