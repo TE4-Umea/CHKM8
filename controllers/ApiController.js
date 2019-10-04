@@ -3,12 +3,13 @@
  */
 
 class API {
+    CONST JRES = require('../JSONResponse');
     constructor(server) {
         this.server = server;
     }
 
     /**
-     * Check in or out a user
+         * Check in or out a user
      * @param {*} req
      * @param {*} res
      */
@@ -22,19 +23,14 @@ class API {
         var user = await this.server.User.get_from_token(token);
         if (user) {
             /** Check in the user */
-            var result = await this.server.Check.check_in(
+            res.json(await this.server.Check.check_in(
                 user.id,
                 check_in,
                 project,
                 'api'
-            );
-            res.json(result);
-        } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            ));
         }
+        res.json(this.JRES.ErrorResponse('Invalid Token'));
     }
 
     /**
