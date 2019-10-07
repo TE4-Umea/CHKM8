@@ -7,6 +7,8 @@ class API {
         this.Payload = require('../models/PayloadModel');
         this.Response = require('../models/ResponseModel');
         this.server = server;
+        this.User = new (require('../User'))();
+        this.Project = new (require('../Project'))();
     }
 
     /**
@@ -20,11 +22,14 @@ class API {
         // Loads ResponseModel
         var response = new this.Response(res);
         /** Get user safe from token */
-        var user = await this.server.User.get_from_token(payload.token);
+        var user = await this.User.get_from_token(payload.token);
         if (user) {
+            var _Check = new (require('../Check'))();
+
+
             /** Check in the user */
             response.json(
-                await this.server.Check.check_in(
+                await _Check.check_in(
                     user.id,
                     payload.check_in,
                     payload.project,
@@ -48,12 +53,12 @@ class API {
         // Loads ResponseModel
         var response = new this.Response(res);
         /** Get the user safley from token */
-        var user = await this.server.User.get_from_token(payload.token);
+        var user = await this.User.get_from_token(payload.token);
         /** Make sure user is loaded correctly */
         if (user) {
             /** Create the project via the user and project name and respond to the request with res */
             response.json(
-                await this.server.Project.create(payload.project, user)
+                await this.Project.create(payload.project, user)
             );
         } else {
             response.error_response('Invalid Token');
@@ -71,17 +76,17 @@ class API {
         // Loads ResponseModel
         var response = new this.Response(res);
         /** Load user safe from token */
-        var user = await this.server.User.get_from_token(payload.token);
+        var user = await this.User.get_from_token(payload.token);
         /** Load user that will be added */
-        var user_to_add = await this.server.User.get_from_username(
+        var user_to_add = await this.User.get_from_username(
             payload.username
         );
 
-        var project = await this.server.Project.get(payload.project);
+        var project = await this.Project.get(payload.project);
         /** Add the user to the project via the requesting user */
         /** Responde to the user */
         response.json(
-            await this.server.Project.add_user(user_to_add, project.id, user)
+            await this.Project.add_user(user_to_add, project.id, user)
         );
     }
 
@@ -95,16 +100,18 @@ class API {
         var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
-        var user_to_remove = await this.server.User.get_from_username(
+        var user_to_remove = await this.User.get_from_username(
             payload.username
         );
-        var user = await this.server.User.get_from_token(payload.token);
+        var user = await this.User.get_from_token(payload.token);
         response.json(
-            await this.server.remove_user_from_project(
-                user_to_remove,
-                payload.token,
-                user
-            )
+            // TODO Find out what this function is
+            // await this.server.remove_user_from_project(
+            //     user_to_remove,
+            //     payload.token,
+            //     user
+            // )
+            {success: false, text: "Error something went wrong"}
         );
     }
 
@@ -121,12 +128,12 @@ class API {
         var response = new this.Response(res);
 
         /** Read from server via attributes */
-        var user = await this.server.User.get_from_token(payload.token);
-        var project = await this.server.Project.get(payload.project);
-        var project_data = await this.server.Project.get_data(project.id);
+        var user = await this.User.get_from_token(payload.token);
+        var project = await this.Project.get(payload.project);
+        var project_data = await this.Project.get_data(project.id);
         /** Make sure user and project exists */
         if (user && project) {
-            var has_access = await this.server.Project.is_joined(
+            var has_access = await this.Project.is_joined(
                 user.id,
                 project.id
             );
@@ -166,10 +173,10 @@ class API {
         var token = req.body.token;
         // Loads ResponseModel
         var response = new this.Response(res);
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.User.get_from_token(token);
 
         if (user) {
-            var data = await this.server.User.get_data(user.id);
+            var data = await this.User.get_data(user.id);
             response.success_response('success', { profile: data });
         } else {
             response.error_response('Invalid token');
@@ -192,15 +199,15 @@ class API {
             response.error_response('Missing parameters');
             return;
         }
-        var user = await this.server.User.get_from_username(payload.username);
+        var user = await this.User.get_from_username(payload.username);
 
         // Sign in
-        user = await this.server.User.get_from_username_and_password(
+        user = await this.User.get_from_username_and_password(
             payload.username,
             payload.password
         );
         if (user) {
-            var token = await this.server.User.generate_token(user.username);
+            var token = await this.User.generate_token(user.username);
             if (token) {
                 response.success_response('success', { token: token });
             }
@@ -252,13 +259,13 @@ class API {
             response.error_response('Please enter a password.');
         }
 
-        var return_val = await this.server.User.create(
+        var return_val = await this.User.create(
             payload.username,
             payload.password,
             payload.name
         );
         if (return_val.success) {
-            var token = await this.server.User.generate_token(
+            var token = await this.User.generate_token(
                 return_val.user.username
             );
             response.success_response('success', { token: token });
@@ -280,7 +287,7 @@ class API {
         var response = new this.Response(res);
 
         if (payload.username) {
-            var user = await this.server.User.get_from_username(
+            var user = await this.User.get_from_username(
                 payload.username
             );
             if (user) {
@@ -303,13 +310,16 @@ class API {
         var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
-
+        // TODO, Find a better solution than storing the slack_sign.users in the server, possibly in database.
         for (var sign of this.server.slack_sign_users) {
             if (sign.token === payload.sign_token) {
-                var user = await this.server.User.get_from_token(payload.token);
+                var user = await this.User.get_from_token(payload.token);
                 if (user) {
+                    var _db = new (require('../Database'))();
+
+
                     // Fill users slack information
-                    await this.server.db.query(
+                    await _db.query(
                         'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
                         [
                             sign.email,
