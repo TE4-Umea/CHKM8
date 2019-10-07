@@ -315,11 +315,11 @@ class API {
             if (sign.token === payload.sign_token) {
                 var user = await this.User.get_from_token(payload.token);
                 if (user) {
-                    var _db = new (require('../Database'))();
+                    var db = new (require('../Database'))();
 
 
                     // Fill users slack information
-                    await _db.query(
+                    await db.query(
                         'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
                         [
                             sign.email,
