@@ -18,6 +18,8 @@ class SwaggerRoutes {
          *     produces:
          *       - application/json
          *     parameters:
+         *     tags:
+         *       - docs
          *     responses:
          *       200:
          *         description: Json file containing OpenAPI compliant Api routes
