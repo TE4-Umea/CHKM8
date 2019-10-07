@@ -206,7 +206,7 @@ class Project {
     /**
      * Add user to project.
      * @param {User} user_to_add User being added to project
-     * @param {Number} project_id ID of project to add user to.
+     * @param {Number} project_name ID of project to add user to.
      * @param {User} user User that requests the action.
      * @returns {JSONResponse}
      */
@@ -246,7 +246,7 @@ class Project {
         //Add the user to joints
         await this.db.query(
             'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
-            [project_id, user_to_add.id, Date.now(), 0]
+            [project.id, user_to_add.id, Date.now(), 0]
         );
         return new this.SuccessResponse(
             'Added ' + user_to_add.name + ' to ' + project.name + '!'
