@@ -88,10 +88,15 @@ class User {
 
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
-        if (user) {
-            if (user.password === this.md5(password)) return user;
+        if (!user) {
+            return new this.ErrorResponse(
+                'User could not be found'
+            );
         }
-        return false;
+        
+        if (user.password === this.md5(password)) return user;
+        
+        return new this.SuccessResponse('User successfully retrieved');
     }
 
     async generate_token(username) {
