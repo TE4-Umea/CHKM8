@@ -13,6 +13,12 @@ class User {
 
         this.Check = require('./Check');
         this.Check = new this.Check();
+
+        // JSONResponse is the standard response system for CHKM8
+        this.JSONResponse = require('./JSONResponse');
+        /* this.JSONResponse = new this.JSONResponse() */
+        this.SuccessResponse = this.JSONResponse.SuccessResponse;
+        this.ErrorResponse = this.JSONResponse.ErrorResponse;
     }
 
     /**
