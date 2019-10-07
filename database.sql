@@ -29,9 +29,7 @@ CREATE TABLE IF NOT EXISTS `checks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumpar data för tabell time.checks: ~0 rows (ungefär)
-/*!40000 ALTER TABLE `checks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `checks` ENABLE KEYS */;
+-- Dataexport var bortvalt.
 
 -- Dumpar struktur för tabell time.joints
 DROP TABLE IF EXISTS `joints`;
@@ -42,11 +40,9 @@ CREATE TABLE IF NOT EXISTS `joints` (
   `work` bigint(20) DEFAULT NULL COMMENT 'Work done in ms (1 hour of work = 3600000)',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Date of joining the project',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 
--- Dumpar data för tabell time.joints: ~0 rows (ungefär)
-/*!40000 ALTER TABLE `joints` DISABLE KEYS */;
-/*!40000 ALTER TABLE `joints` ENABLE KEYS */;
+-- Dataexport var bortvalt.
 
 -- Dumpar struktur för tabell time.projects
 DROP TABLE IF EXISTS `projects`;
@@ -58,11 +54,9 @@ CREATE TABLE IF NOT EXISTS `projects` (
   `color_top` text,
   `color_bot` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
 
--- Dumpar data för tabell time.projects: ~10 rows (ungefär)
-/*!40000 ALTER TABLE `projects` DISABLE KEYS */;
-/*!40000 ALTER TABLE `projects` ENABLE KEYS */;
+-- Dataexport var bortvalt.
 
 -- Dumpar struktur för tabell time.tokens
 DROP TABLE IF EXISTS `tokens`;
@@ -73,28 +67,9 @@ CREATE TABLE IF NOT EXISTS `tokens` (
   `ip` varchar(100) NOT NULL,
   `token` varchar(100) NOT NULL COMMENT 'Token',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 
--- Dumpar data för tabell time.tokens: ~0 rows (ungefär)
-/*!40000 ALTER TABLE `tokens` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tokens` ENABLE KEYS */;
-
--- Dumpar struktur för tabell time.types
-DROP TABLE IF EXISTS `types`;
-CREATE TABLE IF NOT EXISTS `types` (
-  `id` int(11) unsigned NOT NULL,
-  `name` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Checkin types';
-
--- Dumpar data för tabell time.types: ~0 rows (ungefär)
-/*!40000 ALTER TABLE `types` DISABLE KEYS */;
-INSERT INTO `types` (`id`, `name`) VALUES
-	(0, 'unknown'),
-	(1, 'Web'),
-	(2, 'Slack'),
-	(3, 'Card');
-/*!40000 ALTER TABLE `types` ENABLE KEYS */;
+-- Dataexport var bortvalt.
 
 -- Dumpar struktur för tabell time.users
 DROP TABLE IF EXISTS `users`;
@@ -111,11 +86,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `slack_id` varchar(9) DEFAULT NULL,
   `slack_domain` tinytext,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
 
--- Dumpar data för tabell time.users: ~0 rows (ungefär)
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+-- Dataexport var bortvalt.
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
