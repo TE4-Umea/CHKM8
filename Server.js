@@ -8,8 +8,6 @@
 class Server {
     constructor(config) {
         this.config = config;
-        /**  If the program is running in test mode (npm test) */
-        this.isInTest = typeof global.it === 'function';
 
         /** Load libraries */
 
@@ -80,27 +78,10 @@ class Server {
     }
 
     /**
-     * Log message with timestamp
-     * Use this when a log should stay in the code
-     * @param {*} message
-     */
-    log(message) {
-        /**  Dont display messages if it's in a test */
-        if (this.isInTest) return;
-        /**  Create timestamp */
-        var date = new Date();
-        /**  Display message with timestamp */
-        console.log(
-            `[${date.getDate()}/${date.getMonth() +
-                1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}] ${message}`
-        );
-    }
-
-    /**
      * This function runs when everything has been loaded.
      */
     on_loaded() {
-        this.log(
+        console.log(
             `Happy Surfer's TimeTracker has started on port: ${this.port}`
         );
     }

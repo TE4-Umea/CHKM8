@@ -19,6 +19,8 @@ class User {
         /* this.JSONResponse = new this.JSONResponse() */
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
+
+        this.Debug = new (require('./Debug'));
     }
 
     /**
@@ -30,23 +32,6 @@ class User {
             .randomBytes(20)
             .toString('hex')
             .toUpperCase();
-    }
-
-    /**
-     * Log message with timestamp
-     * Use this when a log should stay in the code
-     * @param {*} message
-     */
-    log(message) {
-        /**  Dont display messages if it's in a test */
-        if (this.isInTest) return;
-        /**  Create timestamp */
-        var date = new Date();
-        /**  Display message with timestamp */
-        console.log(
-            `[${date.getDate()}/${date.getMonth() +
-                1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}] ${message}`
-        );
     }
 
     async get_from_slack(req) {
@@ -86,7 +71,7 @@ class User {
         );
         var user = await this.get_from_username(username);
         if (user) {
-            this.log('Account created for ' + full_name);
+            this.Debug.log('Account created for ' + full_name);
             return {
                 success: true,
                 user: user,

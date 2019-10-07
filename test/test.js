@@ -218,7 +218,7 @@ describe('Projects', () => {
         var user1 = await server.User.get_from_username(test_username);
         var user2 = await server.User.get_from_username(test_username2);
         var project = await server.Project.get_from_name(test_project);
-
+        console.log(await this.server.db.query("SELECT * FROM joints"))
         var result = await server.Project.remove_user(user2, project.id, user1);
 
         console.log("FUCKING REE", result)
