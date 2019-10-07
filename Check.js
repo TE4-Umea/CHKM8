@@ -23,6 +23,12 @@ class Check {
         /** Load User class */
         this.User = require('./User');
         this.User = new this.User(this);
+
+        // JSONResponse is the standard response system for CHKM8
+        this.JSONResponse = require('./JSONResponse');
+        /* this.JSONResponse = new this.JSONResponse() */
+        this.SuccessResponse = this.JSONResponse.SuccessResponse;
+        this.ErrorResponse = this.JSONResponse.ErrorResponse;
     }
 
     /**
@@ -50,20 +56,20 @@ class Check {
             if (!check_in && last_check.project != '') {
                 /** Get the project info */
                 project = await this.Project.get(last_check.project);
-                if (project) {
-                    /** Make sure the project exists and then get the joint to make sure they are apart of the project */
-                    var joint = await this.db.query_one(
-                        'SELECT * FROM joints WHERE user = ? AND project = ?',
-                        [user.id, project.id]
-                    );
-                    if (joint) {
-                        /** Add time worked on to the joint */
-                        await this.db.query(
-                            'UPDATE joints SET work = ? WHERE id = ?',
-                            [time_of_checkout + joint.work, joint.id]
-                        );
-                    }
-                }
+            }
+            if (project) {
+                /** Make sure the project exists and then get the joint to make sure they are a part of the project */
+                var joint = await this.db.query_one(
+                    'SELECT * FROM joints WHERE user = ? AND project = ?',
+                    [user.id, project.id]
+                );
+            }
+            if (joint) {
+                /** Add time worked on to the joint */
+                await this.db.query('UPDATE joints SET work = ? WHERE id = ?', [
+                    time_of_checkout + joint.work,
+                    joint.id,
+                ]);
             }
 
             /** Clear project if it's not admitted */
@@ -134,6 +140,7 @@ class Check {
         type = 'unknown'
     ) {
         var user = await this.check_user_input(user_id);
+
         // Check if user is defined, if so get last check
         if (user) {
             var last_check = await this.get_last_check(user.id);
@@ -142,9 +149,9 @@ class Check {
         }
         var project = await this.check_project_input(project_name);
 
-        /** Check if the project is definined, if so it's an existing project */
+        // Check if the project is definined, if so it's an existing project
         if (project) {
-            /** Check if the user is apart of the project */
+            /** Check if the user is a part of the project */
             var owns_project = await this.Project.is_joined(
                 user.id,
                 project.id
@@ -155,13 +162,13 @@ class Check {
             return new this.ErrorResponse('Project not found.');
         }
         if (!owns_project) {
-            /** If they are not, refuse the check */
+            /** If they are not part of the project, refuse the check */
             return new this.ErrorResponse(
                 'User is not a part of this project.'
             );
         } else {
             /** Otherwise, update the project name to make sure capitalisation is right.
-             *  User has now been confirmed apart of the project requested
+             *  User has now been confirmed a part of the project requested
              */
             project_name = project.name;
         }
@@ -193,15 +200,20 @@ class Check {
 
             /** Insert checkout */
             await this.insert_check(user.id, false, project_name, type);
-            return {
+            return new this.SuccessResponse(
+                `You are now checked out, ${this.format_time(
+                    Date.now() - last_check.date
+                )}${project_name ? ' (' + project_name + ')' : ''}.`
+            );
+            /*return {
                 success: true,
                 checked_in: false,
                 text: `You are now checked out, ${this.format_time(
                     Date.now() - last_check.date
                 )}${project_name ? ' (' + project_name + ')' : ''}.`,
                 project: project_name,
-            };
-        }else if (check_in === false && !last_check.check_in){
+            };*/
+        } else if (check_in === false && !last_check.check_in) {
             return new this.SuccessResponse('You are already checked out.');
         }
 
@@ -247,7 +259,7 @@ class Check {
             return project;
         } else {
             //No project admitted
-            project = null;
+            project = '';
         }
     }
 }
