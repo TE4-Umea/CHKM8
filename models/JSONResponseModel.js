@@ -1,9 +1,8 @@
 class JSONResponse {
     constructor(text, params = {}) {
         this.text = text;
-        this.params = params;
-        for (var key in this.params) {
-            this[key] = this.params[key];
+        for (var key in params) {
+            this[key] = params[key];
         }
         return this;
     }
