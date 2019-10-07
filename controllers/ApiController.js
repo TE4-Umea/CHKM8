@@ -24,12 +24,12 @@ class API {
         /** Get user safe from token */
         var user = await this.User.get_from_token(payload.token);
         if (user) {
-            var _Check = new (require('../Check'))();
+            var Check = new (require('../Check'))();
 
 
             /** Check in the user */
             response.json(
-                await _Check.check_in(
+                await Check.check_in(
                     user.id,
                     payload.check_in,
                     payload.project,
@@ -104,11 +104,12 @@ class API {
             payload.username
         );
         var user = await this.User.get_from_token(payload.token);
+        var project = await this.project.get_from_name(payload.project);
         response.json(
             
             await this.Project.remove_user(
                 user_to_remove,
-                payload.token,
+                project.id,
                 user
             )
         );

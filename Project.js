@@ -137,7 +137,7 @@ class Project {
      * @returns {JSONResponse}
      */
     async remove_user(user_to_remove, project_id, user) {
-        /** Makre sure all required attributes are admitted */
+        /** Make sure all required attributes are admitted */
         if (!user_to_remove || !project_id || !user)
             return new this.ErrorResponse('Missing attributes');
         /** Get project */
