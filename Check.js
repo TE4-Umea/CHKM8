@@ -133,30 +133,14 @@ class Check {
         project_name = null,
         type = 'unknown'
     ) {
-        var user = await this.User.get(user_id);
+        var user = await this.check_user_input(user_id);
+        // Check if user is defined, if so get last check
         if (user) {
-            /** Get the last check from the user (to determine if they are currently checked in, how much time and what project.) */
             var last_check = await this.get_last_check(user.id);
         } else {
-            return {
-                success: false,
-                text: 'User not found.',
-            };
+            return new this.ErrorResponse('User not found.');
         }
-
-        /** Check if a project was admitted */
-        if (
-            project_name != null &&
-            project_name != '' &&
-            project_name != undefined
-        ) {
-            /** If project is admitted, load it from the DB */
-            var project = await this.Project.get(project_name);
-        }
-        /*else {
-            //No project admitted
-            project = '';
-        }*/
+        var project = await this.check_project_input(project_name);
 
         /** Check if the project is definined, if so it's an existing project */
         if (project) {
@@ -168,17 +152,13 @@ class Check {
         } else {
             project = '';
             /** Project not found from name */
-            return {
-                success: false,
-                text: 'Project not found.',
-            };
+            return new this.ErrorResponse('Project not found.');
         }
         if (!owns_project) {
             /** If they are not, refuse the check */
-            return {
-                success: false,
-                text: 'User is not apart of this project.',
-            };
+            return new this.ErrorResponse(
+                'User is not a part of this project.'
+            );
         } else {
             /** Otherwise, update the project name to make sure capitalisation is right.
              *  User has now been confirmed apart of the project requested
@@ -196,40 +176,20 @@ class Check {
             last_check.project === project_name
         ) {
             /** Check if this is a redundant check in (same project and already checked in) */
-            if (last_check.check_in && last_check.project === project_name) {
-                return {
-                    success: true,
-                    text:
-                        'You are already checked in.' +
-                        (project_name ? ' Project: ' + project_name : ''),
-                };
-            }
+            return new this.SuccessResponse(
+                'You are already checked in.' +
+                    (project_name ? ' Project: ' + project_name : '')
+            );
+        }
 
-            /** If users last check was a check in, this will check them out before checking them in. */
-            if (last_check.check_in) {
-                this.check_in(user_id, false, null, type);
-            }
-
-            /** Insert the check in */
-            await this.insert_check(user.id, true, project_name, type);
-            return {
-                success: true,
-                checked_in: true,
-                text:
-                    'You are now checked in.' +
-                    (project_name ? ' Project: ' + project_name : ''),
-            };
+        /** If users last check was a check in, this will check them out before checking them in. */
+        if (check_in === true && last_check.check_in) {
+            this.check_in(user_id, false, null, type);
         }
 
         /** Check OUT the user */
-        if (check_in === false) {
+        if (check_in === false && last_check.check_in) {
             /** Check if the user is already checked out */
-            if (!last_check.check_in) {
-                return {
-                    success: true,
-                    text: 'You are already checked out.',
-                };
-            }
 
             /** Insert checkout */
             await this.insert_check(user.id, false, project_name, type);
@@ -241,8 +201,54 @@ class Check {
                 )}${project_name ? ' (' + project_name + ')' : ''}.`,
                 project: project_name,
             };
+        }else if (check_in === false && !last_check.check_in){
+            return new this.SuccessResponse('You are already checked out.');
+        }
+
+        /** Insert the check in */
+        await this.insert_check(user.id, true, project_name, type);
+        return new this.SuccessResponse(
+            'You are now checked in.' +
+                (project_name ? ' Project: ' + project_name : '')
+        );
+    }
+
+    /**
+     * Check user_id input in Check_in function
+     * Return User if defined, else return Error message
+     * @param {INT} user_id
+     * @returns User if found
+     */
+    async check_user_input(user_id) {
+        var user = await this.User.get(user_id);
+        if (user) {
+            /** Get the last check from the user (to determine if they are currently checked in, how much time and what project.) */
+            return user;
+        } else {
+            return new this.ErrorResponse('User not found.');
+        }
+    }
+
+    /**
+     * If project is defined, load from DB and return it
+     * If not found, project set to null
+     * @param {String} project_name
+     * @returns Project if found
+     */
+    async check_project_input(project_name) {
+        /** Check if a project was admitted */
+        if (
+            project_name != null &&
+            project_name != '' &&
+            project_name != undefined
+        ) {
+            /** If project is admitted, load it from the DB */
+            var project = await this.Project.get(project_name);
+            return project;
+        } else {
+            //No project admitted
+            project = null;
         }
     }
 }
-
 module.exports = Check;

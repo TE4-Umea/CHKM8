@@ -18,17 +18,24 @@
             "error",
             4
         ],
-        "linebreak-style": [
+        /* "linebreak-style": [
             "error",
             "unix"
-        ],
+        ], */
         "quotes": [
             "error",
-            "single"
+            "single",
+            {
+                "allowTemplateLiterals": true,
+                "avoidEscape": true
+            }
         ],
         "semi": [
             "error",
             "always"
+        ],
+        "no-useless-concat": [
+            "error"
         ]
     } 
 }

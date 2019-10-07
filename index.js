@@ -1,5 +1,5 @@
-var ConfigLoader = require("./ConfigLoader")
-    ConfigLoader = new ConfigLoader()
+var ConfigLoader = require('./ConfigLoader');
+ConfigLoader = new ConfigLoader();
 
-const Server = require("./Server")
-const server = new Server(ConfigLoader.load())
+const Server = require('./Server');
+new Server(ConfigLoader.load());
