@@ -25,54 +25,11 @@ class SlackAPI {
      */
     async auth(req, res) {
         if (req.query.code) {
-            /* Send a request to slack to get user information from the login */
-            this.server.https.get(
-                `https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&client_secret=${this.server.config.client_secret}&code=${req.query.code}`,
-                resp => {
-                    var data = '';
-                    resp.on('data', chunk => {
-                        data += chunk;
-                    });
-                    resp.on('end', () => {
-                        /* Once the data has been downloaded, parse it into a JSON */
-                        data = JSON.parse(data);
-                        /* If the request and code was successfull */
-                        if (data.ok) {
-                            (async () => {
-                                /* Check if the user is already signed up */
-                                var slack_taken = await this.server.db.query_one(
-                                    'SELECT * FROM users WHERE slack_id = ?',
-                                    data.user.id
-                                );
-                                if (slack_taken) {
-                                    res.send(
-                                        'This slack account is already linked to another user. Please   that account first or ask an administrator for help.'
-                                    );
-                                    return;
-                                }
-
-                                var sign_token = this.server.hash();
-                                this.server.slack_sign_users.push({
-                                    access_token: data.access_token,
-                                    slack_domain: data.team.domain,
-                                    slack_id: data.user.id,
-                                    name: data.user.name,
-                                    avatar: data.user.image_512,
-                                    email: data.user.email,
-                                    token: sign_token,
-                                });
-                                res.render('dashboard', {
-                                    token: sign_token,
-                                });
-                            })();
-                        } else {
-                            res.end(data.error);
-                        }
-                    });
-                }
-            );
+            res.render('dashboard', {
+                token: req.query.code,
+            });
         } else {
-            res.end('Error..?');
+            res.end('This link should only be visited via a slack login.');
         }
     }
 
