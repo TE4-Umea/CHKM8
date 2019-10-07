@@ -58,30 +58,21 @@ class Server {
         this.app.use(this.express.static(__dirname + '/cdn'));
 
         /** Load Controller class */
-        var routes = require('./routes/Routes');
-        routes = new routes(this);
+        new (require('./routes/Routes'))(this);
 
-        /** Load Project class */
-        this.Project = require('./Project');
-        this.Project = new this.Project(this);
-
-        /** Load User class */
-        this.User = require('./User');
-        this.User = new this.User(this);
-
-        /** Load Check class */
-        this.Check = require('./Check');
-        this.Check = new this.Check(this);
+        this.Debug = new (require('./Debug'))();
 
         /** Loading done! */
         this.on_loaded();
+
+        
     }
 
     /**
      * This function runs when everything has been loaded.
      */
     on_loaded() {
-        console.log(
+        this.Debug.log(
             `Happy Surfer's TimeTracker has started on port: ${this.port}`
         );
     }

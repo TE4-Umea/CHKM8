@@ -20,7 +20,7 @@ class User {
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
 
-        this.Debug = new (require('./Debug'));
+        this.Debug = new (require('./Debug'))();
     }
 
     /**
