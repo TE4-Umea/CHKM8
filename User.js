@@ -45,15 +45,21 @@ class User {
 
     async get_from_slack(req) {
         var success = this.SlackAPI.verify_slack_request(req);
-        if (success) {
-            var body = req.body;
-            var slack_id = body.user_id;
-            var user = await this.get_from_slack_id(slack_id);
-            if (user) {
-                return user;
-            } else {
-                return false;
-            }
+        if (!success) {
+            return new this.ErrorResponse(
+                'Slack request unable to verify'
+            );
+        }
+
+        var body = req.body;
+        var slack_id = body.user_id;
+        var user = await this.get_from_slack_id(slack_id);
+        if (user) {
+            return user;
+        } else {
+            return new this.ErrorResponse(
+                'User could not be found'
+            );
         }
     }
 
