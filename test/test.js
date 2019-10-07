@@ -178,7 +178,7 @@ describe('Projects', () => {
         var project = await server.Project.get_from_name(test_project);
         var added_user = await server.Project.add_user(
             user2,
-            project.id,
+            project.name,
             user1
         );
         assert.equal(added_user.success, true);
@@ -220,7 +220,8 @@ describe('Projects', () => {
         var project = await server.Project.get_from_name(test_project);
 
         var result = await server.Project.remove_user(user2, project.id, user1);
-        console.log(result);
+
+        console.log("FUCKING REE", result)
         assert.equal(result.success, true);
 
         // Add back user to project for further testing
