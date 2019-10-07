@@ -217,43 +217,52 @@ class User {
      * @param {*} user_id
      */
     async get_data(user_id) {
-        var user = await this.get(user_id);
-        if (user) {
-            // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
-            // would be unnecessary to not hide)
-            delete user.access_token;
-            delete user.password;
-
-            var last_check = await this.Check.get_last_check(user.id);
-
-            // Add new uncashed properties
-            user.checked_in = await this.Check.is_checked_in(user.id);
-            user.checked_in_project = last_check.project;
-            user.checked_in_time = Date.now() - last_check.date;
-
-            user.projects = [];
-            var joints = await this.db.query(
-                'SELECT * FROM joints WHERE user = ?',
-                user.id
+        var user = await this.get(user_id); 
+        if (!user) {
+            return new this.ErrorResponse(
+                'Could not find user'
             );
+        }
+        // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
+        // would be unnecessary to not hide)
+        delete user.access_token;
+        delete user.password;
 
-            var Project = require('./Project');
-            Project = new Project();
+        var last_check = await this.Check.get_last_check(user.id);
 
-            // Load and compile projects the user has joined.
-            for (var joint of joints) {
-                var project = await Project.get_from_id(joint.project);
-                project.work = joint.work;
-                project.activity = [
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                ];
-                user.projects.push(project);
-            }
-            return user;
+        // Add new uncashed properties
+        user.checked_in = await this.Check.is_checked_in(user.id);
+        user.checked_in_project = last_check.project;
+        user.checked_in_time = Date.now() - last_check.date;
+
+        user.projects = [];
+        this.project_joints(user);
+        
+        return user;
+    } 
+
+    async project_joints(user) {
+        var joints = await this.db.query(
+            'SELECT * FROM joints WHERE user = ?',
+            user.id
+        );
+
+        let project = require('./Project');
+        project = new this.Project();
+
+        // Load and compile projects the user has joined.
+        for (var joint of joints) {
+            let project = await project.get_from_id(joint.project);
+            project.work = joint.work;
+            project.activity = [
+                Math.random(),
+                Math.random(),
+                Math.random(),
+                Math.random(),
+                Math.random(),
+            ];
+            user.projects.push(project);
+
         }
     }
 }
