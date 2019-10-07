@@ -1,31 +1,14 @@
 class Check {
     constructor(config) {
         this.config = config;
-
-        /**  Slack API functions (routes are in /routes/Slack) */
-        this.SlackAPI = require('./SlackAPI');
-        this.SlackAPI = new this.SlackAPI(this);
-
-        /**  REST API functions (routes are in /routes/REST) */
-        this.API = require('./API');
-        this.API = new this.API(this);
-
         /** Database async handler */
         var Database = require('./Database');
 
         /** Setup db handler with config */
         this.db = new Database(this.config);
 
-        /** Load Project class */
-        this.Project = require('./Project');
-        this.Project = new this.Project(this);
-
-        /** Load User class */
-        this.User = require('./User');
-        this.User = new this.User(this);
-
         // JSONResponse is the standard response system for CHKM8
-        this.JSONResponse = require('./JSONResponse');
+        this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
@@ -41,8 +24,11 @@ class Check {
      * @param {String} type Method of checking (web, card, slack, terminal)
      */
     async insert_check(user_id, check_in, project = null, type) {
+        var UserClass = new (require('./User'))();
+        var ProjectClass = new (require('./Project'))();
+
         /** Get user from ID */
-        var user = await this.User.get(user_id);
+        var user = await UserClass.get(user_id);
         if (user) {
             /** Get the users last check */
             var last_check = await this.get_last_check(user_id);
@@ -55,13 +41,13 @@ class Check {
              */
             if (!check_in && last_check.project != '') {
                 /** Get the project info */
-                project = await this.Project.get(last_check.project);
+                project = await ProjectClass.get(last_check.project);
             }
             if (project) {
                 /** Make sure the project exists and then get the joint to make sure they are a part of the project */
                 var joint = await this.db.query_one(
                     'SELECT * FROM joints WHERE user = ? AND project = ?',
-                    [user.id, project.id]
+                    [user_id, project.id]
                 );
             }
             if (joint) {
@@ -139,6 +125,7 @@ class Check {
         project_name = null,
         type = 'unknown'
     ) {
+        var ProjectClass = new (require('./Project'))();
         var user = await this.check_user_input(user_id);
 
         // Check if user is defined, if so get last check
@@ -152,7 +139,7 @@ class Check {
         // Check if the project is definined, if so it's an existing project
         if (project) {
             /** Check if the user is a part of the project */
-            var owns_project = await this.Project.is_joined(
+            var owns_project = await ProjectClass.is_joined(
                 user.id,
                 project.id
             );
@@ -232,7 +219,9 @@ class Check {
      * @returns User if found
      */
     async check_user_input(user_id) {
-        var user = await this.User.get(user_id);
+        var UserClass = new (require('./User'))(this);
+
+        var user = await UserClass.get(user_id);
         if (user) {
             /** Get the last check from the user (to determine if they are currently checked in, how much time and what project.) */
             return user;
@@ -248,6 +237,7 @@ class Check {
      * @returns Project if found
      */
     async check_project_input(project_name) {
+        var ProjectClass = new (require('./Project'))(this);
         /** Check if a project was admitted */
         if (
             project_name != null &&
@@ -255,7 +245,7 @@ class Check {
             project_name != undefined
         ) {
             /** If project is admitted, load it from the DB */
-            var project = await this.Project.get(project_name);
+            var project = await ProjectClass.get(project_name);
             return project;
         } else {
             //No project admitted

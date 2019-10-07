@@ -11,9 +11,6 @@ class User {
         this.Database = require('./Database');
         this.db = new this.Database(ConfigLoader.load());
 
-        this.Check = require('./Check');
-        this.Check = new this.Check();
-
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
@@ -228,10 +225,11 @@ class User {
         delete user.access_token;
         delete user.password;
 
-        var last_check = await this.Check.get_last_check(user.id);
+        var Check = new (require('./Check'))();
+        var last_check = await Check.get_last_check(user.id);
 
         // Add new uncashed properties
-        user.checked_in = await this.Check.is_checked_in(user.id);
+        user.checked_in = await Check.is_checked_in(user.id);
         user.checked_in_project = last_check.project;
         user.checked_in_time = Date.now() - last_check.date;
 
@@ -247,12 +245,11 @@ class User {
             user.id
         );
 
-        let project = require('./Project');
-        project = new this.Project();
+        var Project = new (require('./Project'))();
 
         // Load and compile projects the user has joined.
         for (var joint of joints) {
-            let project = await project.get_from_id(joint.project);
+            let project = await Project.get_from_id(joint.project);
             project.work = joint.work;
             project.activity = [
                 Math.random(),
