@@ -11,9 +11,6 @@ class User {
         this.Database = require('./Database');
         this.db = new this.Database(ConfigLoader.load());
 
-        this.Check = require('./Check');
-        this.Check = new this.Check();
-
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
