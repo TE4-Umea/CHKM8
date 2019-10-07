@@ -23,7 +23,7 @@ class Project {
         this.User = new this.User();
 
         // JSONResponse is the standard response system for CHKM8
-        this.JSONResponse = require('./JSONResponse');
+        this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
@@ -137,7 +137,7 @@ class Project {
      * @returns {JSONResponse}
      */
     async remove_user(user_to_remove, project_id, user) {
-        /** Makre sure all required attributes are admitted */
+        /** Make sure all required attributes are admitted */
         if (!user_to_remove || !project_id || !user)
             return new this.ErrorResponse('Missing attributes');
         /** Get project */
@@ -199,14 +199,13 @@ class Project {
         // Delete project
         await this.db.query('DELETE FROM projects WHERE id = ?', project.id);
 
-        this.log('Project ' + project_name + ' deleted by: ' + user.username);
-        return new this.SuccessResponse('Project deleted by: ' + user.username);
+        return new this.SuccessResponse('Project ' + project_name + ' deleted by: ' + user.username);
     }
 
     /**
      * Add user to project.
      * @param {User} user_to_add User being added to project
-     * @param {Number} project_id ID of project to add user to.
+     * @param {Number} project_name ID of project to add user to.
      * @param {User} user User that requests the action.
      * @returns {JSONResponse}
      */
@@ -246,7 +245,7 @@ class Project {
         //Add the user to joints
         await this.db.query(
             'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
-            [project_id, user_to_add.id, Date.now(), 0]
+            [project.id, user_to_add.id, Date.now(), 0]
         );
         return new this.SuccessResponse(
             'Added ' + user_to_add.name + ' to ' + project.name + '!'
@@ -291,8 +290,8 @@ class Project {
         var project = await this.get_from_name(project_name);
         // Inster a new joint for the owner for this project
         await this.db.query(
-            'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
-            [project.id, user.id, Date.now(), 0]
+            'INSERT INTO joints (project, user, work) VALUES (?, ?, ?)',
+            [project.id, user.id, 0]
         );
         // Return success
         return new this.SuccessResponse('Created project ' + project_name);
