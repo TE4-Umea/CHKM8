@@ -167,7 +167,7 @@ class User {
     async get_from_token(token) {
         if (!token) {
             return new this.ErrorResponse(
-                'An error has occured' // Ändra
+                'Invalid token'
             );
         }   
 
@@ -178,7 +178,7 @@ class User {
 
         if (!db_token) {
             return new this.ErrorResponse(
-                'An error has occured' // Ändra
+                'Could not identify token' 
             );
         }
         
@@ -187,7 +187,7 @@ class User {
             return user;
         }
         
-        return false;
+        return new this.SuccessResponse('User successfully retrieved');
     }
 
     /**
