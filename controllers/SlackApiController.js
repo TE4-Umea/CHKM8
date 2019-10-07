@@ -1,4 +1,4 @@
-class SlackAPI {
+class SlackAPIController {
     constructor(server) {
         this.server = server;
         this.qs = require('qs');
@@ -289,4 +289,4 @@ class SlackAPI {
     }
 }
 
-module.exports = SlackAPI;
+module.exports = SlackAPIController;
