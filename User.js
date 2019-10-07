@@ -246,12 +246,17 @@ class User {
         user.checked_in_time = Date.now() - last_check.date;
 
         user.projects = [];
+        this.project_joints(user);
+        
+        return user;
+    } 
+
+    async project_joints(user) {
         var joints = await this.db.query(
             'SELECT * FROM joints WHERE user = ?',
             user.id
         );
 
-        // Should ideally be part of the constructor, but doing so creates a feedback loop so it is placed here
         let project = require('./Project');
         project = new this.Project();
 
@@ -268,7 +273,6 @@ class User {
             ];
             user.projects.push(project);
         }
-        return user;
     }
 }
 
