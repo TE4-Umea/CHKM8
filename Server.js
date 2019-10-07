@@ -8,8 +8,6 @@
 class Server {
     constructor(config) {
         this.config = config;
-        /**  If the program is running in test mode (npm test) */
-        this.isInTest = typeof global.it === 'function';
 
         /** Load libraries */
 
@@ -60,47 +58,21 @@ class Server {
         this.app.use(this.express.static(__dirname + '/cdn'));
 
         /** Load Controller class */
-        var routes = require('./routes/Routes');
-        routes = new routes(this);
+        new (require('./routes/Routes'))(this);
 
-        /** Load Project class */
-        this.Project = require('./Project');
-        this.Project = new this.Project(this);
-
-        /** Load User class */
-        this.User = require('./User');
-        this.User = new this.User(this);
-
-        /** Load Check class */
-        this.Check = require('./Check');
-        this.Check = new this.Check(this);
+        this.Debug = new (require('./Debug'))();
 
         /** Loading done! */
         this.on_loaded();
-    }
 
-    /**
-     * Log message with timestamp
-     * Use this when a log should stay in the code
-     * @param {*} message
-     */
-    log(message) {
-        /**  Dont display messages if it's in a test */
-        if (this.isInTest) return;
-        /**  Create timestamp */
-        var date = new Date();
-        /**  Display message with timestamp */
-        console.log(
-            `[${date.getDate()}/${date.getMonth() +
-                1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}] ${message}`
-        );
+        
     }
 
     /**
      * This function runs when everything has been loaded.
      */
     on_loaded() {
-        this.log(
+        this.Debug.log(
             `Happy Surfer's TimeTracker has started on port: ${this.port}`
         );
     }
