@@ -202,6 +202,7 @@ class User {
      * @param {*} user_id
      */
     async get_data(user_id) {
+
         var user = await this.get(user_id);
         if (user) {
             // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
@@ -239,6 +240,7 @@ class User {
                 user.projects.push(project);
             }
             return user;
+
         }
     }
 }
