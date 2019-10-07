@@ -199,8 +199,7 @@ class Project {
         // Delete project
         await this.db.query('DELETE FROM projects WHERE id = ?', project.id);
 
-        new this.SuccessResponse('Project ' + project_name + ' deleted by: ' + user.username);
-        return new this.SuccessResponse('Project deleted by: ' + user.username);
+        return new this.SuccessResponse('Project ' + project_name + ' deleted by: ' + user.username);
     }
 
     /**
