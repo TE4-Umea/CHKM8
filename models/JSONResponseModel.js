@@ -1,4 +1,10 @@
 class JSONResponse {
+    /**
+     * 
+     * @param {String} text 
+     * @param {Object} params 
+     * @returns {JSONResponse}
+     */
     constructor(text, params = {}) {
         this.text = text;
         this.params = params;
@@ -14,6 +20,7 @@ class SuccessResponse extends JSONResponse {
      * Return a success statement
      * @param {String} text Success message.
      * @param {Object} params Optional parameters
+     * @returns {SuccessResponse}
      */
     constructor(text, params = {}) {
         super(text, params);
@@ -27,6 +34,7 @@ class ErrorResponse extends JSONResponse {
      * Return a success statement
      * @param {String} text Error message.
      * @param {Object} params Optional parameters
+     * @returns {ErrorResponse} 
      */
     constructor(text, params = {}) {
         super(text, params);
