@@ -105,13 +105,12 @@ class API {
         );
         var user = await this.User.get_from_token(payload.token);
         response.json(
-            // TODO Find out what this function is
-            // await this.server.remove_user_from_project(
-            //     user_to_remove,
-            //     payload.token,
-            //     user
-            // )
-            {success: false, text: "Error something went wrong"}
+            
+            await this.Project.remove_user(
+                user_to_remove,
+                payload.token,
+                user
+            )
         );
     }
 
