@@ -3,10 +3,9 @@
  */
 
 class API {
-    constructor(server) {
+    constructor() {
         this.Payload = require('../models/PayloadModel');
         this.Response = require('../models/ResponseModel');
-        this.server = server;
         this.User = new (require('../User'))();
         this.Project = new (require('../Project'))();
     }
@@ -306,13 +305,14 @@ class API {
      * @param {Response} res
      */
     async sign(req, res) {
-        var token = req.body.token;
-        var sign_token = req.body.sign_token;
+        var payload = new this.Payload(req);
         var sign;
-
+        var https = require('https');
+        var db = new (require('../Database'))();
+        var config = new (require('./ConfigLoader')).load();
         /* Send a request to slack to get user information from the login */
-        this.server.https.get(
-            `https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&client_secret=${this.server.config.client_secret}&code=${sign_token}`,
+        https.get(
+            `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
             resp => {
                 var data = '';
                 resp.on('data', chunk => {
@@ -325,7 +325,7 @@ class API {
                     /* If the request and code was successfull */
                     if (data.ok) {
                         /* Check if the user is already signed up */
-                        var slack_taken = await this.server.db.query_one(
+                        var slack_taken = await db.query_one(
                             'SELECT * FROM users WHERE slack_id = ?',
                             data.user.id
                         );
@@ -352,10 +352,10 @@ class API {
             }
         );
 
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
         if (user) {
             // Fill users slack information
-            await this.server.db.query(
+            await db.query(
                 'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
                 [
                     sign.email,
