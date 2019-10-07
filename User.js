@@ -15,7 +15,7 @@ class User {
         this.Check = new this.Check();
 
         // JSONResponse is the standard response system for CHKM8
-        this.JSONResponse = require('./JSONResponse');
+        this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
@@ -85,8 +85,8 @@ class User {
         }
         // Insert into the database
         await this.db.query(
-            'INSERT INTO users (username, name, password, created) VALUES (?, ?, ?, ?)',
-            [username, full_name, this.md5(password), Date.now()]
+            'INSERT INTO users (username, name, password) VALUES (?, ?, ?)',
+            [username, full_name, this.md5(password)]
         );
         var user = await this.get_from_username(username);
         if (user) {
@@ -111,13 +111,13 @@ class User {
         return new this.SuccessResponse('User successfully retrieved');
     }
 
-    async generate_token(username) {
+    async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
         if (user) {
             var token = this.hash();
             await this.db.query(
-                'INSERT INTO tokens (token, user) VALUES (?, ?)',
-                [token, user.id]
+                'INSERT INTO tokens (token, user, ip) VALUES (?, ?, ?)',
+                [token, user.id, ip]
             );
             return token;
         }

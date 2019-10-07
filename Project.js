@@ -290,8 +290,8 @@ class Project {
         var project = await this.get_from_name(project_name);
         // Inster a new joint for the owner for this project
         await this.db.query(
-            'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
-            [project.id, user.id, Date.now(), 0]
+            'INSERT INTO joints (project, user, work) VALUES (?, ?, ?)',
+            [project.id, user.id, 0]
         );
         // Return success
         return new this.SuccessResponse('Created project ' + project_name);
