@@ -165,18 +165,22 @@ class User {
      * @param {*} token
      */
     async get_from_token(token) {
-        if (token) {
-            var db_token = await this.db.query_one(
-                'SELECT * FROM tokens WHERE token = ?',
-                token
+        if (!token) {
+            return new this.ErrorResponse(
+                'User is the owner of the project (delete project to leave)'
             );
-            if (db_token) {
-                var user = await this.get(db_token.user);
-                if (user) {
-                    return user;
-                }
+        }       
+        var db_token = await this.db.query_one(
+            'SELECT * FROM tokens WHERE token = ?',
+            token
+        );
+        if (db_token) {
+            var user = await this.get(db_token.user);
+            if (user) {
+                return user;
             }
         }
+        
         return false;
     }
 
