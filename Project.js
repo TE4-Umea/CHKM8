@@ -23,7 +23,7 @@ class Project {
         this.User = new this.User();
 
         // JSONResponse is the standard response system for CHKM8
-        this.JSONResponse = require('./JSONResponse');
+        this.JSONResponse = require('./models/JSONResponseModel');
         /* this.JSONResponse = new this.JSONResponse() */
         this.SuccessResponse = this.JSONResponse.SuccessResponse;
         this.ErrorResponse = this.JSONResponse.ErrorResponse;

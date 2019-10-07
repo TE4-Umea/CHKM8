@@ -4,7 +4,11 @@
 
 class API {
     constructor(server) {
+        this.Payload = require('../models/PayloadModel');
+        this.Response = require('../models/ResponseModel');
         this.server = server;
+        this.User = new (require('../User'))();
+        this.Project = new (require('../Project'))();
     }
 
     /**
@@ -14,26 +18,26 @@ class API {
      */
     async checkin(req, res) {
         /** Get attributes from request */
-        var token = req.body.token;
-        var check_in = req.body.check_in;
-        /** Get project name from request, if it doesn't exist, make it null. */
-        var project = req.body.project ? req.body.project : null;
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
         /** Get user safe from token */
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
         if (user) {
+            var _Check = new (require('../Check'))();
+
+
             /** Check in the user */
-            var result = await this.server.Check.check_in(
-                user.id,
-                check_in,
-                project,
-                'api'
+            response.json(
+                await _Check.check_in(
+                    user.id,
+                    payload.check_in,
+                    payload.project,
+                    'api'
+                )
             );
-            res.json(result);
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            response.error_response('Invalid Token');
         }
     }
 
@@ -45,22 +49,19 @@ class API {
      */
     async new_project(req, res) {
         /** Get attributes from request */
-        var token = req.body.token;
-        var project_name = req.body.project;
-
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
         /** Get the user safley from token */
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
         /** Make sure user is loaded correctly */
         if (user) {
-            /** Create the project via the user and project name */
-            var response = await this.server.Project.create(project_name, user);
-            /** Respond to the request with res */
-            res.json(response);
+            /** Create the project via the user and project name and respond to the request with res */
+            response.json(
+                await this.Project.create(payload.project, user)
+            );
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            response.error_response('Invalid Token');
         }
     }
 
@@ -71,24 +72,22 @@ class API {
      */
     async add(req, res) {
         /** Get attributes from request */
-        var project_name = req.body.project;
-        var token = req.body.token;
-        var username = req.body.username;
-
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
         /** Load user safe from token */
-        var user = await this.server.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
         /** Load user that will be added */
-        var user_to_add = await this.server.User.get_from_username(username);
-
-        var project = await this.server.Project.get(project_name);
-        /** Add the user to the project via the requesting user */
-        var response = await this.server.Project.add_user(
-            user_to_add,
-            project.id,
-            user
+        var user_to_add = await this.User.get_from_username(
+            payload.username
         );
+
+        var project = await this.Project.get(payload.project);
+        /** Add the user to the project via the requesting user */
         /** Responde to the user */
-        res.json(response);
+        response.json(
+            await this.Project.add_user(user_to_add, project.id, user)
+        );
     }
 
     /**
@@ -97,75 +96,70 @@ class API {
      * @param {*} res
      */
     async remove(req, res) {
-        var username = req.body.username;
-        var token = req.body.token;
-        var project = req.body.project;
-
-        var user_to_remove = await this.server.User.get_from_username(username);
-        var user = await this.server.User.get_from_token(token);
-
-        var result = await this.server.remove_user_from_project(
-            user_to_remove,
-            project,
-            user
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        var user_to_remove = await this.User.get_from_username(
+            payload.username
         );
-        res.json(result);
+        var user = await this.User.get_from_token(payload.token);
+        response.json(
+            // TODO Find out what this function is
+            // await this.server.remove_user_from_project(
+            //     user_to_remove,
+            //     payload.token,
+            //     user
+            // )
+            {success: false, text: "Error something went wrong"}
+        );
     }
 
     /**
-     * POST /api/project
+     * POST /api/project. Returns a json with the status of a given project.
      * Get information of a project and all the members
-     * @param {*} req
-     * @param {*} res
+     * @param {Request} req
+     * @param {Response} res
      */
     async project(req, res) {
         /** Get attributes from request */
-        var project_name = req.body.project;
-        var token = req.body.token;
-        /** Read from server via attributes */
-        var user = await this.server.User.get_from_token(token);
-        var project = await this.server.Project.get(project_name);
-        var project_data = await this.server.Project.get_data(project.id);
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
 
-        /** Make sure user exists */
-        if (user) {
-            /** Make sure project exists */
-            if (project) {
-                /** Make sure the user has access to the project (owner or jointed) */
-                var has_access = await this.server.Project.is_joined(
-                    user.id,
-                    project.id
-                );
-                /** Make sure data has been collected right */
-                if (project_data) {
-                    if (has_access) {
-                        res.json({
-                            success: true,
-                            project: project_data,
-                        });
-                    } else {
-                        res.json({
-                            success: false,
-                            text: "You don't have access to this project",
-                        });
-                    }
-                } else {
-                    res.json({
-                        success: false,
-                        text: 'Project data corrupt',
+        /** Read from server via attributes */
+        var user = await this.User.get_from_token(payload.token);
+        var project = await this.Project.get(payload.project);
+        var project_data = await this.Project.get_data(project.id);
+        /** Make sure user and project exists */
+        if (user && project) {
+            var has_access = await this.Project.is_joined(
+                user.id,
+                project.id
+            );
+            // Make sure the project data exists.
+            if (project_data) {
+                if (has_access) {
+                    response.success_response('sucess', {
+                        project: project_data,
                     });
+                } else {
+                    response.error_response(
+                        `You don't have access to this project`
+                    );
                 }
-            } else {
-                res.json({
-                    success: false,
-                    text: 'Project not found',
-                });
             }
+        } else if (!user) {
+            // If user does not exist, invalid token.
+            response.error_response('Invalid token');
+        } else if (!project) {
+            // If project does not exist, then prject not found.
+            response.error_response('Project not found');
+        } else if (!project_data) {
+            // If project data does not exist, then project data is corrupt.
+            response.error_response('Project data corrupt');
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            response.error_response('Something went wrong.');
         }
     }
 
@@ -177,18 +171,15 @@ class API {
      */
     async profile(req, res) {
         var token = req.body.token;
-        var user = await this.server.User.get_from_token(token);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        var user = await this.User.get_from_token(token);
+
         if (user) {
-            var data = await this.server.User.get_data(user.id);
-            res.json({
-                success: true,
-                profile: data,
-            });
+            var data = await this.User.get_data(user.id);
+            response.success_response('success', { profile: data });
         } else {
-            res.json({
-                success: false,
-                text: 'Invalid token',
-            });
+            response.error_response('Invalid token');
         }
     }
 
@@ -199,158 +190,136 @@ class API {
      * @param {*} res
      */
     async login(req, res) {
-        var username = req.body.username;
-        var password = req.body.password;
-
-        if (!username || !password) {
-            res.json({
-                success: false,
-                text: 'Missing parameters',
-            });
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        //TODO Fix this weird negative.
+        if (!payload.username || !payload.password) {
+            response.error_response('Missing parameters');
             return;
         }
-        var user = await this.server.User.get_from_username(username);
+        var user = await this.User.get_from_username(payload.username);
 
         // Sign in
-        user = await this.server.User.get_from_username_and_password(
-            username,
-            password
+        user = await this.User.get_from_username_and_password(
+            payload.username,
+            payload.password
         );
         if (user) {
-            var token = await this.server.User.generate_token(user.username);
+            var token = await this.User.generate_token(user.username);
             if (token) {
-                res.json({
-                    success: true,
-                    token: token,
-                });
+                response.success_response('success', { token: token });
             }
         } else {
-            res.json({
-                success: false,
-                text: 'Wrong username or password',
-            });
+            response.error_response('Wrong username or password');
         }
     }
 
     /**
-     * Create an account
-     * @param {*} req HTTP request
-     * @param {*} res HTTP response
+     * Creates a new account.
+     * @param {Request} req HTTP request
+     * @param {Response} res HTTP response
      */
     async signup(req, res) {
-        var username = req.body.username;
-        var password = req.body.password;
-        var name = req.body.name;
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
 
-        if (!(username && password && name)) {
-            res.json({
-                success: false,
-                text:
-                    'Missing parameters:' +
-                    (!username ? ' username' : '') +
-                    (!password ? ' password' : '') +
-                    (!name ? ' name' : ''),
-            });
-            return;
-        }
-
-        // Sign up
-        if (username.replace(/[^a-z0-9_]+|\s+/gim, '') !== username) {
-            res.json({
-                success: false,
-                text: 'Username contains illigal characters',
-            });
-            return;
-        }
-        if (username.length < 3) {
-            res.json({
-                success: false,
-                text: 'Username has to be at least three characters long',
-            });
-            return;
-        }
-        if (username.length > 20) {
-            res.json({
-                success: false,
-                text: 'Username cannot exceed 20 characters',
-            });
-            return;
-        }
-        if (name.indexOf(' ') == -1) {
-            res.json({
-                success: false,
-                text: 'Please provide a full name, ex. Michael Stevens',
-            });
-            return;
-        }
-        if (password == '') {
-            res.json({
-                success: false,
-                text: 'Please enter a password',
-            });
-            return;
-        }
-        var response = await this.server.User.create(username, password, name);
-        if (response.success) {
-            var token = await this.server.User.generate_token(
-                response.user.username
+        if (!(payload.username && payload.password && payload.name)) {
+            // A bunch of tenary statements to decide what params are missing.
+            let message =
+                'Missing parameters:' +
+                (!payload.username ? ' username' : '') +
+                (!payload.password ? ' password' : '') +
+                (!payload.name ? ' name' : '');
+            response.error_response(message);
+            // If the username contains illegal characters.
+        } else if (
+            payload.username.replace(/[^a-z0-9_]+|\s+/gim, '') !==
+            payload.username
+        ) {
+            response.error_response('Username contains illegal characters');
+            // if the username is shorter than 3 characters.
+        } else if (payload.username.length < 3) {
+            response.error_response(
+                'Username has to be at least three characters long'
             );
-            res.json({
-                success: true,
-                token: token,
-            });
+            // if username is longer than 20 characters.
+        } else if (payload.username.length > 20) {
+            response.error_response('Username cannot exceed 20 characters');
+            // if no space in the name was present
+        } else if (payload.name.indexOf(' ') == -1) {
+            response.error_response(
+                'Please provide a full name, ex. Michael Stevens'
+            );
+            // If no password was present
+        } else if (payload.password == '') {
+            response.error_response('Please enter a password.');
+        }
+
+        var return_val = await this.User.create(
+            payload.username,
+            payload.password,
+            payload.name
+        );
+        if (return_val.success) {
+            var token = await this.User.generate_token(
+                return_val.user.username
+            );
+            response.success_response('success', { token: token });
         } else {
-            res.json({
-                success: false,
-                text: response.text,
-            });
+            response.success_response(return_val.text);
         }
     }
 
     /**
-     * POST /api/user
-     * Check if a username is taken
+     * POST /api/user,
+     * Check if a username is taken and returns a json.
      * @param {*} req
      * @param {*} res
      */
     async username_taken(req, res) {
-        var username = req.body.username;
-        if (!username) {
-            res.json({
-                success: false,
-                text: 'Missing username attribute',
-            });
-            return;
-        }
-        var user = await this.server.User.get_from_username(username);
-        if (user) {
-            res.json({
-                success: true,
-                taken: true,
-            });
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+
+        if (payload.username) {
+            var user = await this.User.get_from_username(
+                payload.username
+            );
+            if (user) {
+                response.success_response('success', { taken: true });
+            } else {
+                response.success_response('success', { taken: false });
+            }
         } else {
-            res.json({
-                success: true,
-                taken: false,
-            });
+            response.error_response('Missing username attribute');
         }
     }
 
     /**
-     * Sign a client to thier slack account (link)
-     * @param {*} req
-     * @param {*} res
+     * will sign a client to their slack account (link)
+     * @param {Request} req
+     * @param {Response} res
      */
     async sign(req, res) {
-        var token = req.body.token;
-        var sign_token = req.body.sign_token;
-
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        // TODO, Find a better solution than storing the slack_sign.users in the server, possibly in database.
         for (var sign of this.server.slack_sign_users) {
-            if (sign.token === sign_token) {
-                var user = await this.server.User.get_from_token(token);
+            if (sign.token === payload.sign_token) {
+                var user = await this.User.get_from_token(payload.token);
                 if (user) {
+                    var db = new (require('../Database'))();
+
+
                     // Fill users slack information
-                    await this.server.db.query(
+                    await db.query(
                         'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
                         [
                             sign.email,
@@ -362,8 +331,7 @@ class API {
                             user.id,
                         ]
                     );
-                    res.json({
-                        success: true,
+                    response.success_response('success', {
                         redir: '/dashboard',
                     });
                 }
