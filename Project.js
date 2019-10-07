@@ -244,8 +244,8 @@ class Project {
 
         //Add the user to joints
         await this.db.query(
-            'INSERT INTO joints (project, user, date, work) VALUES (?, ?, ?, ?)',
-            [project.id, user_to_add.id, Date.now(), 0]
+            'INSERT INTO joints (project, user, work) VALUES (?, ?, ?)',
+            [project.id, user_to_add.id, 0]
         );
         return new this.SuccessResponse(
             'Added ' + user_to_add.name + ' to ' + project.name + '!'
