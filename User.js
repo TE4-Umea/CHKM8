@@ -52,9 +52,7 @@ class User {
     async get_from_slack(req) {
         var success = this.SlackAPI.verify_slack_request(req);
         if (!success) {
-            return new this.ErrorResponse(
-                'Slack request unable to verify'
-            );
+            return new this.ErrorResponse('Slack request unable to verify');
         }
 
         var body = req.body;
@@ -63,9 +61,7 @@ class User {
         if (user) {
             return user;
         } else {
-            return new this.ErrorResponse(
-                'User could not be found'
-            );
+            return new this.ErrorResponse('User could not be found');
         }
     }
 
@@ -101,13 +97,11 @@ class User {
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (!user) {
-            return new this.ErrorResponse(
-                'User could not be found'
-            );
+            return new this.ErrorResponse('User could not be found');
         }
-        
+
         if (user.password === this.md5(password)) return user;
-        
+
         return new this.SuccessResponse('User successfully retrieved');
     }
 
@@ -183,10 +177,8 @@ class User {
      */
     async get_from_token(token) {
         if (!token) {
-            return new this.ErrorResponse(
-                'Invalid token'
-            );
-        }   
+            return new this.ErrorResponse('Invalid token');
+        }
 
         var db_token = await this.db.query_one(
             'SELECT * FROM tokens WHERE token = ?',
@@ -194,16 +186,14 @@ class User {
         );
 
         if (!db_token) {
-            return new this.ErrorResponse(
-                'Could not identify token' 
-            );
+            return new this.ErrorResponse('Could not identify token');
         }
-        
+
         var user = await this.get(db_token.user);
         if (user) {
             return user;
         }
-        
+
         return new this.SuccessResponse('User successfully retrieved');
     }
 
@@ -272,6 +262,7 @@ class User {
                 Math.random(),
             ];
             user.projects.push(project);
+
         }
     }
 }
