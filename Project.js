@@ -206,7 +206,7 @@ class Project {
     /**
      * Add user to project.
      * @param {User} user_to_add User being added to project
-     * @param {Number} project_id ID of project to add user to.
+     * @param {Number} project_name ID of project to add user to.
      * @param {User} user User that requests the action.
      * @returns {JSONResponse}
      */
