@@ -34,9 +34,6 @@ class Server {
         this.API = require('./controllers/ApiController');
         this.API = new this.API(this);
 
-        /** Array of users ready to be linked to slack, cleared on restart. */
-        this.slack_sign_users = [];
-
         /** Database async handler */
         var Database = require('./Database');
         /** Setup db handler with config */

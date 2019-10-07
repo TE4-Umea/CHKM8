@@ -344,30 +344,69 @@ class API {
     async sign(req, res) {
         var token = req.body.token;
         var sign_token = req.body.sign_token;
+        var sign;
 
-        for (var sign of this.server.slack_sign_users) {
-            if (sign.token === sign_token) {
-                var user = await this.server.User.get_from_token(token);
-                if (user) {
-                    // Fill users slack information
-                    await this.server.db.query(
-                        'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
-                        [
-                            sign.email,
-                            sign.slack_id,
-                            sign.slack_domain,
-                            sign.access_token,
-                            sign.avatar,
-                            sign.name,
-                            user.id,
-                        ]
-                    );
-                    res.json({
-                        success: true,
-                        redir: '/dashboard',
-                    });
-                }
+        /* Send a request to slack to get user information from the login */
+        this.server.https.get(
+            `https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&client_secret=${this.server.config.client_secret}&code=${sign_token}`,
+            resp => {
+                var data = '';
+                resp.on('data', chunk => {
+                    data += chunk;
+                });
+
+                resp.on('end', async () => {
+                    /* Once the data has been downloaded, parse it into a JSON */
+                    data = JSON.parse(data);
+                    /* If the request and code was successfull */
+                    if (data.ok) {
+                        /* Check if the user is already signed up */
+                        var slack_taken = await this.server.db.query_one(
+                            'SELECT * FROM users WHERE slack_id = ?',
+                            data.user.id
+                        );
+                        if (slack_taken) {
+                            res.send(
+                                'This slack account is already linked to another user. Please delete that account first or ask an administrator for help.'
+                            );
+                            return;
+                        }
+                        // Successfully got information from slack and this user is not already linked.
+                        sign = {
+                            access_token: data.access_token,
+                            slack_domain: data.team.domain,
+                            slack_id: data.user.id,
+                            name: data.user.name,
+                            avatar: data.user.image_512,
+                            email: data.user.email,
+                        };
+                    } else {
+                        res.end(data.error);
+                        return;
+                    }
+                });
             }
+        );
+
+        var user = await this.server.User.get_from_token(token);
+        if (user) {
+            // Fill users slack information
+            await this.server.db.query(
+                'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
+                [
+                    sign.email,
+                    sign.slack_id,
+                    sign.slack_domain,
+                    sign.access_token,
+                    sign.avatar,
+                    sign.name,
+                    user.id,
+                ]
+            );
+            res.json({
+                success: true,
+                redir: '/dashboard',
+            });
         }
     }
 }
