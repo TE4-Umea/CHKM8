@@ -167,18 +167,24 @@ class User {
     async get_from_token(token) {
         if (!token) {
             return new this.ErrorResponse(
-                'User is the owner of the project (delete project to leave)'
+                'An error has occured' // Ändra
             );
-        }       
+        }   
+
         var db_token = await this.db.query_one(
             'SELECT * FROM tokens WHERE token = ?',
             token
         );
-        if (db_token) {
-            var user = await this.get(db_token.user);
-            if (user) {
-                return user;
-            }
+
+        if (!db_token) {
+            return new this.ErrorResponse(
+                'An error has occured' // Ändra
+            );
+        }
+        
+        var user = await this.get(db_token.user);
+        if (user) {
+            return user;
         }
         
         return false;
