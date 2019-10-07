@@ -100,7 +100,9 @@ class User {
             );
             return token;
         }
-        return false;
+        return new this.ErrorResponse(
+            'Unknown user'
+        );
     }
 
     async delete(username) {
@@ -112,7 +114,9 @@ class User {
             await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
-        return false;
+        return new this.ErrorResponse(
+            'Unknown user'
+        );
     }
 
     /**
@@ -153,7 +157,9 @@ class User {
             );
             return user;
         }
-        return false;
+        return new this.ErrorResponse(
+            'Unknown user'
+        );
     }
 
     /**
@@ -194,7 +200,9 @@ class User {
             var data = await this.get_data(user.id);
             return data;
         }
-        return false;
+        return new this.ErrorResponse(
+            'Unknown user'
+        );
     }
 
     /**
