@@ -93,7 +93,6 @@ class Check {
      */
     async get_last_check(user_id) {
         /** Get the last check from the database */
-        console.log(this)
         var last_check_in = await this.db.query_one(
             'SELECT * FROM checks WHERE user = ? ORDER BY date DESC LIMIT 1',
             user_id
