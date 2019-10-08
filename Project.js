@@ -9,6 +9,11 @@ class Project {
      * Create a new instance of Project.
      * This requires all dependencies and connectes to the Database.
      * There are not static functions in this class.
+     * 
+     * @property {Database} db
+     * @property {User} User
+     * @property {JSONResponse} SuccessResponse
+     * @property {JSONResponse} ErrorResponse
      */
     constructor() {
         var ConfigLoader = require('./ConfigLoader');
@@ -32,7 +37,7 @@ class Project {
     /**
      * Get a project from it's ID
      * @param {Number} project_id ID of the project
-     * @returns {Object|Boolean} Project object, false if no project id is specified or if no project is found.
+     * @returns {Object|Boolean} Project object | false if no project id is specified or if no project is found.
      */
     async get(project_id) {
         if (!project_id) return false;
@@ -47,7 +52,7 @@ class Project {
     /**
      * Get a project from it's name
      * @param {String} project_name The name of the project
-     * @returns {Object|Boolean} Project object, false if no project name is specified or if no project is found.
+     * @returns {Object|Boolean} Project object | false if no project name is specified or if no project is found.
      */
     async get_from_name(project_name) {
         if (typeof project_name != 'string') return false;
@@ -62,7 +67,7 @@ class Project {
      * Returns boolean weather or not the user is apart of a project (owner or jointed)
      * @param {Number} user_id ID of the user
      * @param {Number} project_id ID of the project
-     * @returns {Boolean} true if user is part of the project, otherwise false.
+     * @returns {Boolean} true if user is part of the project | otherwise false.
      */
     async is_joined(user_id, project_id) {
         if (user_id && project_id) {
@@ -90,7 +95,7 @@ class Project {
      * }
      * @param {Number} project_id ID of the project
      * @param {User} user User that did the request (optional) (if the user is unauthorized it will refuse the request)
-     * @returns {Object|JSONResponse} Project data contained within an object.
+     * @returns {Object|JSONResponse} Project data contained within an object. | Response message.
      */
     async get_data(project_id, user = false) {
         /** Get project */

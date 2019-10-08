@@ -1,10 +1,4 @@
 class User {
-    /**
-     * 
-     * @property {Database} db
-     * @property {JSONResponse} SuccessResponse
-     * @property {JSONResponse} ErrorResponse
-     */
     constructor() {
         this.md5 = require('md5');
 
