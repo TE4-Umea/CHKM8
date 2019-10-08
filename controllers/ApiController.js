@@ -254,6 +254,7 @@ class API {
             payload.password,
             payload.name
         );
+        
         if (return_val.success) {
             var token = await this.User.generate_token(
                 return_val.user.username

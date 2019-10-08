@@ -22,11 +22,10 @@ class Check {
      * @param {Int} type Method of checking (web, card, slack, terminal)
      */
     async insert_check(user_id, check_in, project_id = null, type) {
-        var UserClass = new (require('./User'))();
-        var Project = new (require('./Project'))();
+        var User = new (require('./User'))();
 
         // Get user from ID
-        var user = await UserClass.get(user_id);
+        var user = await User.get(user_id);
 
         if (user) {
             // Get the users last check
@@ -34,14 +33,6 @@ class Check {
 
             // Calcualte time between last check and now
             var time_of_checkout = Date.now() - last_check.date;
-
-            /** If the user is checking out and their last check was in a project (aka currently checked into a project)
-             *  We need to add their time_of_checkout to their work time on the project.
-             */
-            if (!check_in && last_check.project != '') {
-                /** Get the project info */
-                project = await Project.get(last_check.project);
-            }
 
             if (project_id) {
                 // Make sure the project exists and then get the joint to make sure they are a part of the project
@@ -202,8 +193,8 @@ class Check {
      * @returns User if found
      */
     async check_user_input(user_id) {
-        var UserClass = new (require('./User'))(this);
-        var user = await UserClass.get(user_id);
+        var User = new (require('./User'))(this);
+        var user = await User.get(user_id);
 
         if (user) {
             // Get the last check from the user (to determine if they are currently checked in, how much time and what project.)
