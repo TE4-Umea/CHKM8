@@ -1,6 +1,8 @@
 class User {
     constructor() {
-        this.md5 = require('md5');
+        // Declare bcrypt and salt
+        this.bcrypt = require('bcrypt');
+        this.salt_rounds = 10;
 
         this.crypto = require('crypto');
         this.fs = require('file-system');
@@ -24,7 +26,7 @@ class User {
      * Get user from slack request, if they are not registered an account will be created.
      * @param {*} req Slack request
      */
-    hash() {
+    hash1() {
         return this.crypto
             .randomBytes(20)
             .toString('hex')
@@ -61,11 +63,14 @@ class User {
                 text: 'Username taken',
             };
         }
+
         // Insert into the database
-        await this.db.query(
+        var hash = this.bcrypt.hashSync(password, this.salt_rounds);
+        this.db.query(
             'INSERT INTO users (username, name, password) VALUES (?, ?, ?)',
-            [username, full_name, this.md5(password)]
+            [username, full_name, hash]
         );
+
         var user = await this.get_from_username(username);
         if (user) {
             this.Debug.log('Account created for ' + full_name);
@@ -76,21 +81,33 @@ class User {
         }
     }
 
+    /**
+     * Get username and password
+     * @param {*} username 
+     * @param {*} password 
+     */
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (!user) {
             return new this.ErrorResponse('User could not be found');
         }
 
-        if (user.password === this.md5(password)) return user;
-
+        const match = await this.bcrypt.compare(password, user.password);
+        if (match) {
+            return user;
+        }
         return new this.SuccessResponse('User successfully retrieved');
     }
 
+    /**
+     * Generate user token
+     * @param {*} username 
+     * @param {*} ip 
+     */
     async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
         if (user) {
-            var token = this.hash();
+            var token = this.hash1();
             await this.db.query(
                 'INSERT INTO tokens (token, user, ip) VALUES (?, ?, ?)',
                 [token, user.id, ip]
@@ -102,6 +119,10 @@ class User {
         );
     }
 
+    /**
+     * Delete user
+     * @param {*} username 
+     */
     async delete(username) {
         var user = await this.get_from_username(username);
         if (user) {
@@ -161,7 +182,7 @@ class User {
     }
 
     /**
-     *
+     * Get user from token
      * @param {*} token
      */
     async get_from_token(token) {
@@ -204,7 +225,7 @@ class User {
     }
 
     /**
-     *
+     * Get data from u
      * @param {*} user_id
      */
     async get_data(user_id) {
