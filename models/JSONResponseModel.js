@@ -1,15 +1,24 @@
+/**
+ * A response containing a status message, success status and optional properties.
+ * @typedef {Object} JSONResponse
+ * @property {String} text yeet
+ */
+
 class JSONResponse {
     /**
      * A response
-     * @param {String} text Message
+     * 
      * @param {Object} params Optional parameters
+     * @param {Boolean} success true on success, false on error.
      * @returns {JSONResponse} Statement
      */
-    constructor(text, params = {}) {
-        this.text = text;
+    constructor(text, success, params = {}) {
+        this.text = 'test';//text;
+        this.success = success;
         for (var key in params) {
             this[key] = params[key];
         }
+
         return this;
     }
 }
@@ -22,9 +31,7 @@ class SuccessResponse extends JSONResponse {
      * @returns {SuccessResponse} success statement
      */
     constructor(text, params = {}) {
-        super(text, params);
-        this.success = true;
-        return this;
+        super(text, true, params);
     }
 }
 
@@ -36,9 +43,7 @@ class ErrorResponse extends JSONResponse {
      * @returns {ErrorResponse} error statement
      */
     constructor(text, params = {}) {
-        super(text, params);
-        this.success = false;
-        return this;
+        super(text, false, params);
     }
 }
 
