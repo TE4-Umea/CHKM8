@@ -4,8 +4,11 @@ class Check {
         /** Database async handler */
         var Database = require('./Database');
 
+        var ConfigLoader = require('./ConfigLoader');
+        ConfigLoader = new ConfigLoader();
+
         /** Setup db handler with config */
-        this.db = new Database(this.config);
+        this.db = new Database(ConfigLoader.load());
 
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
@@ -16,12 +19,12 @@ class Check {
 
     /**
      * Insert a check into the database.
-     * A check is either a check in or check out.
+     * A check is either a check in or check out.sudo
      * It also saves time, project and method of checking
      * @param {Int} user_id ID of the user to be checked in or out
      * @param {Boolean} check_in If the check is in or out
      * @param {String} project Project name (optional)
-     * @param {String} type Method of checking (web, card, slack, terminal)
+     * @param {Int} type Method of checking (web, card, slack, terminal)
      */
     async insert_check(user_id, check_in, project = null, type) {
         var UserClass = new (require('./User'))();
@@ -62,9 +65,10 @@ class Check {
             if (!check_in) project = '';
             if (!project) project = '';
             /** Insert check into the database */
+            console.log(project);
             await this.db.query(
                 'INSERT INTO checks (user, check_in, project, date, type) VALUES (?, ?, ?, ?, ?)',
-                [user_id, check_in, project, Date.now(), type]
+                [user_id, check_in, project.name, Date.now(), type]
             );
             /** Log that the action has occurred */
             this.log(
@@ -132,6 +136,7 @@ class Check {
         if (user) {
             var last_check = await this.get_last_check(user.id);
         } else {
+            console.log('fan');
             return new this.ErrorResponse('User not found.');
         }
         var project = await this.check_project_input(project_name);
@@ -146,22 +151,27 @@ class Check {
         } else {
             project = '';
             /** Project not found from name */
-            return new this.ErrorResponse('Project not found.');
+            //return new this.ErrorResponse('Project not found.');
         }
-        if (!owns_project) {
-            /** If they are not part of the project, refuse the check */
-            return new this.ErrorResponse(
-                'User is not a part of this project.'
-            );
-        } else {
+        if (project && owns_project) {
             /** Otherwise, update the project name to make sure capitalisation is right.
              *  User has now been confirmed a part of the project requested
              */
             project_name = project.name;
+        } else if (project && !owns_project) {
+            /** If they are not part of the project, refuse the check */
+            return new this.ErrorResponse(
+                'User is not a part of this project.'
+            );
         }
 
         /** Allow toggle check ins if force checkin is not specified */
         if (check_in === null) check_in = !last_check.check_in;
+
+        /** If users last check was a check in, this will check them out before checking them in. */
+        if (check_in === true && last_check.check_in) {
+            this.check_in(user_id, false, null, type);
+        }
 
         /** Check IN the user */
         if (
@@ -174,11 +184,6 @@ class Check {
                 'You are already checked in.' +
                     (project_name ? ' Project: ' + project_name : '')
             );
-        }
-
-        /** If users last check was a check in, this will check them out before checking them in. */
-        if (check_in === true && last_check.check_in) {
-            this.check_in(user_id, false, null, type);
         }
 
         /** Check OUT the user */
@@ -220,8 +225,8 @@ class Check {
      */
     async check_user_input(user_id) {
         var UserClass = new (require('./User'))(this);
-
         var user = await UserClass.get(user_id);
+
         if (user) {
             /** Get the last check from the user (to determine if they are currently checked in, how much time and what project.) */
             return user;
