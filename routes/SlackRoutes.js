@@ -1,7 +1,9 @@
 class SlackRoutes {
     constructor(server) {
-        var slack_controller = new (require('../controllers/SlackApiController'))(server);
-        
+        var slack_controller = new (require('../controllers/SlackApiController'))(
+            server
+        );
+
         /**
          * @swagger
          *
@@ -16,7 +18,9 @@ class SlackRoutes {
          *       200:
          *         description: Html view of the slack authentication page.
          */
-        server.app.get('/auth', slack_controller.auth);
+        server.app.get('/auth', (req, res) => {
+            slack_controller.auth(req, res);
+        });
 
         /**
          * @swagger
@@ -29,14 +33,14 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: userid
-         *         schema: 
+         *         schema:
          *           type: integer
          *         description: Id from the user
          *         required: false
-         * 
+         *
          *       - in: formData
          *         name: project
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: Project to check in and track time at
          *         required: false
@@ -46,7 +50,9 @@ class SlackRoutes {
          *       200:
          *         description: Checks in the user in specified project
          */
-        server.app.post('/api/slack/checkin', slack_controller.check_in);
+        server.app.post('/api/slack/checkin', (req, res) => {
+            slack_controller.check_in(req, res);
+        });
 
         /**
          * @swagger
@@ -59,7 +65,7 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: userid
-         *         schema: 
+         *         schema:
          *           type: integer
          *         description: Id from the user
          *         required: true
@@ -70,7 +76,7 @@ class SlackRoutes {
          *         description: Checks out from the current project and time tracking
          */
         server.app.post('/api/slack/checkout', slack_controller.check_out);
-        
+
         /**
          * @swagger
          *
@@ -79,7 +85,7 @@ class SlackRoutes {
          *     description: Removes user from specified project.
          *     produces:
          *       - application/json
-        *     parameters:
+         *     parameters:
          *       - name: token
          *         description: Login authentication token for user that is removing others from project.
          *         in: formData
@@ -93,7 +99,7 @@ class SlackRoutes {
          *       - name: project
          *         description: Variable to see which projects members are being modified
          *         required: true
-         *         type: int  
+         *         type: int
          *     tags:
          *       - slack
          *     responses:
@@ -102,7 +108,9 @@ class SlackRoutes {
          *       201:
          *         description: Json with error message.
          */
-        server.app.post('/api/slack/remove', slack_controller.remove);
+        server.app.post('/api/slack/remove', (req, res) => {
+            slack_controller.remove(req, res);
+        });
 
         /**
          * @swagger
@@ -115,21 +123,21 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: User
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: User to add to the project
          *         required: true
-         * 
+         *
          *       - in: formData
          *         name: Project
-         *         schema: 
+         *         schema:
          *           type: integer
          *         description: Project to add user to
          *         required: true
-         * 
+         *
          *       - in: formData
          *         name: User
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: User that ran the command
          *         required: true
@@ -139,8 +147,10 @@ class SlackRoutes {
          *       200:
          *         description: Add the specified user to the specified project
          */
-        server.app.post('/api/slack/add', slack_controller.add);
-        
+        server.app.post('/api/slack/add', (req, res) => {
+            slack_controller.add(req, res);
+        });
+
         /**
          * @swagger
          *
@@ -152,13 +162,13 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: project_name
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: The name of the project.
-         * 
+         *
          *       - in: formData
          *         name: user
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: User that creates the project
          *     tags:
@@ -168,7 +178,9 @@ class SlackRoutes {
          *         description: Creates a new project with the specified name
          */
 
-        server.app.post('/api/slack/new', slack_controller.new_project);
+        server.app.post('/api/slack/new', (req, res) => {
+            slack_controller.new_project(req, res);
+        });
 
         /**
          * @swagger
@@ -184,7 +196,9 @@ class SlackRoutes {
          *       200:
          *         description: Loads a help menu using the commands.md file and reads it using utf-8
          */
-        server.app.post('/api/slack/help', slack_controller.help);
+        server.app.post('/api/slack/help', (req, res) => {
+            slack_controller.help(req, res);
+        });
 
         /**
          * @swagger
@@ -197,14 +211,14 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: Project_to_delete
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: Project to delete
          *         required: true
-         * 
+         *
          *       - in: formData
          *         name: User
-         *         schema: 
+         *         schema:
          *           type: integer
          *         description: ID of  the user to authenticate that they are an owner.
          *         required: true
@@ -214,7 +228,9 @@ class SlackRoutes {
          *       200:
          *         description: Deletes specified project
          */
-        server.app.post('/api/slack/delete', slack_controller.delete_project);
+        server.app.post('/api/slack/delete', (req, res) => {
+            slack_controller.delete_project(req, res);
+        });
 
         /**
          * @swagger
@@ -227,7 +243,7 @@ class SlackRoutes {
          *     parameters:
          *       - in: formData
          *         name: Project
-         *         schema: 
+         *         schema:
          *           type: string
          *         description: Project to get info from
          *         required: false
@@ -237,7 +253,9 @@ class SlackRoutes {
          *       200:
          *         description: List of projects with owners
          */
-        server.app.post('/api/slack/project', slack_controller.project);
+        server.app.post('/api/slack/project', (req, res) => {
+            slack_controller.project(req, res);
+        });
     }
 }
 

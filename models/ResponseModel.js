@@ -23,7 +23,7 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async success_response(message = '', params = {}) {
-        this.json(this._SuccessResponse(message, params));
+        this.json(new this._SuccessResponse(message, params));
     }
 
     /**
@@ -34,7 +34,7 @@ class ResponseModel {
      * @param {object=} params optional
      */
     async error_response(message = '', params = {}) {
-        this.json(this._ErrorResponse(message, params));
+        this.json(new this._ErrorResponse(message, params));
     }
 
     /**
