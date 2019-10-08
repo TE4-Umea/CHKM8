@@ -7,6 +7,7 @@ function check_usersname(el) {
         return;
     }
 
+    //Checks if a username is taken.
     axios
         .get('/api/user/taken', {
             params: {
@@ -16,12 +17,7 @@ function check_usersname(el) {
         .then(res => {
             update_login_page(res.data.taken);
         });
-    /* socket.emit("username_taken", el.value) */
 }
-
-/* socket.on("username_taken", taken => {
-    update_login_page(taken)
-}) */
 
 function update_login_page(username_taken, disabled = false) {
     login_mode = username_taken;

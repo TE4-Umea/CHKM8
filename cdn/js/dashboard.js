@@ -1,6 +1,7 @@
 if (!token) location.href = "/login"
 var sign_token = document.getElementById("slack-sign-token").innerText
 if (sign_token) {
+    //Links a Authenticated user with a slack user.
     axios.patch("/api/user/slack", {
         token,
         sign_token
@@ -54,6 +55,7 @@ function insert_projects() {
 }
 
 function reload_dash(){
+    //Gets user data specified by token.
     axios.get("/api/user", {
         params: {
             token
@@ -107,6 +109,7 @@ document.addEventListener("mousemove", e => {
 })
 
 function check_in() {
+    //Checks in user.
     axios.post("/api/user/check", {
         token: token
     }).then(res => {
@@ -228,6 +231,7 @@ function get_project(project_name) {
 function check_in_project(project_name) {
     var check_in = me.checked_in_project == project_name ? false : true
 
+    //Checks in user to project.
     axios.post("/api/user/check", {
         token: token,
         check_in: check_in,
@@ -287,6 +291,7 @@ function format_time(ms) {
 function new_project() {
     var project = prompt("Choose a name of the project: ")
     if (project) {
+        //Creates new project
         axios.post("/api/project", {
             project,
             token

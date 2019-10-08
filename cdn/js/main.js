@@ -8,6 +8,7 @@ var on_login = () => {}
 
 var token = localStorage.getItem("token")
 if (token) {
+    //Gets user data specified by token.
     axios.get("/api/user", {
         params: {
             token

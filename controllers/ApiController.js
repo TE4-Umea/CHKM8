@@ -31,7 +31,7 @@ class API {
                     user.id,
                     payload.check_in,
                     payload.project,
-                    'api'
+                    0
                 )
             );
         } else {
