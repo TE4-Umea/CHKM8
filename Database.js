@@ -3,23 +3,22 @@
  */
 
 class Database {
-
-    constructor(config){
-        this.config = config
-        this.mysql = require("mysql")
+    constructor(config) {
+        this.config = config;
+        this.mysql = require('mysql');
     }
     /**
      * Create a new mysql connection
      * ! Make sure to destroy it after or it will cause a crash
      */
     create_connection() {
-        
+        console.log(this);
         return this.mysql.createConnection({
             host: this.config.mysql_host,
             user: this.config.mysql_user,
             password: this.config.mysql_pass,
-            database: this.config.database
-        })
+            database: this.config.database,
+        });
     }
 
     /**
@@ -29,15 +28,15 @@ class Database {
      */
     query(sql, args) {
         // Connect to mysql
-        var con = this.create_connection()
+        var con = this.create_connection();
 
         return new Promise((resolve, reject) => {
             con.query(sql, args, (err, rows) => {
-                con.destroy()
+                con.destroy();
                 if (err) return reject(err);
                 resolve(rows);
-            })
-        })
+            });
+        });
     }
     /**
      * SELECT only one item
@@ -47,15 +46,15 @@ class Database {
     query_one(sql, args) {
         return new Promise((resolve, reject) => {
             /* Connect to the database */
-            var con = this.create_connection()
+            var con = this.create_connection();
 
             con.query(sql, args, (err, rows) => {
-                con.destroy()
+                con.destroy();
                 if (err) return reject(err);
-                resolve(rows[0])
-            })
-        })
+                resolve(rows[0]);
+            });
+        });
     }
 }
 
-module.exports = Database
+module.exports = Database;
