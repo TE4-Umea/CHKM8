@@ -23,7 +23,7 @@ class Check {
      */
     async insert_check(user_id, check_in, project = null, type) {
         var UserClass = new (require('./User'))();
-        var ProjectClass = new (require('./Project'))();
+        var Project = new (require('./Project'))();
 
         /** Get user from ID */
         var user = await UserClass.get(user_id);
@@ -39,7 +39,7 @@ class Check {
              */
             if (!check_in && last_check.project != '') {
                 /** Get the project info */
-                project = await ProjectClass.get(last_check.project);
+                project = await Project.get(last_check.project);
             }
             if (project) {
                 /** Make sure the project exists and then get the joint to make sure they are a part of the project */
@@ -123,7 +123,7 @@ class Check {
         project_name = null,
         type = 'unknown'
     ) {
-        var ProjectClass = new (require('./Project'))();
+        var Project = new (require('./Project'))();
         var user = await this.check_user_input(user_id);
 
         // Check if user is defined, if so get last check
@@ -137,14 +137,12 @@ class Check {
         // Check if the project is definined, if so it's an existing project
         if (project) {
             /** Check if the user is a part of the project */
-            var owns_project = await ProjectClass.is_joined(
+            var owns_project = await Project.is_joined(
                 user.id,
                 project.id
             );
         } else {
             project = '';
-            /** Project not found from name */
-            return new this.ErrorResponse('Project not found.');
         }
         if (!owns_project) {
             /** If they are not part of the project, refuse the check */
@@ -235,7 +233,7 @@ class Check {
      * @returns Project if found
      */
     async check_project_input(project_name) {
-        var ProjectClass = new (require('./Project'))(this);
+        var Project = new (require('./Project'))(this);
         /** Check if a project was admitted */
         if (
             project_name != null &&
@@ -243,7 +241,7 @@ class Check {
             project_name != undefined
         ) {
             /** If project is admitted, load it from the DB */
-            var project = await ProjectClass.get(project_name);
+            var project = await Project.get(project_name);
             return project;
         } else {
             //No project admitted

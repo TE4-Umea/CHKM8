@@ -18,6 +18,8 @@ class User {
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
 
         this.Debug = new (require('./Debug'))();
+
+        this.Check = new (require('./Check'))();
     }
 
     /**
@@ -97,9 +99,7 @@ class User {
             );
             return token;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     async delete(username) {
@@ -111,9 +111,7 @@ class User {
             await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -135,7 +133,7 @@ class User {
      * @returns {User} User
      */
     async get(user_id) {
-        if(!user_id) return false;
+        if (!user_id) return false;
         var user = await this.db.query_one(
             'SELECT * FROM users WHERE id = ?',
             user_id
@@ -155,9 +153,7 @@ class User {
             );
             return user;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -198,9 +194,7 @@ class User {
             var data = await this.get_data(user.id);
             return data;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -208,7 +202,6 @@ class User {
      * @param {*} user_id
      */
     async get_data(user_id) {
-
         var user = await this.get(user_id);
         if (user) {
             // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
@@ -234,7 +227,7 @@ class User {
 
             // Load and compile projects the user has joined.
             for (var joint of joints) {
-                var project = await Project.get_from_id(joint.project);
+                var project = await Project.get(joint.project);
                 project.work = joint.work;
                 project.activity = [
                     Math.random(),
@@ -246,7 +239,6 @@ class User {
                 user.projects.push(project);
             }
             return user;
-
         }
     }
 }
