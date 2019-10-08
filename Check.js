@@ -29,7 +29,6 @@ class Check {
         var user = await UserClass.get(user_id);
 
         if (user) {
-
             // Get the users last check
             var last_check = await this.get_last_check(user.id);
 
@@ -52,7 +51,7 @@ class Check {
                     [user_id, project_id]
                 );
             }
-            
+
             if (joint) {
                 // Add time worked on to the joint
                 await this.db.query('UPDATE joints SET work = ? WHERE id = ?', [
@@ -181,20 +180,23 @@ class Check {
 
         // Check OUT the user
         if (check_in === false && last_check.check_in) {
-
             // Insert checkout
             await this.insert_check(user.id, false, project_id, type);
-            return new this.SuccessResponse(`You are now checked out`);
-            
+            return new this.SuccessResponse(`You are now checked out`, {
+                checked_in: false,
+            });
         } else if (check_in === false && !last_check.check_in) {
-            return new this.SuccessResponse('You are already checked out.');
+            return new this.SuccessResponse('You are already checked out.', {
+                checked_in: false,
+            });
         }
 
         // Insert the check in
         await this.insert_check(user.id, true, project_id, type);
         return new this.SuccessResponse(
             'You are now checked in.' +
-                (project_name ? ' Project: ' + project_name : '')
+                (project_name ? ' Project: ' + project_name : ''),
+            { checked_in: true }
         );
     }
 
