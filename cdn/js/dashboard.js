@@ -194,7 +194,7 @@ function render_canvas(canvas, project, progress = 0) {
 function light_up_project(el, light_up = true, animate = true) {
 
     var project_name = el.getAttribute("project-name")
-    var project = get_project(project_name)
+    var project = get_project_from_name(project_name)
 
     var gradient = [light_up ? project.color_top : "#b5b5b5", light_up ? project.color_bot : "#757575"]
     el.children[3].style.fill = "url(#" + project.name + "-gradient)"
@@ -221,9 +221,16 @@ function light_up_project(el, light_up = true, animate = true) {
 }
 
 
-function get_project(project_name) {
+function get_project(id) {
     for (var project of me.projects) {
-        if (project.name == project_name) return project
+        if (project.id == id) return project
+    }
+    return false
+}
+
+function get_project_from_name(name) {
+    for (var project of me.projects) {
+        if (project.name == name) return project
     }
     return false
 }
@@ -250,7 +257,7 @@ function check_in_project(project_name) {
 
 function update_projects(checked_in, project_name) {
     for (var el of document.getElementsByClassName("project")) {
-        render_canvas(el.children[1], get_project(el.getAttribute("project-name")))
+        render_canvas(el.children[1], get_project_from_name(el.getAttribute("project-name")))
         if (el.getAttribute("project-name") == me.checked_in_project) {
             light_up_project(el)
         }

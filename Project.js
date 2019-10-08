@@ -276,7 +276,7 @@ class Project {
 
         // Make sure project name is valid
         if (project_name.replace(/[^a-z0-9_]+|\s+/gim, '') !== project_name)
-            new this.ErrorResponse('Project name forbidden');
+            return new this.ErrorResponse('Project name forbidden');
 
         /* Generate gradients from project. */
         var gradient = await this.new_gradient(user.id);
