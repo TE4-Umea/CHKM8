@@ -26,7 +26,7 @@ class User {
      * Get user from slack request, if they are not registered an account will be created.
      * @param {*} req Slack request
      */
-    hash1() {
+    hash() {
         return this.crypto
             .randomBytes(20)
             .toString('hex')
@@ -107,7 +107,7 @@ class User {
     async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
         if (user) {
-            var token = this.hash1();
+            var token = this.hash();
             await this.db.query(
                 'INSERT INTO tokens (token, user, ip) VALUES (?, ?, ?)',
                 [token, user.id, ip]
@@ -225,7 +225,7 @@ class User {
     }
 
     /**
-     * Get data from u
+     * Get data from user id
      * @param {*} user_id
      */
     async get_data(user_id) {
