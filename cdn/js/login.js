@@ -7,6 +7,7 @@ function check_usersname(el) {
         return
     }
 
+    //Checks if a username is taken.
     axios.get("/api/user/taken", {
         params: {
             username: el.value
@@ -46,6 +47,7 @@ function login() {
     var password = document.getElementById("password").value
     var name = document.getElementById("name").value
     if (login_mode) {
+        //Gets user data specified by token.
         axios.get("/api/user", {
             params: {
                 username,
@@ -60,6 +62,7 @@ function login() {
             }
         })
     } else {
+        //Registers a new user to website.
         axios.post("/api/user", {
             username,
             password,
