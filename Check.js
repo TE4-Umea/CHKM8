@@ -177,16 +177,21 @@ class Check {
         if (check_in === false && last_check.check_in) {
             // Insert checkout
             await this.insert_check(user.id, false, project_id, type);
-            return new this.SuccessResponse(`You are now checked out`);
+            return new this.SuccessResponse(`You are now checked out`, {
+                checked_in: false,
+            });
         } else if (check_in === false && !last_check.check_in) {
-            return new this.SuccessResponse('You are already checked out.');
+            return new this.SuccessResponse('You are already checked out.', {
+                checked_in: false,
+            });
         }
 
         // Insert the check in
         await this.insert_check(user.id, true, project_id, type);
         return new this.SuccessResponse(
             'You are now checked in.' +
-                (project_name ? ' Project: ' + project_name : '')
+                (project_name ? ' Project: ' + project_name : ''),
+            { checked_in: true }
         );
     }
 
