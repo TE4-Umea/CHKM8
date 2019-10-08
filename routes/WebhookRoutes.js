@@ -1,6 +1,5 @@
 class WebhookRoutes {
     constructor(server) {
-
         let Controller = new (require('../controllers/WebHookController'))();
         /**
          * Github WEBHOOK
@@ -8,7 +7,9 @@ class WebhookRoutes {
          * The webhook does not confirm that it comes from github, so it's important to disable it for release.
          * TODO: Verify webhook request is from Github
          */
-        server.app.post('/webhook', Controller.index);
+        server.app.post('/webhook', (req, res) => {
+            Controller.index;
+        });
     }
 }
 

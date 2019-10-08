@@ -29,15 +29,17 @@ class RestRoutes {
          *         required: false
          *         type: int
          *     tags:
-         *       - project 
+         *       - project
          *     responses:
          *       200:
          *         description: Json with check in or out success and a text message.
          *       201:
          *         description: Json with error message.
-         * 
+         *
          */
-        server.app.post('/api/checkin', api.checkin);
+        server.app.post('/api/checkin', (req, res) => {
+            api.checkin(req, res);
+        });
 
         /**
          * @swagger
@@ -71,7 +73,9 @@ class RestRoutes {
          *       201:
          *         description: Json with error message.
          */
-        server.app.post('/api/add', api.add);
+        server.app.post('/api/add', (req, res) => {
+            api.add(req, res);
+        });
 
         /**
          * @swagger
@@ -100,7 +104,9 @@ class RestRoutes {
          *       201:
          *         description: Json with error message.
          */
-        server.app.post('/api/new', api.new_project);
+        server.app.post('/api/new', (req, res) => {
+            api.new_project(req, res);
+        });
 
         /**
          * @swagger
@@ -124,17 +130,19 @@ class RestRoutes {
          *       - name: project
          *         description: Variable to see which projects members are being modified
          *         required: true
-         *         type: int                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+         *         type: int
          *     tags:
          *       - project
          *     responses:
-         *       200: 
+         *       200:
          *         description: Checks in user
          *       201:
          *         description: Json with error message.
-         * 
+         *
          */
-        server.app.post('/api/remove', api.remove);
+        server.app.post('/api/remove', (req, res) => {
+            api.remove(req, res);
+        });
 
         /**
          * @swagger
@@ -158,13 +166,15 @@ class RestRoutes {
          *     tags:
          *       - project
          *     responses:
-         *       200: 
+         *       200:
          *         description: Json of with project data.
          *       201:
          *         description: Json with error message.
-         * 
+         *
          */
-        server.app.post('/api/project', api.project);
+        server.app.post('/api/project', (req, res) => {
+            api.project(req, res);
+        });
 
         /**
          * @swagger
@@ -188,14 +198,16 @@ class RestRoutes {
          *     tags:
          *       - auth
          *     responses:
-         *       200: 
+         *       200:
          *         description: Returns a success message and a login token as json.
          *       201:
          *         description: Retruns a error message as json.
-         * 
+         *
          */
-        server.app.post('/api/login', api.login);
-        
+        server.app.post('/api/login', (req, res) => {
+            api.login(req, res);
+        });
+
         /**
          * @swagger
          *
@@ -223,15 +235,17 @@ class RestRoutes {
          *     tags:
          *       - auth
          *     responses:
-         *       200: 
+         *       200:
          *         description: Returns a success message and a login token as json.
          *       201:
          *         description: Retruns a error message as json.
-         * 
+         *
          */
-        
-        server.app.post('/api/signup', api.signup);
-        
+
+        server.app.post('/api/signup', (req, res) => {
+            api.signup(req, res);
+        });
+
         /**
          * @swagger
          *
@@ -249,13 +263,15 @@ class RestRoutes {
          *     tags:
          *       - user
          *     responses:
-         *       200: 
+         *       200:
          *         description: Returns a success message and user data as json.
          *       201:
          *         description: Retruns a error message as json.
-         * 
+         *
          */
-        server.app.post('/api/profile', api.profile);
+        server.app.post('/api/profile', (req, res) => {
+            api.profile(req, res);
+        });
 
         /**
          * @swagger
@@ -274,14 +290,16 @@ class RestRoutes {
          *     tags:
          *       - user
          *     responses:
-         *       200: 
+         *       200:
          *         description: Returns a success message and taken boolean as json.
          *       201:
          *         description: Retruns a error message as json.
-         * 
+         *
          */
-        server.app.post('/api/user', api.username_taken);
-        
+        server.app.post('/api/user', (req, res) => {
+            api.username_taken(req, res);
+        });
+
         /**
          * @swagger
          *
@@ -304,11 +322,13 @@ class RestRoutes {
          *     tags:
          *       - auth
          *     responses:
-         *       200: 
+         *       200:
          *         description: Returns a success message and taken boolean as json.
-         * 
+         *
          */
-        server.app.post('/api/sign', api.sign);
+        server.app.post('/api/sign', (req, res) => {
+            api.sign(req, res);
+        });
     }
 }
 
