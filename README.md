@@ -16,7 +16,7 @@ Dev branch - https://dev.chk.ygstr.com (Webhooked)
 ### Setup database, config and node server
 
 1. Import the database `mysql -u username -p < database.sql`
-2. Install all NPM dependencies `npm install`
+2. Install all NPM dependencies `npm i`
 3. Start it and then stop it `sudo node index.js`
 4. Configure mysql and web-port `config.json`
 5. Run tests and make sure everything checks out ```npm test```

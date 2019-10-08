@@ -1,11 +1,9 @@
 class Check {
-    constructor(config) {
-        this.config = config;
+    constructor() {
+        this.config = new (require('./ConfigLoader'))().load();;
         /** Database async handler */
-        var Database = require('./Database');
-
         /** Setup db handler with config */
-        this.db = new Database(this.config);
+        this.db = new (require('./Database'))(this.config);
 
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');

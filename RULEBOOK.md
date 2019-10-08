@@ -23,3 +23,11 @@
 - press
     Source files (psd, ai), Logos and concept art
 ```
+
+
+## Using classes from other files
+
+When using a class from another file, always name your housing variable the same name as the class, and load it like in the example!
+```javascript
+const Project = new (require('./Project.js'))();
+```
