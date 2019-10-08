@@ -8,8 +8,10 @@ var on_login = () => {}
 
 var token = localStorage.getItem("token")
 if (token) {
-    axios.post("/api/profile", {
-        token
+    axios.get("/api/user", {
+        params: {
+            token
+        }
     }).then(res => {
         var data = res.data
         if (data.success) {

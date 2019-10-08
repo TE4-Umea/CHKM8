@@ -7,8 +7,10 @@ function check_usersname(el) {
         return
     }
 
-    axios.post("/api/user", {
-        username: el.value
+    axios.get("/api/user/taken", {
+        params: {
+            username: el.value
+        }
     }).then(res => {
         update_login_page(res.data.taken)
     })
@@ -18,7 +20,6 @@ function check_usersname(el) {
 /* socket.on("username_taken", taken => {
     update_login_page(taken)
 }) */
-
 
 function update_login_page(username_taken, disabled = false) {
     login_mode = username_taken
@@ -45,9 +46,11 @@ function login() {
     var password = document.getElementById("password").value
     var name = document.getElementById("name").value
     if (login_mode) {
-        axios.post("/api/login", {
-            username,
-            password
+        axios.get("/api/user", {
+            params: {
+                username,
+                password
+            }
         }).then(res => {
             var data = res.data
             if (data.success) {
@@ -57,7 +60,7 @@ function login() {
             }
         })
     } else {
-        axios.post("/api/signup", {
+        axios.post("/api/user", {
             username,
             password,
             name
