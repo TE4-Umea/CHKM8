@@ -8,7 +8,7 @@ class RestRoutes {
         /**
          * @swagger
          *
-         * /api/checkin:
+         * /api/user/check:
          *   post:
          *     description: Checks in user.
          *     produces:
@@ -27,9 +27,10 @@ class RestRoutes {
          *       - name: project
          *         description: Specified project id that user is checking in with.
          *         required: false
+         *         in: formData
          *         type: int
          *     tags:
-         *       - project
+         *       - user
          *     responses:
          *       200:
          *         description: Json with check in or out success and a text message.
@@ -37,14 +38,14 @@ class RestRoutes {
          *         description: Json with error message.
          *
          */
-        server.app.post('/api/checkin', (req, res) => {
+        server.app.post('/api/user/check', (req, res) => {
             api.checkin(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/add:
+         * /api/project/user:
          *   post:
          *     description: Adds a user to a project
          *     produces:
@@ -73,16 +74,16 @@ class RestRoutes {
          *       201:
          *         description: Json with error message.
          */
-        server.app.post('/api/add', (req, res) => {
+        server.app.post('/api/project/user', (req, res) => {
             api.add(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/new:
+         * /api/project:
          *   post:
-         *     description: Adds a user to a project
+         *     description: Creates new project
          *     produces:
          *       - application/json
          *     parameters:
@@ -104,15 +105,15 @@ class RestRoutes {
          *       201:
          *         description: Json with error message.
          */
-        server.app.post('/api/new', (req, res) => {
+        server.app.post('/api/project', (req, res) => {
             api.new_project(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/remove:
-         *   post:
+         * /api/project/user:
+         *   delete:
          *     description: Remove user from project
          *     produces:
          *       - application/json
@@ -140,7 +141,7 @@ class RestRoutes {
          *         description: Json with error message.
          *
          */
-        server.app.post('/api/remove', (req, res) => {
+        server.app.delete('/api/project/user', (req, res) => {
             api.remove(req, res);
         });
 
@@ -148,7 +149,7 @@ class RestRoutes {
          * @swagger
          *
          * /api/project:
-         *   post:
+         *   get:
          *     description: Returns a specified project and all it's members and accompanied data.
          *     produces:
          *       - application/json
@@ -172,14 +173,14 @@ class RestRoutes {
          *         description: Json with error message.
          *
          */
-        server.app.post('/api/project', (req, res) => {
+        server.app.get('/api/project', (req, res) => {
             api.project(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/login:
+         * /api/user/auth:
          *   post:
          *     description: Logins user to website.
          *     produces:
@@ -196,7 +197,7 @@ class RestRoutes {
          *         required: true
          *         type: string
          *     tags:
-         *       - auth
+         *       - user
          *     responses:
          *       200:
          *         description: Returns a success message and a login token as json.
@@ -204,16 +205,16 @@ class RestRoutes {
          *         description: Retruns a error message as json.
          *
          */
-        server.app.post('/api/login', (req, res) => {
+        server.app.post('/api/user/auth', (req, res) => {
             api.login(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/signup:
+         * /api/user:
          *   post:
-         *     description: Registers user to website.
+         *     description: Registers a new user to website.
          *     produces:
          *       - application/json
          *     parameters:
@@ -233,7 +234,7 @@ class RestRoutes {
          *         required: true
          *         type: string
          *     tags:
-         *       - auth
+         *       - user
          *     responses:
          *       200:
          *         description: Returns a success message and a login token as json.
@@ -242,15 +243,15 @@ class RestRoutes {
          *
          */
 
-        server.app.post('/api/signup', (req, res) => {
+        server.app.post('/api/user', (req, res) => {
             api.signup(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/profile:
-         *   post:
+         * /api/user:
+         *   get:
          *     description: Gets user data specified by token.
          *     produces:
          *       - application/json
@@ -269,16 +270,16 @@ class RestRoutes {
          *         description: Retruns a error message as json.
          *
          */
-        server.app.post('/api/profile', (req, res) => {
+        server.app.get('/api/user', (req, res) => {
             api.profile(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/profile:
-         *   post:
-         *     description: checks if a username is taken.
+         * /api/user/taken:
+         *   get:
+         *     description: Checks if a username is taken.
          *     produces:
          *       - application/json
          *     parameters:
@@ -296,15 +297,15 @@ class RestRoutes {
          *         description: Retruns a error message as json.
          *
          */
-        server.app.post('/api/user', (req, res) => {
+        server.app.get('/api/user/taken', (req, res) => {
             api.username_taken(req, res);
         });
 
         /**
          * @swagger
          *
-         * /api/sign:
-         *   post:
+         * /api/user/slack:
+         *   patch:
          *     description: Links a Authenticated user with a slack user.
          *     produces:
          *       - application/json
@@ -320,13 +321,13 @@ class RestRoutes {
          *         required: true
          *         type: string
          *     tags:
-         *       - auth
+         *       - user
          *     responses:
          *       200:
          *         description: Returns a success message and taken boolean as json.
          *
          */
-        server.app.post('/api/sign', (req, res) => {
+        server.app.patch('/api/user/slack', (req, res) => {
             api.sign(req, res);
         });
     }
