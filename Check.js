@@ -35,14 +35,6 @@ class Check {
             // Calcualte time between last check and now
             var time_of_checkout = Date.now() - last_check.date;
 
-            /** If the user is checking out and their last check was in a project (aka currently checked into a project)
-             *  We need to add their time_of_checkout to their work time on the project.
-             */
-            if (!check_in && last_check.project != '') {
-                /** Get the project info */
-                project = await Project.get(last_check.project);
-            }
-
             if (project_id) {
                 // Make sure the project exists and then get the joint to make sure they are a part of the project
                 var joint = await this.db.query_one(
