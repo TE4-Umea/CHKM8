@@ -79,7 +79,7 @@ function login() {
                 if (data.success) {
                     success(data.token);
                 } else {
-                    errror(data.text);
+                    error(data.text);
                 }
             });
     }
