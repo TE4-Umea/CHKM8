@@ -1,4 +1,10 @@
 class User {
+    /**
+     * 
+     * @property {Database} db
+     * @property {JSONResponse} SuccessResponse
+     * @property {JSONResponse} ErrorResponse
+     */
     constructor() {
         this.md5 = require('md5');
 
@@ -23,6 +29,7 @@ class User {
     /**
      * Get user from slack request, if they are not registered an account will be created.
      * @param {*} req Slack request
+     * @returns {String}
      */
     hash() {
         return this.crypto
@@ -31,6 +38,10 @@ class User {
             .toUpperCase();
     }
 
+    /**
+     * 
+     * @param {*} req 
+     */
     async get_from_slack(req) {
         var success = this.SlackAPI.verify_slack_request(req);
         if (!success) {
@@ -49,9 +60,10 @@ class User {
 
     /**
      * Create a new account in the database
-     * @param {*} username Username of the account
-     * @param {*} password Password of the account
-     * @param {*} full_name Full name of the user
+     * @param {String} username Username of the account
+     * @param {String} password Password of the account
+     * @param {String} full_name Full name of the user
+     * @returns {Object}
      */
     async create(username, password, full_name) {
         var username_taken = await this.get_from_username(username);
@@ -76,6 +88,12 @@ class User {
         }
     }
 
+    /**
+     * 
+     * @param {String} username 
+     * @param {String} password
+     * @returns {Object|JSONResponse}
+     */
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (!user) {
@@ -87,6 +105,12 @@ class User {
         return new this.SuccessResponse('User successfully retrieved');
     }
 
+    /**
+     * 
+     * @param {String} username 
+     * @param {String} ip
+     * @returns {String|JSONResponse} user token | ErrorResponse if no user is found.
+     */
     async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
         if (user) {
@@ -102,6 +126,11 @@ class User {
         );
     }
 
+    /**
+     * Deletes user from database identified by username.
+     * @param {String} username username of the user to be deleted.
+     * @returns {Boolean|JSONResponse} true on success | ErrorResponse on fail.
+     */
     async delete(username) {
         var user = await this.get_from_username(username);
         if (user) {
@@ -118,7 +147,8 @@ class User {
 
     /**
      * Get user via their slack user id
-     * @param {*} slack_id
+     * @param {String} slack_id slack user id.
+     * @returns {Object|Boolean} user object on success | false on fail
      */
     async get_from_slack_id(slack_id) {
         if (!slack_id) return false;
@@ -131,8 +161,8 @@ class User {
 
     /**
      * Get a user from the database
-     * @param {Int} user_id ID of the user
-     * @returns {User} User
+     * @param {Number} user_id ID of the user
+     * @returns {Object|Boolean} user object from database | false if no user could be found.
      */
     async get(user_id) {
         if(!user_id) return false;
@@ -145,7 +175,8 @@ class User {
 
     /**
      * Get user from username
-     * @param {*} username
+     * @param {String} username 
+     * @returns {Object|JSONResponse} user object from database | ErrorResponse on fail.
      */
     async get_from_username(username) {
         if (username) {
@@ -161,8 +192,9 @@ class User {
     }
 
     /**
-     *
-     * @param {*} token
+     * Get user from token
+     * @param {String} token
+     * @returns {User|JSONResponse}
      */
     async get_from_token(token) {
         if (!token) {
@@ -188,7 +220,8 @@ class User {
 
     /**
      * Get user login info from token
-     * @param {*} token
+     * @param {String} token
+     * @returns {User|JSONResponse}
      */
     async login_with_token(token) {
         // Get user from token
@@ -204,8 +237,9 @@ class User {
     }
 
     /**
-     *
-     * @param {*} user_id
+     * 
+     * @param {Number} user_id
+     * @returns {Object} user
      */
     async get_data(user_id) {
 
