@@ -1,11 +1,9 @@
 class Check {
-    constructor(config) {
-        this.config = config;
+    constructor() {
+        this.config = new (require('./ConfigLoader'))().load();;
         /** Database async handler */
-        var Database = require('./Database');
-
         /** Setup db handler with config */
-        this.db = new Database(this.config);
+        this.db = new (require('./Database'))(this.config);
 
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
@@ -95,6 +93,7 @@ class Check {
      */
     async get_last_check(user_id) {
         /** Get the last check from the database */
+        console.log(this)
         var last_check_in = await this.db.query_one(
             'SELECT * FROM checks WHERE user = ? ORDER BY date DESC LIMIT 1',
             user_id
