@@ -85,8 +85,8 @@ class User {
 
     /**
      * Get username and password
-     * @param {*} username 
-     * @param {*} password 
+     * @param {*} username
+     * @param {*} password
      */
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
@@ -103,8 +103,8 @@ class User {
 
     /**
      * Generate user token
-     * @param {*} username 
-     * @param {*} ip 
+     * @param {*} username
+     * @param {*} ip
      */
     async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
@@ -121,7 +121,7 @@ class User {
 
     /**
      * Delete user
-     * @param {*} username 
+     * @param {*} username
      */
     async delete(username) {
         var user = await this.get_from_username(username);
@@ -233,10 +233,14 @@ class User {
             delete user.password;
 
             var last_check = await Check.get_last_check(user.id);
-
+            console.log(last_check)
             // Add new uncashed properties
             user.checked_in = await Check.is_checked_in(user.id);
-            user.checked_in_project = last_check.project;
+
+            var Project = require('./Project');
+            Project = new Project();
+            var checked_in_project = await Project.get(last_check.project);
+            user.checked_in_project = checked_in_project.name;
             user.checked_in_time = Date.now() - last_check.date;
 
             user.projects = [];
@@ -244,9 +248,6 @@ class User {
                 'SELECT * FROM joints WHERE user = ?',
                 user.id
             );
-
-            var Project = require('./Project');
-            Project = new Project();
 
             // Load and compile projects the user has joined.
             for (var joint of joints) {

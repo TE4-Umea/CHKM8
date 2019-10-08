@@ -23,7 +23,6 @@ class Check {
      */
     async insert_check(user_id, check_in, project_id = null, type) {
         var User = new (require('./User'))();
-
         // Get user from ID
         var user = await User.get(user_id);
 
@@ -82,7 +81,7 @@ class Check {
     async get_last_check(user_id) {
         // Get the last check from the database
         var last_check_in = await this.db.query_one(
-            'SELECT * FROM checks WHERE user = ? ORDER BY date DESC LIMIT 1',
+            'SELECT * FROM checks WHERE user = ? ORDER BY id DESC LIMIT 1',
             user_id
         );
         if (!last_check_in)
@@ -105,15 +104,9 @@ class Check {
      * @param {String} type Type of check in (web, slack, terminal, card)
      * @returns Success, if the check in/out was successfull
      */
-    async check_in(
-        user_id,
-        check_in = null,
-        project_name = null,
-        type = 'unknown'
-    ) {
+    async check_in(user_id, check_in = null, project_name = null, type = 0) {
         var Project = new (require('./Project'))();
         var user = await this.check_user_input(user_id);
-        var project_id;
 
         // Check if user is defined, if so get last check
         if (user) {
@@ -128,29 +121,26 @@ class Check {
         if (project) {
             /** Check if the user is a part of the project */
             var owns_project = await Project.is_joined(user.id, project.id);
+            if (!owns_project)
+                return new this.ErrorResponse(
+                    'User is not a part of this project.'
+                );
         } else {
-            project = '';
-        }
-
-        if (project && owns_project) {
-            /** Otherwise, update the project name to make sure capitalisation is right.
-             *  User has now been confirmed a part of the project requested
-             */
-            project_name = project.name;
-        } else if (project && !owns_project) {
-            // If they are not part of the project, refuse the check
-            return new this.ErrorResponse(
-                'User is not a part of this project.'
-            );
+            project = { id: null };
         }
 
         // Allow toggle check ins if force checkin is not specified
         if (check_in === null) check_in = !last_check.check_in;
-
+        
         // If users last check was a check in, this will check them out before checking them in.
-        if (check_in === true && last_check.check_in) {
-            this.check_in(user_id, false, null, type);
+        if (
+            check_in === true &&
+            last_check.check_in &&
+            project.id !== last_check.project
+        ) {
+            await this.check_in(user_id, false, null, type);
         }
+
         // Check IN the user
         if (
             check_in === true &&
@@ -167,18 +157,20 @@ class Check {
         // Check OUT the user
         if (check_in === false && last_check.check_in) {
             // Insert checkout
-            await this.insert_check(user.id, false, project_id, type);
-            return new this.SuccessResponse(`You are now checked out`, {
-                checked_in: false,
-            });
+            await this.insert_check(user.id, false, null, type);
+            return new this.SuccessResponse(
+                `You are now checked out from "${project_name}"`,
+                {
+                    checked_in: false,
+                }
+            );
         } else if (check_in === false && !last_check.check_in) {
             return new this.SuccessResponse('You are already checked out.', {
                 checked_in: false,
             });
         }
-
-        // Insert the check in
-        await this.insert_check(user.id, true, project_id, type);
+        
+        await this.insert_check(user.id, true, project.id, type);
         return new this.SuccessResponse(
             'You are now checked in.' +
                 (project_name ? ' Project: ' + project_name : ''),
@@ -219,7 +211,7 @@ class Check {
             project_name != undefined
         ) {
             /** If project is admitted, load it from the DB */
-            var project = await Project.get(project_name);
+            var project = await Project.get_from_name(project_name);
             return project;
         } else {
             //No project admitted
