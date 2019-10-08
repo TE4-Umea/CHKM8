@@ -22,11 +22,10 @@ class Check {
      * @param {Int} type Method of checking (web, card, slack, terminal)
      */
     async insert_check(user_id, check_in, project_id = null, type) {
-        var UserClass = new (require('./User'))();
-        var Project = new (require('./Project'))();
+        var User = new (require('./User'))();
 
         // Get user from ID
-        var user = await UserClass.get(user_id);
+        var user = await User.get(user_id);
 
         if (user) {
             // Get the users last check
@@ -194,8 +193,8 @@ class Check {
      * @returns User if found
      */
     async check_user_input(user_id) {
-        var UserClass = new (require('./User'))(this);
-        var user = await UserClass.get(user_id);
+        var User = new (require('./User'))(this);
+        var user = await User.get(user_id);
 
         if (user) {
             // Get the last check from the user (to determine if they are currently checked in, how much time and what project.)
