@@ -236,18 +236,19 @@ class User {
      * @returns {Object} user
      */
     async get_data(user_id) {
-
         var user = await this.get(user_id);
         if (user) {
+            var Check = new (require('./Check'))(this);
+
             // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
             // would be unnecessary to not hide)
             delete user.access_token;
             delete user.password;
 
-            var last_check = await this.Check.get_last_check(user.id);
+            var last_check = await Check.get_last_check(user.id);
 
             // Add new uncashed properties
-            user.checked_in = await this.Check.is_checked_in(user.id);
+            user.checked_in = await Check.is_checked_in(user.id);
             user.checked_in_project = last_check.project;
             user.checked_in_time = Date.now() - last_check.date;
 
@@ -262,7 +263,7 @@ class User {
 
             // Load and compile projects the user has joined.
             for (var joint of joints) {
-                var project = await Project.get_from_id(joint.project);
+                var project = await Project.get(joint.project);
                 project.work = joint.work;
                 project.activity = [
                     Math.random(),

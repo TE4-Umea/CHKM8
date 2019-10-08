@@ -10,7 +10,8 @@ class WebsiteRoutes {
          *     description: Dashboard / main page
          *     produces:
          *       - application/ text/html
-         *
+         *     tags:
+         *       - views
          *     responses:
          *       200:
          *         description: Returns dashboard page
@@ -29,7 +30,8 @@ class WebsiteRoutes {
          *     description: Login page.
          *     produces:
          *       - application/ text/html
-         *
+         *     tags:
+         *       - views
          *     responses:
          *       200:
          *         description: Returns Login/Signup page.
@@ -45,7 +47,8 @@ class WebsiteRoutes {
          *     description: Documentation site.
          *     produces:
          *       - application/ text/html
-         *
+         *     tags:
+         *       - views
          *     responses:
          *       200:
          *         description: Returns Documentation page.
@@ -62,7 +65,8 @@ class WebsiteRoutes {
          *     description: Edit page
          *     produces:
          *       - application/ text/html
-         *
+         *     tags:
+         *       - views
          *     responses:
          *       200:
          *         description: Returns edit page
@@ -74,12 +78,13 @@ class WebsiteRoutes {
         /**
          * @swagger
          *
-         * /index:
+         * /:
          *   get:
          *     description: Index page
          *     produces:
          *       - application/ text/html
-         *
+         *     tags:
+         *       - views
          *     responses:
          *       200:
          *         description: Returns index.html
