@@ -192,10 +192,14 @@ class API {
             payload.username,
             payload.password
         );
+
         if (user) {
             var token = await this.User.generate_token(user.username);
             if (token) {
-                response.success_response('success', { token: token });
+                console.log(token);
+                response.success_response('Successfully logged in!', {
+                    token: token,
+                });
             }
         } else {
             response.error_response('Wrong username or password');

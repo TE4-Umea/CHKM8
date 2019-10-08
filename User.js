@@ -20,6 +20,8 @@ class User {
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
 
         this.Debug = new (require('./Debug'))();
+
+        this.Check = new (require('./Check'))();
     }
 
     /**
@@ -114,9 +116,7 @@ class User {
             );
             return token;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -132,9 +132,7 @@ class User {
             await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -156,7 +154,7 @@ class User {
      * @returns {User} User
      */
     async get(user_id) {
-        if(!user_id) return false;
+        if (!user_id) return false;
         var user = await this.db.query_one(
             'SELECT * FROM users WHERE id = ?',
             user_id
@@ -176,9 +174,7 @@ class User {
             );
             return user;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -219,9 +215,7 @@ class User {
             var data = await this.get_data(user.id);
             return data;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return new this.ErrorResponse('Unknown user');
     }
 
     /**
@@ -268,7 +262,6 @@ class User {
                 user.projects.push(project);
             }
             return user;
-
         }
     }
 }

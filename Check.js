@@ -23,13 +23,12 @@ class Check {
      */
     async insert_check(user_id, check_in, project_id = null, type) {
         var UserClass = new (require('./User'))();
-        var ProjectClass = new (require('./Project'))();
+        var Project = new (require('./Project'))();
 
         // Get user from ID
         var user = await UserClass.get(user_id);
 
         if (user) {
-
             // Get the users last check
             var last_check = await this.get_last_check(user.id);
 
@@ -39,10 +38,9 @@ class Check {
             /** If the user is checking out and their last check was in a project (aka currently checked into a project)
              *  We need to add their time_of_checkout to their work time on the project.
              */
-            if (!check_in && last_check.project != null) {
-                // Get the project info
-                project_id = await ProjectClass.get(last_check.project);
-                project_id = project_id.id;
+            if (!check_in && last_check.project != '') {
+                /** Get the project info */
+                project = await Project.get(last_check.project);
             }
 
             if (project_id) {
@@ -52,7 +50,7 @@ class Check {
                     [user_id, project_id]
                 );
             }
-            
+
             if (joint) {
                 // Add time worked on to the joint
                 await this.db.query('UPDATE joints SET work = ? WHERE id = ?', [
@@ -122,7 +120,7 @@ class Check {
         project_name = null,
         type = 'unknown'
     ) {
-        var ProjectClass = new (require('./Project'))();
+        var Project = new (require('./Project'))();
         var user = await this.check_user_input(user_id);
         var project_id;
 
@@ -137,14 +135,10 @@ class Check {
 
         // Check if the project is definined, if so it's an existing project
         if (project) {
-            // Check if the user is a part of the project
-            project_id = project.id;
-            var owns_project = await ProjectClass.is_joined(
-                user.id,
-                project.id
-            );
+            /** Check if the user is a part of the project */
+            var owns_project = await Project.is_joined(user.id, project.id);
         } else {
-            project = null;
+            project = '';
         }
 
         if (project && owns_project) {
@@ -181,11 +175,9 @@ class Check {
 
         // Check OUT the user
         if (check_in === false && last_check.check_in) {
-
             // Insert checkout
             await this.insert_check(user.id, false, project_id, type);
             return new this.SuccessResponse(`You are now checked out`);
-            
         } else if (check_in === false && !last_check.check_in) {
             return new this.SuccessResponse('You are already checked out.');
         }
@@ -223,15 +215,15 @@ class Check {
      * @returns Project if found
      */
     async check_project_input(project_name) {
-        var ProjectClass = new (require('./Project'))(this);
-        // Check if a project was admitted
+        var Project = new (require('./Project'))(this);
+        /** Check if a project was admitted */
         if (
             project_name != null &&
             project_name != '' &&
             project_name != undefined
         ) {
-            // If project is admitted, load it from the DB
-            var project = await ProjectClass.get_from_name(project_name);
+            /** If project is admitted, load it from the DB */
+            var project = await Project.get(project_name);
             return project;
         } else {
             //No project admitted
