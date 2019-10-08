@@ -12,7 +12,6 @@ class Database {
      * ! Make sure to destroy it after or it will cause a crash
      */
     create_connection() {
-        console.log(this);
         return this.mysql.createConnection({
             host: this.config.mysql_host,
             user: this.config.mysql_user,
