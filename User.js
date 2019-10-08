@@ -135,6 +135,7 @@ class User {
      * @returns {User} User
      */
     async get(user_id) {
+        if(!user_id) return false;
         var user = await this.db.query_one(
             'SELECT * FROM users WHERE id = ?',
             user_id
