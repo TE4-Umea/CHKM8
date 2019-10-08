@@ -24,14 +24,6 @@ if (token) {
     })
 }
 
-/* socket.on("token", token => {
-    localStorage.setItem("token", token)
-    location.href = "/dashboard"
-})
- */
-/* socket.on("redir", url => {
-    location.href = url
-})  */
 
 function logout() {
     localStorage.removeItem("token")

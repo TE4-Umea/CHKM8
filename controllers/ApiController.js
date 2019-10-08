@@ -25,7 +25,6 @@ class API {
         if (user) {
             var Check = new (require('../Check'))();
 
-
             /** Check in the user */
             response.json(
                 await Check.check_in(
@@ -56,9 +55,7 @@ class API {
         /** Make sure user is loaded correctly */
         if (user) {
             /** Create the project via the user and project name and respond to the request with res */
-            response.json(
-                await this.Project.create(payload.project, user)
-            );
+            response.json(await this.Project.create(payload.project, user));
         } else {
             response.error_response('Invalid Token');
         }
@@ -77,9 +74,7 @@ class API {
         /** Load user safe from token */
         var user = await this.User.get_from_token(payload.token);
         /** Load user that will be added */
-        var user_to_add = await this.User.get_from_username(
-            payload.username
-        );
+        var user_to_add = await this.User.get_from_username(payload.username);
 
         var project = await this.Project.get(payload.project);
         /** Add the user to the project via the requesting user */
@@ -105,12 +100,7 @@ class API {
         var user = await this.User.get_from_token(payload.token);
         var project = await this.project.get_from_name(payload.project);
         response.json(
-            
-            await this.Project.remove_user(
-                user_to_remove,
-                project.id,
-                user
-            )
+            await this.Project.remove_user(user_to_remove, project.id, user)
         );
     }
 
@@ -132,10 +122,7 @@ class API {
         var project_data = await this.Project.get_data(project.id);
         /** Make sure user and project exists */
         if (user && project) {
-            var has_access = await this.Project.is_joined(
-                user.id,
-                project.id
-            );
+            var has_access = await this.Project.is_joined(user.id, project.id);
             // Make sure the project data exists.
             if (project_data) {
                 if (has_access) {
@@ -169,10 +156,10 @@ class API {
      * @param {*} res
      */
     async profile(req, res) {
-        var token = req.body.token;
+        var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
-        var user = await this.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
 
         if (user) {
             var data = await this.User.get_data(user.id);
@@ -286,9 +273,7 @@ class API {
         var response = new this.Response(res);
 
         if (payload.username) {
-            var user = await this.User.get_from_username(
-                payload.username
-            );
+            var user = await this.User.get_from_username(payload.username);
             if (user) {
                 response.success_response('success', { taken: true });
             } else {
