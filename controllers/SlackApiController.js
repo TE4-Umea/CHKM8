@@ -6,10 +6,10 @@ class SlackAPIController {
         var SlackJSON = require('../SlackJSON');
         this.SlackJSON = new SlackJSON();
 
-        this.User = new (require('../User')());
-        this.Check = new (require('../Check')());
-        this.Project = new (require('../Project')());
-        this.Debug = new (require('../Debug')());
+        this.User = new (require('../User'))();
+        this.Check = new (require('../Check'))();
+        this.Project = new (require('../Project'))();
+        this.Debug = new (require('../Debug'))();
 
         this.crypto = require('crypto');
 
