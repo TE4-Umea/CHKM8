@@ -296,6 +296,8 @@ class API {
         var https = require('https');
         var config = new (require('../ConfigLoader'))().load();
         var db = new (require('../Database'))(config);
+
+        console.log(payload, config);
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
