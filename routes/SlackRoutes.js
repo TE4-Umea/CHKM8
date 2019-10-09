@@ -75,7 +75,9 @@ class SlackRoutes {
          *       200:
          *         description: Checks out from the current project and time tracking
          */
-        server.app.post('/api/slack/checkout', slack_controller.check_out);
+        server.app.post('/api/slack/checkout', (req, res) => {
+            slack_controller.check_out(req, res);
+        });
 
         /**
          * @swagger

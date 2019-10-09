@@ -36,7 +36,8 @@ class User {
     }
 
     async get_from_slack(req) {
-        var success = this.SlackAPI.verify_slack_request(req);
+        const SlackAPI = require('./controllers/SlackApiController');
+        var success = SlackAPI.verify_slack_request(req);
         if (!success) {
             return false;
         }
