@@ -43,7 +43,6 @@ on_login = () => {
         : 'img/avatar.png';
     document.getElementById('logged-in-as').innerText =
         'Logged in as ' + me.name + ' (' + me.username + ')';
-
     insert_projects();
 };
 
@@ -64,32 +63,35 @@ function insert_projects() {
  * @param {array} projects json file of all projects.
  */
 function generate_project_cards(projects) {
-    var projects = '';
+    var html = '';
     for (var project of projects) {
-        projects =+ generate_project_card;
+        html += generate_project_card(project);
     }
-    return projects;
+    return html;
 }
 
 /**
  * Generates html for a projects card.
+ * @param {Object} project project object containing project details.
  */
 function generate_project_card(project) {
-    projects += `<div class="project" hover="false" project-name="${
+    //TODO
+    return `<div class="project" hover="false" project-name="${
         project.name
-    }"><span class="project-name">${project.name.toUpperCase()}</span><canvas height="50" width="200" class="project-timeline"></canvas><button class="project-button mdc-button mdc-button--outlined" onclick="check_in_project('${
+    }"><div class='project-upper-row'><span class="project-name">${project.name.toUpperCase()}</span><span id='${project.name + "_time"}'>${active_project_time()}</div><canvas class="project-timeline"></canvas><button class="project-button mdc-button mdc-button--outlined" onclick="check_in_project('${
         project.name
     }')">${
         me.checked_in_project == project.name
             ? get_button_text()
             : 'check in'
-    }</button><svg version="1.1" class="wipe" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 500 500" style="enable-background:new 0 0 500 500;" xml:space="preserve"> <defs> <linearGradient id="${
-        project.name
-    }-gradient" x2="0.35" y2="1"><stop offset="0%" id="${
-        project.name
-    }-stop-0" stop-color="#b5b5b5"></stop> <stop offset="100%" id="${
-        project.name
-    }-stop-1" stop-color="#4a4a4a"></stop> </linearGradient> </defs> <path class="st0" d="M-14.9-64.8c0,0-40.3,578.2,578.2,578.2s568.6,0,568.6,0l1.9,327l-1242.7,13.4l-47.9-993.4L-14.9-64.8z"></path> </svg></div>`;
+    }</button></div>`;
+}
+
+/**
+ * @returns will return a string of the corrent working time.
+ */
+function active_project_time() {
+    return "0:00";
 }
 
 /**
@@ -253,13 +255,6 @@ function light_up_project(el, light_up = true, animate = true) {
         light_up ? project.color_top : '#b5b5b5',
         light_up ? project.color_bot : '#757575',
     ];
-    el.children[3].style.fill = 'url(#' + project.name + '-gradient)';
-    document
-        .getElementById(project.name + '-stop-0')
-        .setAttribute('stop-color', gradient[0]);
-    document
-        .getElementById(project.name + '-stop-1')
-        .setAttribute('stop-color', gradient[1]);
     var text = el.children[0];
 
     text.style.color = gradient[1];

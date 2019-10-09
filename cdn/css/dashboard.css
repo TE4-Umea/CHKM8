@@ -135,12 +135,8 @@
 .project-name {
     font-size: 30px;
     font-family: 'Ubuntu';
-    position: absolute;
     /* color: #ff2072; */
-    position: absolute;
-    top: 15px;
     text-align: right;
-    right: 15px;
     color: #757575;
     transition: color .2s;
     /* background: -webkit-linear-gradient(0deg, rgb(134, 134, 134), rgb(94, 94, 94));
@@ -161,10 +157,11 @@
 }
 
 .project-timeline {
-    /* height: 50px;
-    width: 200px; */
-    position: absolute;
-    right: 15px;
-    top: 50px;
+    width: 100%;
     /* background: rgb(41, 41, 41); */
+}
+
+.project-upper-row {
+    display: flex;
+    justify-content: space-between;
 }
