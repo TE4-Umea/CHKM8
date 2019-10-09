@@ -254,11 +254,9 @@ class API {
             payload.password,
             payload.name
         );
-        
+
         if (return_val) {
-            var token = await this.User.generate_token(
-                return_val.username
-            );
+            var token = await this.User.generate_token(return_val.username);
             response.success_response('success', { token: token });
         }
     }
@@ -296,8 +294,8 @@ class API {
         var payload = new this.Payload(req);
         var sign;
         var https = require('https');
-        var db = new (require('../Database'))();
         var config = new (require('../ConfigLoader'))().load();
+        var db = new (require('../Database'))(config);
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
@@ -341,7 +339,7 @@ class API {
         );
 
         var user = await this.User.get_from_token(payload.token);
-        if (user && sign) { 
+        if (user && sign) {
             // Fill users slack information
             await db.query(
                 'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
