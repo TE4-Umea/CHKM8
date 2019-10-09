@@ -1,13 +1,12 @@
 class RestRoutes {
     constructor(server) {
-        var api_controller = new (require('../controllers/ApiController'))();
         
         var user_controller = new (require('../controllers/user/UserController'))();
         var user_auth_controller = new (require('../controllers/user/UserAuthController'))();
         var user_check_controller = new (require('../controllers/user/UserCheckController'))();
         
         var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
-        var project_controller = new (require('../controllers/ProjectController'));
+        var project_controller = new (require('../controllers/project/ProjectController'));
 
         /* REST API routes */
 
@@ -75,7 +74,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project', (req, res) => {
-            api_controller.new_project(req, res);
+            project_controller.store(req, res);
         });
 
         /**
@@ -107,7 +106,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/project', (req, res) => {
-            api_controller.project(req, res);
+            project_controller.index(req, res);
         });
 
         /**
@@ -364,7 +363,7 @@ class RestRoutes {
          *         description: Retruns a error message as json.      
          */
         server.app.delete('/api/project', (req, res) => {
-            project_controller.delete(req, res);
+            project_controller.destroy(req, res);
         });
     }
 }
