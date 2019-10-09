@@ -119,6 +119,7 @@ class UserController {
      */
     async update(req, res) {
         var payload = new this.Payload(req);
+        var response = new this.Response(res);
         var sign;
         var https = require('https');
         var db = new (require('../../Database'))();
@@ -143,7 +144,7 @@ class UserController {
                             data.user.id
                         );
                         if (slack_taken) {
-                            res.send(
+                            response.error_response(
                                 'This slack account is already linked to another user. Please delete that account first or ask an administrator for help.'
                             );
                             return;
@@ -158,7 +159,7 @@ class UserController {
                             email: data.user.email,
                         };
                     } else {
-                        res.end(data.error);
+                        response.error_response(data.error);
                         return;
                     }
                 });
@@ -166,7 +167,7 @@ class UserController {
         );
 
         var user = await this.User.get_from_token(payload.token);
-        if (user) {
+        if (user && sign) {
             // Fill users slack information
             await db.query(
                 'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
