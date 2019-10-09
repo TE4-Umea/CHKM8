@@ -29,9 +29,8 @@ class Check {
         var user = await UserClass.get(user_id);
 
         if (user) {
-
             // Get the users last check
-            var last_check = await this.get_last_check(user.id);
+            var last_check = await this.get_last_check_in_from_user(user.id);
 
             // Calcualte time between last check and now
             var time_of_checkout = Date.now() - last_check.date;
@@ -80,7 +79,7 @@ class Check {
      */
     async is_checked_in(user_id) {
         // Get last check and return if it was a check_in or check_out, aka if the user is currently checked in.
-        var checked_in = await this.get_last_check(user_id);
+        var checked_in = await this.get_last_check_in_from_user(user_id);
         return checked_in.check_in;
     }
 
@@ -89,8 +88,9 @@ class Check {
      * If the user has never checked in before, it will look like a "check out" so
      * it should behave the same for new users.
      * @param {Int} user_id
+     * @returns {Object}
      */
-    async get_last_check(user_id) {
+    async get_last_check_in_from_user(user_id) {
         // Get the last check from the database
         var last_check_in = await this.db.query_one(
             'SELECT * FROM checks WHERE user = ? ORDER BY date DESC LIMIT 1',
@@ -128,7 +128,7 @@ class Check {
 
         // Check if user is defined, if so get last check
         if (user) {
-            var last_check = await this.get_last_check(user.id);
+            var last_check = await this.get_last_check_in_from_user(user.id);
         } else {
             return new this.ErrorResponse('User not found.');
         }

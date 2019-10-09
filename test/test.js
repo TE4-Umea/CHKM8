@@ -160,7 +160,7 @@ describe('Checks', () => {
         var user = await User.get_from_username(test_username);
         var success = await Check.check_in(user.id, true, null, 0);
         assert.equal(success.success, true);
-        var last_checkin = await Check.get_last_check(user.id);
+        var last_checkin = await Check.get_last_check_in_from_user(user.id);
         assert.equal(last_checkin.check_in, true);
         assert.equal(last_checkin.project, null);
     });
