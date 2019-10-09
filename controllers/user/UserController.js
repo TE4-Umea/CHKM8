@@ -75,10 +75,14 @@ class UserController {
             payload.password,
             payload.name
         );
-
-        if (return_val) {
-            var token = await this.User.generate_token(return_val.username);
+        
+        if (return_val.success) {
+            var token = await this.User.generate_token(
+                return_val.user.username
+            );
             response.success_response('success', { token: token });
+        } else {
+            response.success_response(return_val.text);
         }
     }
 
@@ -114,10 +118,8 @@ class UserController {
         var payload = new this.Payload(req);
         var sign;
         var https = require('https');
-        var config = new (require('../ConfigLoader'))().load();
-        var db = new (require('../Database'))(config);
-
-        console.log(payload, config);
+        var db = new (require('../Database'))();
+        var config = new (require('./ConfigLoader'))().load();
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
@@ -161,7 +163,7 @@ class UserController {
         );
 
         var user = await this.User.get_from_token(payload.token);
-        if (user && sign) {
+        if (user) {
             // Fill users slack information
             await db.query(
                 'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
