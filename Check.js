@@ -207,8 +207,8 @@ class Check {
     async get_user_from_db(user_id) {
         var UserClass = new (require('./User'))(this);
         var user = await UserClass.get(user_id);
-        if (user) return user;
-        else return new this.ErrorResponse('User not found.');
+        if(!user) return new this.ErrorResponse('User not found.');
+        return user;
     }
 
     /**
