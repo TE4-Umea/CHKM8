@@ -1,10 +1,16 @@
 class WebhookController {
     async index(req, res) {
-        if (server.config.branch) {
+        res.end('test');
+        //req.url('../webhook');
+        const Debug = new (require('../Debug'))();
+        const ConfigLoader = new (require('../ConfigLoader'))();
+        console.log(req);
+        var config = ConfigLoader.load();
+        if (config.branch) {
             require('child_process').exec(
-                'git pull origin ' + server.config.branch + ' --no-edit'
+                'git pull origin ' + config.branch + ' --no-edit'
             );
-            server.log('Reloading via webhook');
+            Debug.log('Reloading via webhook');
         }
     }
 }
