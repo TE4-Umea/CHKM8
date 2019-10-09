@@ -7,10 +7,10 @@ if (sign_token) {
         sign_token
     }).then(res => {
         var data = res.data
-        console.log(data)
-        return
         if (data.success) {
             location.href = data.redir
+        } else {
+            alert(data.text)
         }
     })
 }
