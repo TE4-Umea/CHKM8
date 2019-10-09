@@ -1,13 +1,12 @@
 class RestRoutes {
     constructor(server) {
-        // TODO Remove server dependencies.
-        var api_controller = new (require('../controllers/ApiController'))();
         
         var user_controller = new (require('../controllers/user/UserController'))();
         var user_auth_controller = new (require('../controllers/user/UserAuthController'))();
         var user_check_controller = new (require('../controllers/user/UserCheckController'))();
-
+        
         var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
+        var project_controller = new (require('../controllers/project/ProjectController'));
 
         /* REST API routes */
 
@@ -75,7 +74,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project', (req, res) => {
-            api_controller.new_project(req, res);
+            project_controller.store(req, res);
         });
 
         /**
@@ -107,7 +106,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/project', (req, res) => {
-            api_controller.project(req, res);
+            project_controller.index(req, res);
         });
 
         /**
@@ -334,6 +333,37 @@ class RestRoutes {
          */
         server.app.patch('/api/user/slack', (req, res) => {
             user_controller.update(req, res);
+        });
+
+        /**
+         * @swagger
+         * 
+         * /api/project:
+         *   patch:
+         *     description: Deletes project from database.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: project
+         *         description: Name of the project to be deleted
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: token
+         *         description: Token of the user that deletes the project
+         *         in: form
+         *         required: true
+         *         type: string
+         *     tags:
+         *      - user
+         *     responses:
+         *       200:
+         *         description: Returns a success message and taken boolean as json.
+         *       201:
+         *         description: Retruns a error message as json.      
+         */
+        server.app.delete('/api/project', (req, res) => {
+            project_controller.destroy(req, res);
         });
     }
 }
