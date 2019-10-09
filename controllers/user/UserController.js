@@ -122,8 +122,9 @@ class UserController {
         var response = new this.Response(res);
         var sign;
         var https = require('https');
-        var db = new (require('../../Database'))();
+
         var config = new (require('../../ConfigLoader'))().load();
+        var db = new (require('../../Database'))(config);
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
