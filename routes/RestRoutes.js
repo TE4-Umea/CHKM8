@@ -1,46 +1,15 @@
 class RestRoutes {
     constructor(server) {
         // TODO Remove server dependencies.
-        var api = new (require('../controllers/ApiController'))(server);
+        var api_controller = new (require('../controllers/ApiController'))();
+        
+        var user_controller = new (require('../controllers/user/UserController'))();
+        var user_auth_controller = new (require('../controllers/user/UserAuthController'))();
+        var user_check_controller = new (require('../controllers/user/UserCheckController'))();
+
+        var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
 
         /* REST API routes */
-
-        /**
-         * @swagger
-         *
-         * /api/user/check:
-         *   post:
-         *     description: Checks in user.
-         *     produces:
-         *       - application/json
-         *     parameters:
-         *       - name: token
-         *         description: Login authentication token.
-         *         in: formData
-         *         required: true
-         *         type: string
-         *       - name: check_in
-         *         description: Variable responsible for checking whether user is already checked in.
-         *         in: formData
-         *         required: true
-         *         type: boolean
-         *       - name: project
-         *         description: Specified project id that user is checking in with.
-         *         required: false
-         *         in: formData
-         *         type: int
-         *     tags:
-         *       - user
-         *     responses:
-         *       200:
-         *         description: Json with check in or out success and a text message.
-         *       201:
-         *         description: Json with error message.
-         *
-         */
-        server.app.post('/api/user/check', (req, res) => {
-            api.checkin(req, res);
-        });
 
         /**
          * @swagger
@@ -75,7 +44,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project/user', (req, res) => {
-            api.add(req, res);
+            project_user_controller.store(req, res);
         });
 
         /**
@@ -106,7 +75,39 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project', (req, res) => {
-            api.new_project(req, res);
+            api_controller.new_project(req, res);
+        });
+
+        /**
+         * @swagger
+         *
+         * /api/project:
+         *   get:
+         *     description: Returns a specified project and all it's members and accompanied data.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: token
+         *         description: Login authentication token.
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: project
+         *         description: project id to lookup.
+         *         in: formData
+         *         required: true
+         *         type: int
+         *     tags:
+         *       - project
+         *     responses:
+         *       200:
+         *         description: Json of with project data.
+         *       201:
+         *         description: Json with error message.
+         *
+         */
+        server.app.get('/api/project', (req, res) => {
+            api_controller.project(req, res);
         });
 
         /**
@@ -142,15 +143,14 @@ class RestRoutes {
          *
          */
         server.app.delete('/api/project/user', (req, res) => {
-            api.remove(req, res);
+            project_user_controller.destroy(req, res);
         });
-
         /**
          * @swagger
          *
-         * /api/project:
-         *   get:
-         *     description: Returns a specified project and all it's members and accompanied data.
+         * /api/user/check:
+         *   post:
+         *     description: Checks in user.
          *     produces:
          *       - application/json
          *     parameters:
@@ -159,22 +159,27 @@ class RestRoutes {
          *         in: formData
          *         required: true
          *         type: string
-         *       - name: project
-         *         description: project id to lookup.
+         *       - name: check_in
+         *         description: Variable responsible for checking whether user is already checked in.
          *         in: formData
          *         required: true
+         *         type: boolean
+         *       - name: project
+         *         description: Specified project id that user is checking in with.
+         *         required: false
+         *         in: formData
          *         type: int
          *     tags:
-         *       - project
+         *       - user
          *     responses:
          *       200:
-         *         description: Json of with project data.
+         *         description: Json with check in or out success and a text message.
          *       201:
          *         description: Json with error message.
          *
          */
-        server.app.get('/api/project', (req, res) => {
-            api.project(req, res);
+        server.app.post('/api/user/check', (req, res) => {
+            user_check_controller.store(req, res);
         });
 
         /**
@@ -206,7 +211,7 @@ class RestRoutes {
          *
          */
         server.app.post('/api/user/auth', (req, res) => {
-            api.login(req, res);
+            user_auth_controller.store(req, res);
         });
 
         /**
@@ -244,7 +249,7 @@ class RestRoutes {
          */
 
         server.app.post('/api/user', (req, res) => {
-            api.signup(req, res);
+            user_controller.store(req, res);
         });
 
         /**
@@ -271,7 +276,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user', (req, res) => {
-            api.profile(req, res);
+            user_controller.index(req, res);
         });
 
         /**
@@ -298,7 +303,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user/taken', (req, res) => {
-            api.username_taken(req, res);
+            user_controller.show(req, res);
         });
 
         /**
@@ -328,7 +333,7 @@ class RestRoutes {
          *
          */
         server.app.patch('/api/user/slack', (req, res) => {
-            api.sign(req, res);
+            user_controller.update(req, res);
         });
     }
 }
