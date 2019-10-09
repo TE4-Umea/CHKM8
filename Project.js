@@ -276,15 +276,15 @@ class Project {
 
         // Make sure project name is valid
         if (project_name.replace(/[^a-z0-9_]+|\s+/gim, '') !== project_name)
-            new this.ErrorResponse('Project name forbidden');
+            return new this.ErrorResponse('Project name forbidden');
 
         /* Generate gradients from project. */
-        var gradiant = this.new_gradient(user.id);
-
+        var gradient = await this.new_gradient(user.id);
+        
         // Insert the new project into DB
         await this.db.query(
             'INSERT INTO projects (name, owner, color_top, color_bot) VALUES (?, ?, ?, ?)',
-            [project_name, user.id, gradiant[0], gradiant[1]]
+            [project_name, user.id, gradient[0], gradient[1]]
         );
         // Get the project back to get its ID and make sure the creation went smooth
         var project = await this.get_from_name(project_name);

@@ -25,14 +25,13 @@ class API {
         if (user) {
             var Check = new (require('../Check'))();
 
-
             /** Check in the user */
             response.json(
                 await Check.check_in(
                     user.id,
                     payload.check_in,
                     payload.project,
-                    'api'
+                    0
                 )
             );
         } else {
@@ -56,9 +55,7 @@ class API {
         /** Make sure user is loaded correctly */
         if (user) {
             /** Create the project via the user and project name and respond to the request with res */
-            response.json(
-                await this.Project.create(payload.project, user)
-            );
+            response.json(await this.Project.create(payload.project, user));
         } else {
             response.error_response('Invalid Token');
         }
@@ -77,9 +74,7 @@ class API {
         /** Load user safe from token */
         var user = await this.User.get_from_token(payload.token);
         /** Load user that will be added */
-        var user_to_add = await this.User.get_from_username(
-            payload.username
-        );
+        var user_to_add = await this.User.get_from_username(payload.username);
 
         var project = await this.Project.get(payload.project);
         /** Add the user to the project via the requesting user */
@@ -105,12 +100,7 @@ class API {
         var user = await this.User.get_from_token(payload.token);
         var project = await this.project.get_from_name(payload.project);
         response.json(
-            
-            await this.Project.remove_user(
-                user_to_remove,
-                project.id,
-                user
-            )
+            await this.Project.remove_user(user_to_remove, project.id, user)
         );
     }
 
@@ -132,10 +122,7 @@ class API {
         var project_data = await this.Project.get_data(project.id);
         /** Make sure user and project exists */
         if (user && project) {
-            var has_access = await this.Project.is_joined(
-                user.id,
-                project.id
-            );
+            var has_access = await this.Project.is_joined(user.id, project.id);
             // Make sure the project data exists.
             if (project_data) {
                 if (has_access) {
@@ -169,10 +156,10 @@ class API {
      * @param {*} res
      */
     async profile(req, res) {
-        var token = req.body.token;
+        var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
-        var user = await this.User.get_from_token(token);
+        var user = await this.User.get_from_token(payload.token);
 
         if (user) {
             var data = await this.User.get_data(user.id);
@@ -205,10 +192,14 @@ class API {
             payload.username,
             payload.password
         );
+
         if (user) {
             var token = await this.User.generate_token(user.username);
             if (token) {
-                response.success_response('success', { token: token });
+                console.log(token);
+                response.success_response('Successfully logged in!', {
+                    token: token,
+                });
             }
         } else {
             response.error_response('Wrong username or password');
@@ -263,13 +254,10 @@ class API {
             payload.password,
             payload.name
         );
-        if (return_val.success) {
-            var token = await this.User.generate_token(
-                return_val.user.username
-            );
+
+        if (return_val) {
+            var token = await this.User.generate_token(return_val.username);
             response.success_response('success', { token: token });
-        } else {
-            response.success_response(return_val.text);
         }
     }
 
@@ -286,9 +274,7 @@ class API {
         var response = new this.Response(res);
 
         if (payload.username) {
-            var user = await this.User.get_from_username(
-                payload.username
-            );
+            var user = await this.User.get_from_username(payload.username);
             if (user) {
                 response.success_response('success', { taken: true });
             } else {
@@ -308,8 +294,10 @@ class API {
         var payload = new this.Payload(req);
         var sign;
         var https = require('https');
-        var db = new (require('../Database'))();
-        var config = new (require('./ConfigLoader'))().load();
+        var config = new (require('../ConfigLoader'))().load();
+        var db = new (require('../Database'))(config);
+
+        console.log(payload, config);
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
@@ -353,7 +341,7 @@ class API {
         );
 
         var user = await this.User.get_from_token(payload.token);
-        if (user) {
+        if (user && sign) {
             // Fill users slack information
             await db.query(
                 'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',

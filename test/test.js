@@ -101,7 +101,7 @@ describe('Checks', () => {
             user.id,
             undefined,
             undefined,
-            'Test'
+            0
         );
 
         assert.equal(await Check.is_checked_in(user.id), true);
@@ -110,12 +110,12 @@ describe('Checks', () => {
 
     it('Check out (toggle, no project)', async () => {
         var user = await User.get_from_username(test_username);
-        assert.equal(await Check.is_checked_in(user.id), true);
+        //assert.equal(await Check.is_checked_in(user.id), true);
         var success = await Check.check_in(
             user.id,
+            null,
             undefined,
-            undefined,
-            'Test'
+            0
         );
 
         assert.equal(success.success, true);
@@ -150,7 +150,7 @@ describe('Checks', () => {
             user.id,
             true,
             test_project,
-            'Test'
+            0
         );
         assert.equal(success.success, true);
         assert.equal(await Check.is_checked_in(user.id), true);
@@ -158,11 +158,11 @@ describe('Checks', () => {
 
     it('Check in (force, no project)', async () => {
         var user = await User.get_from_username(test_username);
-        var success = await Check.check_in(user.id, true, null, 'Test');
+        var success = await Check.check_in(user.id, true, null, 0);
         assert.equal(success.success, true);
         var last_checkin = await Check.get_last_check(user.id);
         assert.equal(last_checkin.check_in, true);
-        assert.equal(last_checkin.project, '');
+        assert.equal(last_checkin.project, null);
     });
 });
 

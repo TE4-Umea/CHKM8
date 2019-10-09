@@ -1,6 +1,8 @@
 class User {
     constructor() {
-        this.md5 = require('md5');
+        // Declare bcrypt and salt
+        this.bcrypt = require('bcrypt');
+        this.salt_rounds = 10;
 
         this.crypto = require('crypto');
         this.fs = require('file-system');
@@ -18,6 +20,8 @@ class User {
         this.ErrorResponse = this.JSONResponse.ErrorResponse;
 
         this.Debug = new (require('./Debug'))();
+
+        this.Check = new (require('./Check'))();
     }
 
     /**
@@ -34,7 +38,7 @@ class User {
     async get_from_slack(req) {
         var success = this.SlackAPI.verify_slack_request(req);
         if (!success) {
-            return new this.ErrorResponse('Slack request unable to verify');
+            return false;
         }
 
         var body = req.body;
@@ -43,7 +47,7 @@ class User {
         if (user) {
             return user;
         } else {
-            return new this.ErrorResponse('User could not be found');
+            return false;
         }
     }
 
@@ -55,38 +59,44 @@ class User {
      */
     async create(username, password, full_name) {
         var username_taken = await this.get_from_username(username);
-        if (username_taken) {
-            return {
-                success: false,
-                text: 'Username taken',
-            };
-        }
+        if (username_taken) return false;
+
         // Insert into the database
-        await this.db.query(
+        var hash = this.bcrypt.hashSync(password, this.salt_rounds);
+        this.db.query(
             'INSERT INTO users (username, name, password) VALUES (?, ?, ?)',
-            [username, full_name, this.md5(password)]
+            [username, full_name, hash]
         );
+
         var user = await this.get_from_username(username);
         if (user) {
             this.Debug.log('Account created for ' + full_name);
-            return {
-                success: true,
-                user: user,
-            };
+            return user;
         }
     }
 
+    /**
+     * Get username and password
+     * @param {*} username
+     * @param {*} password
+     */
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (!user) {
-            return new this.ErrorResponse('User could not be found');
+            return false;
         }
 
-        if (user.password === this.md5(password)) return user;
-
-        return new this.SuccessResponse('User successfully retrieved');
+        const match = await this.bcrypt.compare(password, user.password);
+        if (match) {
+            return user;
+        }
     }
 
+    /**
+     * Generate user token
+     * @param {*} username
+     * @param {*} ip
+     */
     async generate_token(username, ip = '127.0.0.1') {
         var user = await this.get_from_username(username);
         if (user) {
@@ -97,11 +107,13 @@ class User {
             );
             return token;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return false;
     }
 
+    /**
+     * Delete user
+     * @param {*} username
+     */
     async delete(username) {
         var user = await this.get_from_username(username);
         if (user) {
@@ -111,9 +123,7 @@ class User {
             await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return false;
     }
 
     /**
@@ -135,7 +145,7 @@ class User {
      * @returns {User} User
      */
     async get(user_id) {
-        if(!user_id) return false;
+        if (!user_id) return false;
         var user = await this.db.query_one(
             'SELECT * FROM users WHERE id = ?',
             user_id
@@ -155,18 +165,16 @@ class User {
             );
             return user;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return false;
     }
 
     /**
-     *
+     * Get user from token
      * @param {*} token
      */
     async get_from_token(token) {
         if (!token) {
-            return new this.ErrorResponse('Invalid token');
+            return false;
         }
 
         var db_token = await this.db.query_one(
@@ -175,15 +183,13 @@ class User {
         );
 
         if (!db_token) {
-            return new this.ErrorResponse('Could not identify token');
+            return false;
         }
 
         var user = await this.get(db_token.user);
         if (user) {
             return user;
         }
-
-        return new this.SuccessResponse('User successfully retrieved');
     }
 
     /**
@@ -198,29 +204,32 @@ class User {
             var data = await this.get_data(user.id);
             return data;
         }
-        return new this.ErrorResponse(
-            'Unknown user'
-        );
+        return false;
     }
 
     /**
-     *
+     * Get data from user id
      * @param {*} user_id
      */
     async get_data(user_id) {
-
         var user = await this.get(user_id);
         if (user) {
+            var Check = new (require('./Check'))(this);
+
             // Delete private information (user data is only sent to the authenticated user, but password and access token is not needed and
             // would be unnecessary to not hide)
             delete user.access_token;
             delete user.password;
 
-            var last_check = await this.Check.get_last_check(user.id);
-
+            var last_check = await Check.get_last_check(user.id);
+            /* console.log(last_check) */
             // Add new uncashed properties
-            user.checked_in = await this.Check.is_checked_in(user.id);
-            user.checked_in_project = last_check.project;
+            user.checked_in = await Check.is_checked_in(user.id);
+
+            var Project = require('./Project');
+            Project = new Project();
+            var checked_in_project = await Project.get(last_check.project);
+            user.checked_in_project = checked_in_project.name;
             user.checked_in_time = Date.now() - last_check.date;
 
             user.projects = [];
@@ -229,12 +238,9 @@ class User {
                 user.id
             );
 
-            var Project = require('./Project');
-            Project = new Project();
-
             // Load and compile projects the user has joined.
             for (var joint of joints) {
-                var project = await Project.get_from_id(joint.project);
+                var project = await Project.get(joint.project);
                 project.work = joint.work;
                 project.activity = [
                     Math.random(),
@@ -246,7 +252,6 @@ class User {
                 user.projects.push(project);
             }
             return user;
-
         }
     }
 }

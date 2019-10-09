@@ -4,20 +4,19 @@ class SlackJSON {
      * @param {*} text Text you want to submit, optional
      * @param {*} attachments Array of attachements, optional
      */
-    SlackResponse(text = "", attachments = []) {
+    SlackResponse(text = '', attachments = []) {
         return {
             text: text,
-            attachments: attachments
-        }
+            attachments: attachments,
+        };
     }
 
-
-    SlackAttachments(text = "", color = "#0a6cff") {
+    SlackAttachments(text = '', color = '#0a6cff') {
         return {
             text: text,
-            color: color
-        }
+            color: color,
+        };
     }
 }
 
-module.exports = SlackJSON
+module.exports = SlackJSON;

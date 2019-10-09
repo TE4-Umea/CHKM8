@@ -8,8 +8,11 @@ var on_login = () => {}
 
 var token = localStorage.getItem("token")
 if (token) {
-    axios.post("/api/profile", {
-        token
+    //Gets user data specified by token.
+    axios.get("/api/user", {
+        params: {
+            token
+        }
     }).then(res => {
         var data = res.data
         if (data.success) {
@@ -22,14 +25,6 @@ if (token) {
     })
 }
 
-/* socket.on("token", token => {
-    localStorage.setItem("token", token)
-    location.href = "/dashboard"
-})
- */
-/* socket.on("redir", url => {
-    location.href = url
-})  */
 
 function logout() {
     localStorage.removeItem("token")

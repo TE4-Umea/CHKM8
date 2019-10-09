@@ -1,7 +1,8 @@
 if (!token) location.href = "/login"
 var sign_token = document.getElementById("slack-sign-token").innerText
 if (sign_token) {
-    axios.post("/api/sign", {
+    //Links a Authenticated user with a slack user.
+    axios.patch("/api/user/slack", {
         token,
         sign_token
     }).then(res => {
@@ -54,8 +55,11 @@ function insert_projects() {
 }
 
 function reload_dash(){
-    axios.post("/api/profile", {
-        token
+    //Gets user data specified by token.
+    axios.get("/api/user", {
+        params: {
+            token
+        }
     }).then(res => {
         var data = res.data
         if (data.success) {
@@ -105,7 +109,8 @@ document.addEventListener("mousemove", e => {
 })
 
 function check_in() {
-    axios.post("/api/checkin", {
+    //Checks in user.
+    axios.post("/api/user/check", {
         token: token
     }).then(res => {
         var data = res.data
@@ -189,7 +194,7 @@ function render_canvas(canvas, project, progress = 0) {
 function light_up_project(el, light_up = true, animate = true) {
 
     var project_name = el.getAttribute("project-name")
-    var project = get_project(project_name)
+    var project = get_project_from_name(project_name)
 
     var gradient = [light_up ? project.color_top : "#b5b5b5", light_up ? project.color_bot : "#757575"]
     el.children[3].style.fill = "url(#" + project.name + "-gradient)"
@@ -216,9 +221,16 @@ function light_up_project(el, light_up = true, animate = true) {
 }
 
 
-function get_project(project_name) {
+function get_project(id) {
     for (var project of me.projects) {
-        if (project.name == project_name) return project
+        if (project.id == id) return project
+    }
+    return false
+}
+
+function get_project_from_name(name) {
+    for (var project of me.projects) {
+        if (project.name == name) return project
     }
     return false
 }
@@ -226,7 +238,8 @@ function get_project(project_name) {
 function check_in_project(project_name) {
     var check_in = me.checked_in_project == project_name ? false : true
 
-    axios.post("/api/checkin", {
+    //Checks in user to project.
+    axios.post("/api/user/check", {
         token: token,
         check_in: check_in,
         project: project_name
@@ -244,7 +257,7 @@ function check_in_project(project_name) {
 
 function update_projects(checked_in, project_name) {
     for (var el of document.getElementsByClassName("project")) {
-        render_canvas(el.children[1], get_project(el.getAttribute("project-name")))
+        render_canvas(el.children[1], get_project_from_name(el.getAttribute("project-name")))
         if (el.getAttribute("project-name") == me.checked_in_project) {
             light_up_project(el)
         }
@@ -285,7 +298,8 @@ function format_time(ms) {
 function new_project() {
     var project = prompt("Choose a name of the project: ")
     if (project) {
-        axios.post("/api/new", {
+        //Creates new project
+        axios.post("/api/project", {
             project,
             token
         }).then(res => {
