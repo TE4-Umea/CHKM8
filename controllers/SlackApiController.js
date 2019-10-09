@@ -97,7 +97,7 @@ class SlackAPIController {
                     );
                 }
                 var project_name = inputs[1];
-                var project = await this.Project.get(project_name);
+                var project = await this.Project.get_from_name(project_name);
                 var response = await this.Project.remove_user(
                     user_to_remove,
                     project.id,
