@@ -8,7 +8,7 @@ class WebhookRoutes {
          * TODO: Verify webhook request is from Github
          */
         server.app.post('/webhook', (req, res) => {
-            Controller.index;
+            Controller.index(req, res);
         });
     }
 }

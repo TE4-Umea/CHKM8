@@ -46,13 +46,12 @@ describe('MYSQL connection and prep', () => {
                 test_full_name2
             );
 
-            assert.equal(user.success, true);
-            assert.notEqual(user.user, undefined);
-            assert.equal(user.user.username, test_username);
+            assert.notEqual(user, undefined);
+            assert.equal(user.username, test_username);
 
             await server.db.query(
                 'UPDATE users SET slack_id = ? WHERE id = ?',
-                [test_slack_id, user.user.id]
+                [test_slack_id, user.id]
             );
         });
         it('Try to create user that already exists', async () => {
@@ -61,7 +60,7 @@ describe('MYSQL connection and prep', () => {
                 'test_password',
                 test_full_name
             );
-            assert.equal(user.success, false);
+            assert.equal(user, false);
         });
     });
 });
