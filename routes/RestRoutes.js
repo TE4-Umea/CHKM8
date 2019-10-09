@@ -1,7 +1,12 @@
 class RestRoutes {
     constructor(server) {
-        // TODO Remove server dependencies.
-        var api = new (require('../controllers/ApiController'))(server);
+        
+        var user_controller = new (require('../controllers/user/UserController'))();
+        var user_auth_controller = new (require('../controllers/user/UserAuthController'))();
+        var user_check_controller = new (require('../controllers/user/UserCheckController'))();
+        
+        var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
+        var project_controller = new (require('../controllers/project/ProjectController'));
 
         /* REST API routes */
 
@@ -38,7 +43,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project/user', (req, res) => {
-            api.add(req, res);
+            project_user_controller.store(req, res);
         });
 
         /**
@@ -69,7 +74,39 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project', (req, res) => {
-            api.new_project(req, res);
+            project_controller.store(req, res);
+        });
+
+        /**
+         * @swagger
+         *
+         * /api/project:
+         *   get:
+         *     description: Returns a specified project and all it's members and accompanied data.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: token
+         *         description: Login authentication token.
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: project
+         *         description: project id to lookup.
+         *         in: formData
+         *         required: true
+         *         type: int
+         *     tags:
+         *       - project
+         *     responses:
+         *       200:
+         *         description: Json of with project data.
+         *       201:
+         *         description: Json with error message.
+         *
+         */
+        server.app.get('/api/project', (req, res) => {
+            project_controller.index(req, res);
         });
 
         /**
@@ -105,41 +142,8 @@ class RestRoutes {
          *
          */
         server.app.delete('/api/project/user', (req, res) => {
-            api.remove(req, res);
+            project_user_controller.destroy(req, res);
         });
-
-        /**
-         * @swagger
-         *
-         * /api/project:
-         *   get:
-         *     description: Returns a specified project and all it's members and accompanied data.
-         *     produces:
-         *       - application/json
-         *     parameters:
-         *       - name: token
-         *         description: Login authentication token.
-         *         in: formData
-         *         required: true
-         *         type: string
-         *       - name: project
-         *         description: project id to lookup.
-         *         in: formData
-         *         required: true
-         *         type: int
-         *     tags:
-         *       - project
-         *     responses:
-         *       200:
-         *         description: Json of with project data.
-         *       201:
-         *         description: Json with error message.
-         *
-         */
-        server.app.get('/api/project', (req, res) => {
-            api.project(req, res);
-        });
-
         /**
          * @swagger
          *
@@ -174,9 +178,9 @@ class RestRoutes {
          *
          */
         server.app.post('/api/user/check', (req, res) => {
-            api.checkin(req, res);
+            user_check_controller.store(req, res);
         });
-        
+
         /**
          * @swagger
          *
@@ -206,7 +210,7 @@ class RestRoutes {
          *
          */
         server.app.post('/api/user/auth', (req, res) => {
-            api.login(req, res);
+            user_auth_controller.store(req, res);
         });
 
         /**
@@ -244,7 +248,7 @@ class RestRoutes {
          */
 
         server.app.post('/api/user', (req, res) => {
-            api.signup(req, res);
+            user_controller.store(req, res);
         });
 
         /**
@@ -271,7 +275,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user', (req, res) => {
-            api.profile(req, res);
+            user_controller.index(req, res);
         });
 
         /**
@@ -298,7 +302,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user/taken', (req, res) => {
-            api.username_taken(req, res);
+            user_controller.show(req, res);
         });
 
         /**
@@ -328,7 +332,38 @@ class RestRoutes {
          *
          */
         server.app.patch('/api/user/slack', (req, res) => {
-            api.sign(req, res);
+            user_controller.update(req, res);
+        });
+
+        /**
+         * @swagger
+         * 
+         * /api/project:
+         *   patch:
+         *     description: Deletes project from database.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: project
+         *         description: Name of the project to be deleted
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: token
+         *         description: Token of the user that deletes the project
+         *         in: form
+         *         required: true
+         *         type: string
+         *     tags:
+         *      - user
+         *     responses:
+         *       200:
+         *         description: Returns a success message and taken boolean as json.
+         *       201:
+         *         description: Retruns a error message as json.      
+         */
+        server.app.delete('/api/project', (req, res) => {
+            project_controller.destroy(req, res);
         });
     }
 }
