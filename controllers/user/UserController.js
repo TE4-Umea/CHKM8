@@ -46,28 +46,31 @@ class UserController {
                 (!payload.password ? ' password' : '') +
                 (!payload.name ? ' name' : '');
             response.error_response(message);
+            return;
             // If the username contains illegal characters.
         } else if (
             payload.username.replace(/[^a-z0-9_]+|\s+/gim, '') !==
             payload.username
         ) {
             response.error_response('Username contains illegal characters');
+            return;
             // if the username is shorter than 3 characters.
         } else if (payload.username.length < 3) {
             response.error_response(
                 'Username has to be at least three characters long'
             );
+            return;
             // if username is longer than 20 characters.
         } else if (payload.username.length > 20) {
             response.error_response('Username cannot exceed 20 characters');
             // if no space in the name was present
+            return;
         } else if (payload.name.indexOf(' ') == -1) {
             response.error_response(
                 'Please provide a full name, ex. Michael Stevens'
             );
+            return;
             // If no password was present
-        } else if (payload.password == '') {
-            response.error_response('Please enter a password.');
         }
 
         var return_val = await this.User.create(
