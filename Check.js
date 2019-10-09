@@ -5,6 +5,10 @@ class Check {
         // Setup db handler with config
         this.db = new (require('./Database'))(this.config);
 
+        // Require the User class
+        this.Project = require('./Project');
+        this.Project = new this.Project();
+
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
         // this.JSONResponse = new this.JSONResponse()
@@ -23,7 +27,6 @@ class Check {
      */
     async insert_check(user_id, check_in, project_id = null, type) {
         var UserClass = new (require('./User'))();
-        var ProjectClass = new (require('./Project'))();
 
         // Get user from ID
         var user = await UserClass.get(user_id);
@@ -40,7 +43,7 @@ class Check {
              */
             if (!check_in && last_check.project != null) {
                 // Get the project info
-                project_id = await ProjectClass.get(last_check.project);
+                project_id = await this.Project.get(last_check.project);
                 project_id = project_id.id;
             }
 
@@ -51,7 +54,7 @@ class Check {
                     [user_id, project_id]
                 );
             }
-            
+
             if (joint) {
                 // Add time worked on to the joint
                 await this.db.query('UPDATE joints SET work = ? WHERE id = ?', [
@@ -122,8 +125,7 @@ class Check {
         project_name = null,
         type = 'unknown'
     ) {
-        var ProjectClass = new (require('./Project'))();
-        var user = await this.check_user_input(user_id);
+        var user = await this.get_user_from_db(user_id);
         var project_id;
 
         // Check if user is defined, if so get last check
@@ -133,13 +135,13 @@ class Check {
             return new this.ErrorResponse('User not found.');
         }
 
-        var project = await this.check_project_input(project_name);
+        var project = await this.get_project_from_name(project_name);
 
         // Check if the project is definined, if so it's an existing project
         if (project) {
             // Check if the user is a part of the project
             project_id = project.id;
-            var owns_project = await ProjectClass.is_joined(
+            var owns_project = await this.Project.is_joined(
                 user.id,
                 project.id
             );
@@ -181,11 +183,9 @@ class Check {
 
         // Check OUT the user
         if (check_in === false && last_check.check_in) {
-
             // Insert checkout
             await this.insert_check(user.id, false, project_id, type);
             return new this.SuccessResponse(`You are now checked out`);
-            
         } else if (check_in === false && !last_check.check_in) {
             return new this.SuccessResponse('You are already checked out.');
         }
@@ -201,29 +201,23 @@ class Check {
     /**
      * Check user_id input in Check_in function
      * Return User if defined, else return Error message
-     * @param {INT} user_id
-     * @returns User if found
+     * @param {Number} user_id
+     * @returns {User} User if found
      */
-    async check_user_input(user_id) {
+    async get_user_from_db(user_id) {
         var UserClass = new (require('./User'))(this);
         var user = await UserClass.get(user_id);
-
-        if (user) {
-            // Get the last check from the user (to determine if they are currently checked in, how much time and what project.)
-            return user;
-        } else {
-            return new this.ErrorResponse('User not found.');
-        }
+        if (user) return user;
+        else return new this.ErrorResponse('User not found.');
     }
 
     /**
      * If project is defined, load from DB and return it
      * If not found, project set to null
      * @param {String} project_name
-     * @returns Project if found
+     * @returns {Object} Project if found
      */
-    async check_project_input(project_name) {
-        var ProjectClass = new (require('./Project'))(this);
+    async get_project_from_name(project_name) {
         // Check if a project was admitted
         if (
             project_name != null &&
@@ -231,7 +225,7 @@ class Check {
             project_name != undefined
         ) {
             // If project is admitted, load it from the DB
-            var project = await ProjectClass.get_from_name(project_name);
+            var project = await this.Project.get_from_name(project_name);
             return project;
         } else {
             //No project admitted
