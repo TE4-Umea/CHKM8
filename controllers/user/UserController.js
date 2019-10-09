@@ -72,19 +72,19 @@ class UserController {
             // If no password was present
         }
 
-        var return_val = await this.User.create(
+        var user = await this.User.create(
             payload.username,
             payload.password,
             payload.name
         );
 
-        if (return_val.success) {
+        if (user) {
             var token = await this.User.generate_token(
-                return_val.user.username
+                user.username
             );
+
+            
             response.success_response('success', { token: token });
-        } else {
-            response.success_response(return_val.text);
         }
     }
 
