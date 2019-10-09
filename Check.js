@@ -6,8 +6,6 @@ class Check {
         this.db = new (require('./Database'))(this.config);
 
         // Require the User class
-        this.Project = require('./Project');
-        this.Project = new this.Project();
 
         // JSONResponse is the standard response system for CHKM8
         this.JSONResponse = require('./models/JSONResponseModel');
@@ -26,10 +24,10 @@ class Check {
      * @param {Int} type Method of checking (web, card, slack, terminal)
      */
     async insert_check(user_id, check_in, project_id = null, type) {
-        var UserClass = new (require('./User'))();
-
+        var Project = new (require('./Project'))();
+        var User = new (require('./User'))();
         // Get user from ID
-        var user = await UserClass.get(user_id);
+        var user = await User.get(user_id);
 
         if (user) {
             // Get the users last check
@@ -43,7 +41,7 @@ class Check {
              */
             if (!check_in && last_check.project != null) {
                 // Get the project info
-                var project = await this.Project.get(last_check.project);
+                var project = await Project.get(last_check.project);
                 project_id = project.id;
             }
 
@@ -97,7 +95,7 @@ class Check {
     async get_last_check_from_user(user_id) {
         // Get the last check from the database
         var last_check_in = await this.db.query_one(
-            'SELECT * FROM checks WHERE user = ? ORDER BY date DESC LIMIT 1',
+            'SELECT * FROM checks WHERE user = ? ORDER BY id DESC LIMIT 1',
             user_id
         );
         if (!last_check_in)
@@ -106,6 +104,7 @@ class Check {
                 check_in: false,
                 project: '',
             };
+        last_check_in.date = new Date(last_check_in.date);
         return last_check_in;
     }
 
@@ -133,6 +132,8 @@ class Check {
             origin
         );
 
+        var Project = new (require('./Project'))();
+
         var project_id;
 
         // Check if user is defined, if so get last check
@@ -147,10 +148,7 @@ class Check {
         // Check if the project is definined, if so it's an existing project
         if (project) {
             // Check if the user is a part of the project
-            var part_of_project = await this.Project.is_joined(
-                user_id,
-                project.id
-            );
+            var part_of_project = await Project.is_joined(user_id, project.id);
         } else {
             project = null;
         }
@@ -181,25 +179,44 @@ class Check {
         // Check if this is a redundant check in (same project and already checked in)
         if (this.is_check_redundant(check_request))
             return new this.ErrorResponse('You are already checked in.');
+        var response = null;
 
-        var response = await this.send_check(check_request, checked_in);
-        
+        // Check OUT the user
+        if (check_request.type === 'check out' && checked_in) {
+            response = await this.send_check_out(check_request);
+        }
+        if (response)
+            return new this.SuccessResponse(`You are now checked out`);
+        else if (!response)
+            return new this.ErrorResponse('You are already checked out.');
+
+        //Check in user
+        if (check_request.type === 'check in' && checked_in) {
+            response = await this.send_check_out(check_request);
+        }
+        if (response) return new this.SuccessResponse(`Im done`);
+        else if(!response) return new this.SuccessResponse(
+            'You are now checked in.' +
+                (check_request.project_name
+                    ? ' Project: ' + check_request.project_name
+                    : '')
+        );
     }
 
-    async send_check(request, checked_in) {
-        // Check OUT the user
-        if (request.type === 'check out' && checked_in) {
-            // Insert checkout
+    async send_check_out(request) {
+        // Insert checkout
+        if (request.type === 'check in') {
             await this.insert_check(
                 request.user_id,
                 false,
                 request.project_id,
                 request.origin
             );
-            return new this.SuccessResponse(`You are now checked out`);
-        } else if (request.type === 'check out' && !checked_in)
-            return new this.ErrorResponse('You are already checked out.');
+            return true;
+        } else return false;
+    }
 
+    async send_check_in(request) {
         // Insert the check in
         if (request.type === 'check in') {
             await this.insert_check(
@@ -208,15 +225,10 @@ class Check {
                 request.project_id,
                 request.origin
             );
-            return new this.SuccessResponse(
-                'You are now checked in.' +
-                    (request.project_name
-                        ? ' Project: ' + request.project_name
-                        : '')
-            );
-        }
+            return true;
+        }else return false;
     }
-
+    
     /**
      * Checks if check_in is reduntant
      * @param {Datatype} request
@@ -254,13 +266,14 @@ class Check {
      */
     async get_project_from_name(project_name) {
         // Check if a project was admitted
+        var Project = new (require('./Project'))();
         if (
             project_name != null &&
             project_name != '' &&
             project_name != undefined
         ) {
             // If project is admitted, load it from the DB
-            var project = await this.Project.get_from_name(project_name);
+            var project = await Project.get_from_name(project_name);
             return project;
         } else {
             //No project admitted
