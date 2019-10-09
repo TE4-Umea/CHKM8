@@ -11,6 +11,8 @@ class SlackAPIController {
         this.Project = new (require('../Project'))();
         this.Debug = new (require('../Debug'))();
 
+        this.CheckTypes = new (require('../models/CheckTypes'))();
+
         this.crypto = require('crypto');
 
         this.SUCCESS = '#2df763';
@@ -51,7 +53,7 @@ class SlackAPIController {
                     user.id,
                     true,
                     project,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
@@ -69,7 +71,7 @@ class SlackAPIController {
                     user.id,
                     false,
                     null,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
