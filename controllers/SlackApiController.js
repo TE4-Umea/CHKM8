@@ -127,11 +127,10 @@ class SlackAPIController {
                     );
                 }
                 var project_name = inputs[1];
-                var project = await this.Project.get(project_name);
 
                 var response = await this.Project.add_user(
                     user_to_add,
-                    project ? project.id : -1,
+                    project_name,
                     user
                 );
                 res.json(this.slack_response(response));
