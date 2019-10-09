@@ -60,9 +60,7 @@ class Server {
         this.Debug = new (require('./Debug'))();
 
         /** Loading done! */
-        this.on_loaded();
-
-        
+        this.on_loaded();        
     }
 
     /**
