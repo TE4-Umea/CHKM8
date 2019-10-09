@@ -90,6 +90,7 @@ class Check {
                 check_in: false,
                 project: '',
             };
+        last_check_in.date = new Date(last_check_in.date);
         return last_check_in;
     }
 
@@ -131,7 +132,7 @@ class Check {
 
         // Allow toggle check ins if force checkin is not specified
         if (check_in === null) check_in = !last_check.check_in;
-        
+
         // If users last check was a check in, this will check them out before checking them in.
         if (
             check_in === true &&
@@ -149,8 +150,8 @@ class Check {
         ) {
             // Check if this is a redundant check in (same project and already checked in)
             return new this.SuccessResponse(
-                'You are already checked in.' +
-                    (project_name ? ' Project: ' + project_name : '')
+                'You are already checked in' +
+                    (project_name ? ' project: ' + project_name : '')
             );
         }
 
@@ -159,7 +160,8 @@ class Check {
             // Insert checkout
             await this.insert_check(user.id, false, null, type);
             return new this.SuccessResponse(
-                `You are now checked out from "${project_name}"`,
+                'You are now checked out' +
+                    (project_name ? ' from: ' + project_name : ''),
                 {
                     checked_in: false,
                 }
@@ -169,11 +171,11 @@ class Check {
                 checked_in: false,
             });
         }
-        
+
         await this.insert_check(user.id, true, project.id, type);
         return new this.SuccessResponse(
-            'You are now checked in.' +
-                (project_name ? ' Project: ' + project_name : ''),
+            'You are now checked in ' +
+                (project_name ? ' project: ' + project_name : ''),
             { checked_in: true }
         );
     }
