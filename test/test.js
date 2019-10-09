@@ -119,7 +119,7 @@ describe('Checks', () => {
         );
 
         assert.equal(success.success, true);
-        assert.equal(await Check.is_checked_in(user.id), true);
+        assert.equal(await Check.is_checked_in(user.id), false);
     });
 
     it('Create project, ' + test_project, async () => {
