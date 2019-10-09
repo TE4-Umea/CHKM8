@@ -62,49 +62,6 @@ class API {
     }
 
     /**
-     * Add user to project
-     * @param {*} req
-     * @param {*} res
-     */
-    async add(req, res) {
-        /** Get attributes from request */
-        var payload = new this.Payload(req);
-        // Loads ResponseModel
-        var response = new this.Response(res);
-        /** Load user safe from token */
-        var user = await this.User.get_from_token(payload.token);
-        /** Load user that will be added */
-        var user_to_add = await this.User.get_from_username(payload.username);
-
-        var project = await this.Project.get(payload.project);
-        /** Add the user to the project via the requesting user */
-        /** Responde to the user */
-        response.json(
-            await this.Project.add_user(user_to_add, project.id, user)
-        );
-    }
-
-    /**
-     * Remove user from project
-     * @param {*} req
-     * @param {*} res
-     */
-    async remove(req, res) {
-        /** Get attributes from request */
-        var payload = new this.Payload(req);
-        // Loads ResponseModel
-        var response = new this.Response(res);
-        var user_to_remove = await this.User.get_from_username(
-            payload.username
-        );
-        var user = await this.User.get_from_token(payload.token);
-        var project = await this.project.get_from_name(payload.project);
-        response.json(
-            await this.Project.remove_user(user_to_remove, project.id, user)
-        );
-    }
-
-    /**
      * POST /api/project. Returns a json with the status of a given project.
      * Get information of a project and all the members
      * @param {Request} req

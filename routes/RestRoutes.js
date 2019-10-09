@@ -3,6 +3,7 @@ class RestRoutes {
         // TODO Remove server dependencies.
         var api_controller = new (require('../controllers/ApiController'))(server);
         var user_controller = new (require('../controllers/user/UserController'))(server);
+        var project_user_controller = new (require('../controllers/project/ProjectUserController'))(server);
 
         /* REST API routes */
 
@@ -39,7 +40,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project/user', (req, res) => {
-            api_controller.add(req, res);
+            project_user_controller.store(req, res);
         });
 
         /**
