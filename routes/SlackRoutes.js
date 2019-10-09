@@ -1,8 +1,6 @@
 class SlackRoutes {
     constructor(server) {
-        var slack_controller = new (require('../controllers/SlackApiController'))(
-            server
-        );
+        var slack_controller = new (require('../controllers/SlackApiController'))();
 
         /**
          * @swagger
