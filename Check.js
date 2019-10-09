@@ -149,8 +149,8 @@ class Check {
         ) {
             // Check if this is a redundant check in (same project and already checked in)
             return new this.SuccessResponse(
-                'You are already checked in.' +
-                    (project_name ? ' Project: ' + project_name : '')
+                'You are already checked in' +
+                    (project_name ? ' project: ' + project_name : '')
             );
         }
 
@@ -159,7 +159,8 @@ class Check {
             // Insert checkout
             await this.insert_check(user.id, false, null, type);
             return new this.SuccessResponse(
-                `You are now checked out from "${project_name}"`,
+                'You are now checked out' + 
+                (project_name ? ' from: ' + project_name : ''),
                 {
                     checked_in: false,
                 }
@@ -172,8 +173,8 @@ class Check {
         
         await this.insert_check(user.id, true, project.id, type);
         return new this.SuccessResponse(
-            'You are now checked in.' +
-                (project_name ? ' Project: ' + project_name : ''),
+            'You are now checked in ' +
+                (project_name ? ' project: ' + project_name : ''),
             { checked_in: true }
         );
     }
