@@ -33,7 +33,6 @@ class UserAuthController {
         if (user) {
             var token = await this.User.generate_token(user.username);
             if (token) {
-                console.log(token);
                 response.success_response('Successfully logged in!', {
                     token: token,
                 });
