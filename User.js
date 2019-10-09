@@ -38,7 +38,7 @@ class User {
     async get_from_slack(req) {
         var success = this.SlackAPI.verify_slack_request(req);
         if (!success) {
-            return new this.ErrorResponse('Slack request unable to verify');
+            return false;
         }
 
         var body = req.body;
@@ -47,7 +47,7 @@ class User {
         if (user) {
             return user;
         } else {
-            return new this.ErrorResponse('User could not be found');
+            return false;
         }
     }
 
@@ -91,14 +91,13 @@ class User {
     async get_from_username_and_password(username, password) {
         var user = await this.get_from_username(username);
         if (!user) {
-            return new this.ErrorResponse('User could not be found');
+            return false;
         }
 
         const match = await this.bcrypt.compare(password, user.password);
         if (match) {
             return user;
         }
-        return new this.SuccessResponse('User successfully retrieved');
     }
 
     /**
@@ -116,7 +115,7 @@ class User {
             );
             return token;
         }
-        return new this.ErrorResponse('Unknown user');
+        return false;
     }
 
     /**
@@ -132,7 +131,7 @@ class User {
             await this.db.query('DELETE FROM tokens WHERE user = ?', user.id);
             return true;
         }
-        return new this.ErrorResponse('Unknown user');
+        return false;
     }
 
     /**
@@ -174,7 +173,7 @@ class User {
             );
             return user;
         }
-        return new this.ErrorResponse('Unknown user');
+        return false;
     }
 
     /**
@@ -183,7 +182,7 @@ class User {
      */
     async get_from_token(token) {
         if (!token) {
-            return new this.ErrorResponse('Invalid token');
+            return false;
         }
 
         var db_token = await this.db.query_one(
@@ -192,15 +191,13 @@ class User {
         );
 
         if (!db_token) {
-            return new this.ErrorResponse('Could not identify token');
+            return false;
         }
 
         var user = await this.get(db_token.user);
         if (user) {
             return user;
         }
-
-        return new this.SuccessResponse('User successfully retrieved');
     }
 
     /**
@@ -215,7 +212,7 @@ class User {
             var data = await this.get_data(user.id);
             return data;
         }
-        return new this.ErrorResponse('Unknown user');
+        return false;
     }
 
     /**
