@@ -8,32 +8,36 @@ head
     | <meta name="viewport" content="width=device-width, initial-scale=1">
 body
     a(href="/login")
-        button(class="mdc-button mdc-button--raised" id="index-login-button") LOGIN
+        button(id="index-login-button") LOGIN
     div(id="index-wrap")
         img(src="img/by-happy-surfers.png", alt="logo" id="index-logo")
         span(id="tag-line") Keep track of all your employee attendance
         a(href="/login")
             button(class="mdc-button mdc-button--raised" id="index-signup-button") SIGN UP
         div(id="features-list")
-            span(id="features-title") Features
             div(class="features-block")
                 img(src="img/icons/slack.png" class="features-icon" alt="")
-                div(class="features-heading") Slack integration
-                div(class="features-description") The slack app allows for checking in and out via slack. Teams are also linked via a slack login.
+                div(class="features-text")
+                    div(class="features-heading") Slack integration
+                    div(class="features-description") The slack app allows for checking in and out via slack. Teams are also linked via a slack login.
             div(class="features-block")
                 img(src="img/icons/dashboard.png" class="features-icon" alt="")
-                div(class="features-heading") Intuitive and powerful UI
-                div(class="features-description") The dashboard presents your attendence and project history so can easily brief yourself.
+                div(class="features-text")
+                    div(class="features-heading") Intuitive and powerful UI
+                    div(class="features-description") The dashboard presents your attendence and project history so can easily brief yourself.
             div(class="features-block")
                 img(src="img/icons/projects.png" class="features-icon" alt="")
-                div(class="features-heading") Project tracking
-                div(class="features-description") Collaborate on projects and track time worked by checking in and out of projects.
+                div(class="features-text")
+                    div(class="features-heading") Project tracking
+                    div(class="features-description") Collaborate on projects and track time worked by checking in and out of projects.
             div(class="features-block")
                 img(src="img/icons/opensource.png" class="features-icon" alt="")
-                div(class="features-heading") Opensource and modular
-                div(class="features-description") All code is open source and well documented, can easily be further developed on by anyone. Check out our 
+                div(class="features-text")
+                    div(class="features-heading") Opensource and modular
+                    div(class="features-description") All code is open source and well documented, can easily be further developed on by anyone. Check out our 
                     a(href="/docs") Docs
             div(class="features-block")
                 img(src="img/icons/api.png" class="features-icon" alt="")
-                div(class="features-heading") REST API
-                div(class="features-description") Simple by rich REST API let's anyone create their own interface for the app
+                div(class="features-text")
+                    div(class="features-heading") REST API
+                    div(class="feature-description") Simple by rich REST API let's anyone create their own interface for the ap

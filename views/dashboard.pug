@@ -2,22 +2,23 @@ extends dash
 block head
     link(rel="stylesheet", href="css/dashboard.css")
 block header 
-    span(id="time") --:--
-    div(id="seconds-bar-container")
-        div(id="seconds-bar")
+    div(id="time-container")
+        span(id="time") --:--
+        div(id="seconds-bar-container")
+            div(id="seconds-bar")
 block sidebar
     div(id="projects")
         div(class="project")
            
     span(id="add-new-project" title="Create new project" onclick="new_project()") +
 block content
+    div(id="top-bar")
+        <img alt="Sign in with Slack" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
+        button(id="check-in-button" onclick="check_in()") Check in  
+        div(id="logged-in-as")
+        img(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", alt="Profile" id="avatar" title="Profile settings")
+        a(href='https://slack.com/oauth/authorize?scope=identity.basic,identity.email,identity.team,identity.avatar&client_id=' + client_id id="slack-button")
     span(hidden id="slack-sign-token") #{token}
-    div(id="logged-in-as")
-    img(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", alt="Profile" id="avatar" title="Profile settings")
-    a(href='https://slack.com/oauth/authorize?scope=identity.basic,identity.email,identity.team,identity.avatar&client_id=' + client_id id="slack-button")
-        <img alt=""Sign in with Slack"" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
-    button(class="mdc-button mdc-button--raised" id="check-in-button" onclick="check_in()") Check in
-    button(class="mdc-button" id="log-out-button" onclick="logout()") Log out
-
+    //button(id="log-out-button" onclick="logout()") Log out
 block scripts
     script(src="js/dashboard.js")

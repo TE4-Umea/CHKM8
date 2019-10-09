@@ -1,170 +1,49 @@
+body {
+    margin: 0;
+    overflow-y: hidden;
+}
+
+#wrap {
+    width: 100vw;
+    height: 100vh;
+    padding: 30px;
+    background-color: #ccc;
+}
+
+#content-box {
+    display: flex;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px rgba(0,0,0,0.3);
+    overflow-y: auto;
+}
+
+#side-bar {
+    width: 35%;
+    border-right: 3px solid var(--c-primary);
+}
+
 #title {
-    text-align: right;
-    font-size: 40px;
-    top: 28px;
+    display: flex;
+    justify-content: space-between;
 }
 
-#time {
-    font-family: 'Ubuntu';
+#logo {
 }
 
-#seconds-bar-container {
-    position: absolute;
-    left: 59px;
-    height: 3px;
-    width: 101px;
-    background: rgb(204, 204, 204);
-    border-radius: 20px;
-    border-radius: 100px;
+#top-bar {
+    display:flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
-#seconds-bar {
-    position: absolute;
-    height: 3px;
-    border-radius: 20px;
-    width: 0px;
-    transition: width .5s;
-    background: var(--blu);
-}
-
-#slack-button {
-    border: none;
-    position: absolute;
-    bottom: 30px;
-    left: 30px;
-}
-
-#check-in-button {
-    position: absolute;
-    right: 30px;
-    bottom: 30px;
-    width: auto;
-    min-width: 200px;
-    font-size: 18px;
-    height: 45px;
-}
-
-#log-out-button {
-    position: absolute;
-    right: 260px;
-    bottom: 30px;
-    width: 120px;
-    font-size: 18px;
-    height: 45px;
-}
-
-#add-new-project {
-    color: var(--blu);
-    width: 30px;
-    height: 30px;
-    border-radius: 5px;
-    position: absolute;
-    cursor: pointer;
-    user-select: none;
-    text-align: center;
-    line-height: 25px;
-    font-size: 35px;
-    font-family: "Ubuntu";
-    left: 15px;
-    bottom: 15px;
-}
-
-#logged-in-as {
-    margin: 30px;
+#content {
+    flex-grow: 1;
 }
 
 #avatar {
-    height: 50px;
+    display: flex;
     border-radius: 100px;
-    border: solid 2px var(--blu);
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    cursor: pointer;
-    transition: all .1s;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-}
-
-#avatar:hover {
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-}
-
-#avatar:active {
-    border-color: var(--dark-blu);
-}
-
-#projects {
-    /* background: rgb(236, 236, 236); */
-    width: 280px;
-    left: 10px;
-    padding-right: 5px;
-    height: calc(100vh - 200px);
-    max-height: 540px;
-    overflow-y: auto;
-    position: relative;
-}
-
-.project {
-    position: relative;
-    width: 100%;
-    height: 150px;
-    border-radius: 10px;
-    background: rgb(255, 255, 255);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.219);
-    cursor: pointer;
-    overflow: hidden;
-    user-select: none;
-    margin-bottom: 20px;
-}
-
-.project:hover {
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
-}
-
-
-.wipe {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
-    height: 150px;
-    user-select: none;
-    pointer-events: none;
-    
-}
-
-.project-name {
-    font-size: 30px;
-    font-family: 'Ubuntu';
-    position: absolute;
-    /* color: #ff2072; */
-    position: absolute;
-    top: 15px;
-    text-align: right;
-    right: 15px;
-    color: #757575;
-    transition: color .2s;
-    /* background: -webkit-linear-gradient(0deg, rgb(134, 134, 134), rgb(94, 94, 94));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent; */
-}
-
-/* Check in button on projects*/
-.project-button {
-    height: 30px;
-    width: auto;
-    font-size: 10px;
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    color: rgb(27, 27, 27) !important;
-    border-color: rgb(37, 37, 37) !important;
-}
-
-.project-timeline {
-    /* height: 50px;
-    width: 200px; */
-    position: absolute;
-    right: 15px;
-    top: 50px;
-    /* background: rgb(41, 41, 41); */
+    border: 1px solid var(--c-primary);
 }
