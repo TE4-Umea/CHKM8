@@ -13,7 +13,7 @@ class CheckTypes {
 
     get_id(name) {
         for (var i = 0; i < this.types.length; i++)
-            if (this.types8[i] == name) return i;
+            if (this.types[i] == name) return i;
     }
 
     add(name) {
