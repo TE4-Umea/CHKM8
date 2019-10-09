@@ -160,7 +160,7 @@ class Check {
             await this.insert_check(user.id, false, null, type);
             return new this.SuccessResponse(
                 'You are now checked out' + 
-                (project_name ? ' from: ' + project_name : ''),
+                    (project_name ? ' from: ' + project_name : ''),
                 {
                     checked_in: false,
                 }
