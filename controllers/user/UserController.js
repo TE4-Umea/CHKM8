@@ -1,11 +1,10 @@
 class UserController {
-    
     constructor() {
         this.Payload = require('../../models/PayloadModel');
         this.Response = require('../../models/ResponseModel');
         this.User = new (require('../../User'))();
     }
-    
+
     /**
      * POST api/user
      * Get client profile from token
@@ -75,7 +74,7 @@ class UserController {
             payload.password,
             payload.name
         );
-        
+
         if (return_val.success) {
             var token = await this.User.generate_token(
                 return_val.user.username
@@ -156,6 +155,31 @@ class UserController {
                             avatar: data.user.image_512,
                             email: data.user.email,
                         };
+
+                        var user = await this.User.get_from_token(
+                            payload.token
+                        );
+                        if (user) {
+                            // Fill users slack information
+                            await db.query(
+                                'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
+                                [
+                                    sign.email,
+                                    sign.slack_id,
+                                    sign.slack_domain,
+                                    sign.access_token,
+                                    sign.avatar,
+                                    sign.name,
+                                    user.id,
+                                ]
+                            );
+                            res.json({
+                                success: true,
+                                redir: '/dashboard',
+                            });
+                        } else {
+                            response.error_response('Invalid CHKM8 token');
+                        }
                     } else {
                         response.error_response(data.error);
                         return;
@@ -163,27 +187,6 @@ class UserController {
                 });
             }
         );
-
-        var user = await this.User.get_from_token(payload.token);
-        if (user && sign) {
-            // Fill users slack information
-            await db.query(
-                'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
-                [
-                    sign.email,
-                    sign.slack_id,
-                    sign.slack_domain,
-                    sign.access_token,
-                    sign.avatar,
-                    sign.name,
-                    user.id,
-                ]
-            );
-            res.json({
-                success: true,
-                redir: '/dashboard',
-            });
-        }
     }
 }
 
