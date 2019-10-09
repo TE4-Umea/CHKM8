@@ -1,7 +1,7 @@
 class RestRoutes {
     constructor(server) {
-        // TODO Remove server dependencies.
-        var api = new (require('../controllers/ApiController'))(server);
+        var api = new (require('../controllers/ApiController'));
+        var project_api = new (require('../controllers/ProjectController'));
 
         /* REST API routes */
 
@@ -329,6 +329,37 @@ class RestRoutes {
          */
         server.app.patch('/api/user/slack', (req, res) => {
             api.sign(req, res);
+        });
+
+        /**
+         * @swagger
+         * 
+         * /api/project:
+         *   patch:
+         *     description: Deletes project from database.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: project
+         *         description: Name of the project to be deleted
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: token
+         *         description: Token of the user that deletes the project
+         *         in: form
+         *         required: true
+         *         type: string
+         *     tags:
+         *      - user
+         *     responses:
+         *       200:
+         *         description: Returns a success message and taken boolean as json.
+         *       201:
+         *         description: Retruns a error message as json.      
+         */
+        server.app.delete('/api/project', (req, res) => {
+            project_api.delete(req, res);
         });
     }
 }
