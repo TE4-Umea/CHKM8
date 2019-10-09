@@ -28,9 +28,6 @@ class Server {
         this.SlackAPI = require('./controllers/SlackApiController');
         this.SlackAPI = new this.SlackAPI(this);
 
-        /**  REST API functions (routes are in /routes/REST) */
-        this.API = require('./controllers/ApiController');
-        this.API = new this.API(this);
 
         /** Database async handler */
         var Database = require('./Database');
