@@ -105,6 +105,7 @@ class SlackAPIController {
                             success: false,
                         })
                     );
+                    return;
                 }
 
                 var project_name = inputs[1];
@@ -146,6 +147,7 @@ class SlackAPIController {
                             success: false,
                         })
                     );
+                    return;
                 }
 
 
