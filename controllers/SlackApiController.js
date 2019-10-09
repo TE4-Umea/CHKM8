@@ -2,14 +2,14 @@ class SlackAPIController {
     constructor() {
         this.qs = require('qs');
         this.fs = require('file-system');
-        this.config = new (new require('../ConfigLoader'))().load();
+        this.config = new (require('../ConfigLoader'))().load();
         var SlackJSON = require('../SlackJSON');
         this.SlackJSON = new SlackJSON();
 
-        this.User = new require('../User')();
-        this.Check = new require('../Check')();
-        this.Project = new require('../Project')();
-        this.Debug = new require('../Debug')();
+        this.User = new (require('../User')());
+        this.Check = new (require('../Check')());
+        this.Project = new (require('../Project')());
+        this.Debug = new (require('../Debug')());
 
         this.crypto = require('crypto');
 
