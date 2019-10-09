@@ -255,13 +255,11 @@ class API {
             payload.name
         );
         
-        if (return_val.success) {
+        if (return_val) {
             var token = await this.User.generate_token(
-                return_val.user.username
+                return_val.username
             );
             response.success_response('success', { token: token });
-        } else {
-            response.success_response(return_val.text);
         }
     }
 

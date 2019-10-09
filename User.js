@@ -59,12 +59,7 @@ class User {
      */
     async create(username, password, full_name) {
         var username_taken = await this.get_from_username(username);
-        if (username_taken) {
-            return {
-                success: false,
-                text: 'Username taken',
-            };
-        }
+        if (username_taken) return false;
 
         // Insert into the database
         var hash = this.bcrypt.hashSync(password, this.salt_rounds);
@@ -76,10 +71,7 @@ class User {
         var user = await this.get_from_username(username);
         if (user) {
             this.Debug.log('Account created for ' + full_name);
-            return {
-                success: true,
-                user: user,
-            };
+            return user;
         }
     }
 
