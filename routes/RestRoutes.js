@@ -1,7 +1,8 @@
 class RestRoutes {
     constructor(server) {
         // TODO Remove server dependencies.
-        var api = new (require('../controllers/ApiController'))(server);
+        var api_controller = new (require('../controllers/ApiController'))(server);
+        var user_controller = new (require('../controllers/user/UserController'))(server);
 
         /* REST API routes */
 
@@ -38,7 +39,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project/user', (req, res) => {
-            api.add(req, res);
+            api_controller.add(req, res);
         });
 
         /**
@@ -69,7 +70,7 @@ class RestRoutes {
          *         description: Json with error message.
          */
         server.app.post('/api/project', (req, res) => {
-            api.new_project(req, res);
+            api_controller.new_project(req, res);
         });
 
         /**
@@ -105,7 +106,7 @@ class RestRoutes {
          *
          */
         server.app.delete('/api/project/user', (req, res) => {
-            api.remove(req, res);
+            api_controller.remove(req, res);
         });
 
         /**
@@ -137,7 +138,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/project', (req, res) => {
-            api.project(req, res);
+            api_controller.project(req, res);
         });
 
         /**
@@ -174,9 +175,9 @@ class RestRoutes {
          *
          */
         server.app.post('/api/user/check', (req, res) => {
-            api.checkin(req, res);
+            api_controller.checkin(req, res);
         });
-        
+
         /**
          * @swagger
          *
@@ -206,7 +207,7 @@ class RestRoutes {
          *
          */
         server.app.post('/api/user/auth', (req, res) => {
-            api.login(req, res);
+            api_controller.login(req, res);
         });
 
         /**
@@ -244,7 +245,7 @@ class RestRoutes {
          */
 
         server.app.post('/api/user', (req, res) => {
-            api.signup(req, res);
+            user_controller.store(req, res);
         });
 
         /**
@@ -271,7 +272,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user', (req, res) => {
-            api.profile(req, res);
+            user_controller.index(req, res);
         });
 
         /**
@@ -298,7 +299,7 @@ class RestRoutes {
          *
          */
         server.app.get('/api/user/taken', (req, res) => {
-            api.username_taken(req, res);
+            api_controller.username_taken(req, res);
         });
 
         /**
@@ -328,7 +329,7 @@ class RestRoutes {
          *
          */
         server.app.patch('/api/user/slack', (req, res) => {
-            api.sign(req, res);
+            user_controller.link(req, res);
         });
     }
 }
