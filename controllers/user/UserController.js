@@ -1,4 +1,11 @@
 class UserController {
+    
+    constructor() {
+        this.Payload = require('../../models/PayloadModel');
+        this.Response = require('../../models/ResponseModel');
+        this.User = new (require('../../User'))();
+    }
+    
     /**
      * POST api/user
      * Get client profile from token
