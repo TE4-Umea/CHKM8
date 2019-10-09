@@ -8,43 +8,6 @@ class RestRoutes {
         /**
          * @swagger
          *
-         * /api/user/check:
-         *   post:
-         *     description: Checks in user.
-         *     produces:
-         *       - application/json
-         *     parameters:
-         *       - name: token
-         *         description: Login authentication token.
-         *         in: formData
-         *         required: true
-         *         type: string
-         *       - name: check_in
-         *         description: Variable responsible for checking whether user is already checked in.
-         *         in: formData
-         *         required: true
-         *         type: boolean
-         *       - name: project
-         *         description: Specified project id that user is checking in with.
-         *         required: false
-         *         in: formData
-         *         type: int
-         *     tags:
-         *       - user
-         *     responses:
-         *       200:
-         *         description: Json with check in or out success and a text message.
-         *       201:
-         *         description: Json with error message.
-         *
-         */
-        server.app.post('/api/user/check', (req, res) => {
-            api.checkin(req, res);
-        });
-
-        /**
-         * @swagger
-         *
          * /api/project/user:
          *   post:
          *     description: Adds a user to a project
@@ -177,6 +140,43 @@ class RestRoutes {
             api.project(req, res);
         });
 
+        /**
+         * @swagger
+         *
+         * /api/user/check:
+         *   post:
+         *     description: Checks in user.
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: token
+         *         description: Login authentication token.
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: check_in
+         *         description: Variable responsible for checking whether user is already checked in.
+         *         in: formData
+         *         required: true
+         *         type: boolean
+         *       - name: project
+         *         description: Specified project id that user is checking in with.
+         *         required: false
+         *         in: formData
+         *         type: int
+         *     tags:
+         *       - user
+         *     responses:
+         *       200:
+         *         description: Json with check in or out success and a text message.
+         *       201:
+         *         description: Json with error message.
+         *
+         */
+        server.app.post('/api/user/check', (req, res) => {
+            api.checkin(req, res);
+        });
+        
         /**
          * @swagger
          *
