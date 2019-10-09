@@ -96,6 +96,17 @@ class SlackAPIController {
                         user_to_remove
                     );
                 }
+
+                if (!user_to_remove) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                }
+
                 var project_name = inputs[1];
                 var project = await this.Project.get_from_name(project_name);
                 var response = await this.Project.remove_user(
@@ -126,6 +137,18 @@ class SlackAPIController {
                         user_to_add
                     );
                 }
+
+                if (!user_to_add) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                }
+
+
                 var project_name = inputs[1];
 
                 var response = await this.Project.add_user(
