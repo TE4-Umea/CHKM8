@@ -1,6 +1,6 @@
 class WebhookController {
     async index(req, res) {
-        res.end('test');
+        res.end('test2');
         
         const Debug = new (require('../Debug'))();
         const ConfigLoader = new (require('../ConfigLoader'))();
