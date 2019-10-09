@@ -92,7 +92,7 @@ class UserController {
      * @param {*} req
      * @param {*} res
      */
-    async exists(req, res) {
+    async show(req, res) {
         /** Get attributes from request */
         var payload = new this.Payload(req);
         // Loads ResponseModel
@@ -114,7 +114,7 @@ class UserController {
      * @param {Request} req
      * @param {Response} res
      */
-    async link(req, res) {
+    async update(req, res) {
         var payload = new this.Payload(req);
         var sign;
         var https = require('https');

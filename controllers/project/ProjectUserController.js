@@ -37,7 +37,7 @@ class ProjectUserController {
      * @param {*} res
      * @returns A json response with success or fail
      */
-    async remove(req, res) {
+    async destroy(req, res) {
         /** Get attributes from request */
         var payload = new this.Payload(req);
         // Loads ResponseModel

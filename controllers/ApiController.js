@@ -11,35 +11,6 @@ class API {
     }
 
     /**
-     * Check in or out a user
-     * @param {*} req
-     * @param {*} res
-     */
-    async checkin(req, res) {
-        /** Get attributes from request */
-        var payload = new this.Payload(req);
-        // Loads ResponseModel
-        var response = new this.Response(res);
-        /** Get user safe from token */
-        var user = await this.User.get_from_token(payload.token);
-        if (user) {
-            var Check = new (require('../Check'))();
-
-            /** Check in the user */
-            response.json(
-                await Check.check_in(
-                    user.id,
-                    payload.check_in,
-                    payload.project,
-                    0
-                )
-            );
-        } else {
-            response.error_response('Invalid Token');
-        }
-    }
-
-    /**
      * Create a new project
      * REQ: {token, project}
      * @param {*} req
@@ -103,45 +74,6 @@ class API {
             response.error_response('Project data corrupt');
         } else {
             response.error_response('Something went wrong.');
-        }
-    }
-
-    
-
-    /**
-     * POST api/login
-     * Get client token from username and password
-     * @param {*} req
-     * @param {*} res
-     */
-    async login(req, res) {
-        /** Get attributes from request */
-        var payload = new this.Payload(req);
-        // Loads ResponseModel
-        var response = new this.Response(res);
-        //TODO Fix this weird negative.
-        if (!payload.username || !payload.password) {
-            response.error_response('Missing parameters');
-            return;
-        }
-        var user = await this.User.get_from_username(payload.username);
-
-        // Sign in
-        user = await this.User.get_from_username_and_password(
-            payload.username,
-            payload.password
-        );
-
-        if (user) {
-            var token = await this.User.generate_token(user.username);
-            if (token) {
-                console.log(token);
-                response.success_response('Successfully logged in!', {
-                    token: token,
-                });
-            }
-        } else {
-            response.error_response('Wrong username or password');
         }
     }
 }
