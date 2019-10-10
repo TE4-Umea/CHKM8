@@ -17,6 +17,170 @@ if (sign_token) {
         });
 }
 
+
+
+const mock_data = [ { "id": 1, "user": 9, "time": 1568272930552, "check_in": 1, "type": "web", "original_time": 1568272930552 }, { "id": 2, "user": 9, "time": 1568287231086, "check_in": 0, "type": "web", "original_time": 1568287231086 }, { "id": 20, "user": 9, "time": 1568318933943, "check_in": 0, "type": "web", "original_time": 1568318924047 }, { "id": 22, "user": 9, "time": 1568319132512, "check_in": 0, "type": "web", "original_time": 1568319131079 }, { "id": 24, "user": 9, "time": 1568320102649, "check_in": 0, "type": "web", "original_time": 1568320096003 }, { "id": 28, "user": 9, "time": 1568321029810, "check_in": 0, "type": "web", "original_time": 1568321010101 }, { "id": 32, "user": 9, "time": 1568321086190, "check_in": 0, "type": "web", "original_time": 1568321083239 }, { "id": 39, "user": 9, "time": 1568355601619, "check_in": 0, "type": "web", "original_time": 1568355585119 }, { "id": 45, "user": 9, "time": 1568357475449, "check_in": 1, "type": "web", "original_time": 1568357475448 }, { "id": 48, "user": 9, "time": 1568359923048, "check_in": 1, "type": "web", "original_time": 1568359866435 }, { "id": 50, "user": 9, "time": 1568360494922, "check_in": 0, "type": "web", "original_time": 1568360494921 }, { "id": 71, "user": 9, "time": 1568362819972, "check_in": 1, "type": "web", "original_time": 1568362819971 }, { "id": 73, "user": 9, "time": 1568365720248, "check_in": 1, "type": "web", "original_time": 1568365719352 }, { "id": 74, "user": 9, "time": 1568368496137, "check_in": 0, "type": "web", "original_time": 1568368496136 }, { "id": 77, "user": 9, "time": 1568371402882, "check_in": 1, "type": "web", "original_time": 1568371402882 }, { "id": 79, "user": 9, "time": 1568371795371, "check_in": 1, "type": "web", "original_time": 1568371793678 }, { "id": 81, "user": 9, "time": 1568374086562, "check_in": 1, "type": "web", "original_time": 1568374084965 }, { "id": 87, "user": 9, "time": 1568375936546, "check_in": 1, "type": "web", "original_time": 1568375930785 }, { "id": 89, "user": 9, "time": 1568377355940, "check_in": 1, "type": "web", "original_time": 1568377354785 }, { "id": 91, "user": 9, "time": 1568377765315, "check_in": 1, "type": "web", "original_time": 1568377762288 }, { "id": 94, "user": 9, "time": 1568378322861, "check_in": 1, "type": "web", "original_time": 1568378321894 }, { "id": 96, "user": 9, "time": 1568381310040, "check_in": 0, "type": "web", "original_time": 1568381310038 }, { "id": 100, "user": 9, "time": 1568382760410, "check_in": 0, "type": "web", "original_time": 1568382759474 }, { "id": 101, "user": 9, "time": 1568614297278, "check_in": 1, "type": "web", "original_time": 1568614297277 }, { "id": 113, "user": 9, "time": 1568615863139, "check_in": 1, "type": "web", "original_time": 1568615859882 }, { "id": 121, "user": 9, "time": 1568615970424, "check_in": 1, "type": "web", "original_time": 1568615960831 }, { "id": 128, "user": 9, "time": 1568627214677, "check_in": 0, "type": "card", "original_time": 1568627214674 }, { "id": 131, "user": 9, "time": 1568635634263, "check_in": 1, "type": "web", "original_time": 1568635634261 }, { "id": 136, "user": 9, "time": 1568702789299, "check_in": 0, "type": "web", "original_time": 1568702789297 }, { "id": 139, "user": 9, "time": 1568703987228, "check_in": 1, "type": "web", "original_time": 1568703987226 }, { "id": 152, "user": 9, "time": 1568729974138, "check_in": 0, "type": "card", "original_time": 1568729974135 }, { "id": 153, "user": 9, "time": 1568787516529, "check_in": 1, "type": "card", "original_time": 1568787516526 }, { "id": 163, "user": 9, "time": 1568793696906, "check_in": 1, "type": "web", "original_time": 1568793695605 }, { "id": 165, "user": 9, "time": 1568794073926, "check_in": 1, "type": "web", "original_time": 1568794073059 }, { "id": 168, "user": 9, "time": 1568821819711, "check_in": 0, "type": "card", "original_time": 1568821819708 }, { "id": 169, "user": 9, "time": 1568873504233, "check_in": 1, "type": "card", "original_time": 1568873504230 }, { "id": 177, "user": 9, "time": 1568960152571, "check_in": 1, "type": "card", "original_time": 1568960137099 }, { "id": 185, "user": 9, "time": 1568994802705, "check_in": 0, "type": "card", "original_time": 1568994802702 }, { "id": 186, "user": 9, "time": 1569219186712, "check_in": 1, "type": "card", "original_time": 1569219186709 }, { "id": 191, "user": 9, "time": 1569232076306, "check_in": 0, "type": "card", "original_time": 1569232076303 }, { "id": 192, "user": 9, "time": 1569244798002, "check_in": 1, "type": "card", "original_time": 1569244797998 }, { "id": 193, "user": 9, "time": 1569253712484, "check_in": 0, "type": "card", "original_time": 1569253712481 }, { "id": 197, "user": 9, "time": 1569305921812, "check_in": 1, "type": "card", "original_time": 1569305921808 }, { "id": 200, "user": 9, "time": 1569320415356, "check_in": 0, "type": "card", "original_time": 1569320415352 }, { "id": 202, "user": 9, "time": 1569337051385, "check_in": 1, "type": "card", "original_time": 1569337051380 }, { "id": 204, "user": 9, "time": 1569337114762, "check_in": 0, "type": "card", "original_time": 1569337114758 }, { "id": 221, "user": 9, "time": 1570107386566, "check_in": 1, "type": "web", "original_time": 1570107359788 } ];
+
+
+
+var days
+
+
+
+function format_days(h) {
+    if (h.length == 0) {
+        render_history()
+        return
+    }
+    // Days to export for render at most 5 days
+    days = []
+    window.days_indexes = []
+    for (var i = 0; i < 5; i++) {
+        var date = get_day(h[0].time + (1000 * 60 * 60 * 24) * i)
+        days[date] = []
+        days_indexes.push(date)
+    }
+
+    var day = get_day(h[0].time)
+    var days_index = 0
+    var checked_in = false
+    var out = false
+
+    for (var check of h) {
+        while (get_day(check.time) != day) {
+            if (days_index > days.length) {
+                out = true
+                break
+            }
+            // New day
+            days_index++
+            day = get_day(check.time)
+            checked_in = false
+        }
+        if (out) break
+
+        if (check.check_in != checked_in) {
+            days[days_indexes[days_index]].push(check)
+            checked_in = check.check_in
+        }
+    }
+
+
+
+    if (me.checked_in) {
+        var today_in_days = days[get_day(Date.now())]
+        if (today_in_days) {
+            today_in_days.push({
+                check_in: false,
+                time: Date.now(),
+                original_time: Date.now()
+            })
+        }
+    }
+
+    render_history()
+
+    function get_day(ms) {
+        var date = new Date(ms)
+        return date.getDate() + "." + date.getMonth() + "." + date.getFullYear()
+    }
+}
+
+var history_progress = undefined
+var total_width = 0
+
+function render_history() {
+    var drawn_width = 0
+    var canvas = document.getElementById("history")
+    var ctx = canvas.getContext("2d")
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    var height = canvas.height
+    var margin = 50
+    var hours = [7, 18]
+    var hours_width = (canvas.width - margin * 2) / (hours[1] - hours[0] - 1) // px
+    var day_height = 50
+    var margin_top = 25
+
+    ctx.fillStyle = "grey"
+    ctx.font = "Georgia 12px"
+    ctx.textAlign = "center"
+    for (var i = 0; i < hours[1] - hours[0]; i++) {
+        ctx.fillRect((i * hours_width) + margin, margin, 2, height - (margin * 2))
+        ctx.fillText(i + hours[0], i * hours_width + margin, margin - 10)
+    }
+
+    var names_of_days = ["Sun", "Mon", "Thu", "Wed", "Thu", "Fri", "Sat"]
+    if (days) {
+        for (var i = 0; i < Object.keys(days).length; i++) {
+            ctx.fillStyle = "grey"
+            ctx.textAlign = "right"
+            var day_in_string = days_indexes[i].split(".")
+            var day_in_date = new Date([Number(day_in_string[1]) + 1, day_in_string[0], day_in_string[2]].join("-"))
+            ctx.fillText(names_of_days[day_in_date.getDay()], margin - 10, (i * day_height) + margin_top + margin + 15)
+
+            //ctx.fillText(names_of_days[new Date(d.split(".").join("-"))].getDay(), 100, 100)
+            var check_in = false
+            var check_in_date
+            for (var check of days[days_indexes[i]]) {
+                if (check.check_in) {
+                    check_in = true
+                    check_in_date = new Date(check.original_time)
+                } else if (!check.check_in && check_in) {
+                    // Draw time
+                    var gradient = ctx.createLinearGradient(20, 0, 220, 0);
+                    gradient.addColorStop(0, '#21943b');
+                    gradient.addColorStop(1, '#34eb5e');
+
+                    ctx.fillStyle = gradient
+                    var check_out_date = new Date(check.original_time)
+                    var start_x = (check_in_date.getHours() - hours[0]) * hours_width + margin + (check_in_date.getMinutes() / 60 * hours_width)
+                    var stop_x = (check_out_date.getHours() - hours[0]) * hours_width + margin + (check_out_date.getMinutes() / 60 * hours_width)
+                    if (history_progress === undefined) total_width += stop_x - start_x
+                    else {
+                        var width_left = (total_width * history_progress) - drawn_width
+                        if (width_left <= 0) break
+                        var width = stop_x - start_x
+                        if (width > width_left) width = width_left
+                        drawn_width += width
+                        ctx.roundRect(start_x, margin + margin_top + (i * day_height), width, 20, 100).fill()
+                    }
+                }
+            }
+        }
+        if (history_progress == undefined) history_progress = 0
+        history_progress += .06 - (history_progress * .059)
+        if (history_progress < 1) requestAnimationFrame(render_history)
+    }
+}
+
+
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var time_el = document.getElementById('time');
 var sec_bar = document.getElementById('seconds-bar');
 
@@ -32,11 +196,6 @@ function force_length(val) {
     return val.toString().length == 2 ? val.toString() : '0' + val.toString();
 }
 
-update_clock();
-setInterval(() => {
-    update_clock();
-}, 500);
-
 on_login = () => {
     if (me.slack_id) document.getElementById('slack-button').remove();
     update_checked_in_status(me.checked_in);
@@ -47,6 +206,8 @@ on_login = () => {
         'Logged in as ' + me.name + ' (' + me.username + ')';
 
     insert_projects();
+
+    format_days(mock_data)
 };
 
 function insert_projects() {
@@ -359,3 +520,9 @@ function new_project() {
             });
     }
 }
+
+
+update_clock();
+setInterval(() => {
+    update_clock();
+}, 500);
