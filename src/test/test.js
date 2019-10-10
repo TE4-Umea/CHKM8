@@ -91,12 +91,10 @@ describe('Account managing', () => {
 describe('Checks', () => {
     it('Check in user (toggle, no project)', async () => {
         var user = await User.get_from_username(test_username);
-
         assert.equal(await Check.is_checked_in(user.id), false);
         var success = await Check.check_in(user.id, undefined, undefined, 0);
 
         assert.equal(await Check.is_checked_in(user.id), true);
-
         assert.equal(success.success, true);
     });
 
@@ -104,8 +102,8 @@ describe('Checks', () => {
         var user = await User.get_from_username(test_username);
         //assert.equal(await Check.is_checked_in(user.id), true);
         var success = await Check.check_in(user.id, null, undefined, 0);
-        assert.equal(success.success, true);
 
+        assert.equal(success.success, true);
         assert.equal(await Check.is_checked_in(user.id), false);
     });
 
@@ -142,7 +140,7 @@ describe('Checks', () => {
         var user = await User.get_from_username(test_username);
         var success = await Check.check_in(user.id, true, null, 0);
         assert.equal(success.success, true);
-        var last_checkin = await Check.get_last_check_from_user(user.id);
+        var last_checkin = await Check.get_last_check(user.id);
         assert.equal(last_checkin.check_in, true);
         assert.equal(last_checkin.project, null);
     });
