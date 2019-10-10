@@ -13,10 +13,12 @@ class UserCheckController {
      * @returns Returns a json of data.
      */
     show(req, res) {
-        /** Get attributes from request */
+        // Get attributes from request
         var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
+        var user = await this.User.get_from_token(payload.token);
+
 
         
     }
@@ -27,16 +29,16 @@ class UserCheckController {
      * @param {*} res
      */
     async store(req, res) {
-        /** Get attributes from request */
+        // Get attributes from request
         var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
-        /** Get user safe from token */
+        // Get user safe from token
         var user = await this.User.get_from_token(payload.token);
         if (user) {
             var Check = new (require('../../Check'))();
 
-            /** Check in the user */
+            // Check in the user
             response.json(
                 await Check.check_in(
                     user.id,
