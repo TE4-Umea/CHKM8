@@ -181,7 +181,7 @@ class SlackAPIController {
 
     async help(req, res) {
         var response = this.SlackJSON.SlackResponse(
-            'Happy Surfers Time App Help Menu',
+            'CheckMate\'s Time App Help Menu',
             [
                 this.SlackJSON.SlackAttachments(
                     this.fs.readFileSync('commands.md', 'utf8')
