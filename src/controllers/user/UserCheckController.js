@@ -37,7 +37,7 @@ class UserCheckController {
         } else {
             data.push(...await this.fetch_checks(user.id, start_date, end_date));
         }
-        response.success_response('Succesfully fetched checkssssdsd', { data: data });
+        response.success_response('Succesfully fetched checks', { data: data });
     }
 
     /**
