@@ -389,7 +389,7 @@ on_login = () => {
             },
         })
         .then(res => {
-            format_days(res.data.data);
+            format_days(res.data.checks);
         });
 };
 
