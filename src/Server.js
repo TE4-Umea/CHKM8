@@ -56,6 +56,7 @@ class Server {
 
         /** Load Controller class */
         new (require('./routes/Routes'))(this);
+        
 
         this.Debug = new (require('./Debug'))();
 
