@@ -251,7 +251,7 @@ class User {
             delete user.access_token;
             delete user.password;
 
-            var last_check = await Check.get_last_check(user.id);
+            var last_check = await Check.get_last_check_from_user(user.id);
             /* console.log(last_check) */
             // Add new uncashed properties
             user.checked_in = await Check.is_checked_in(user.id);
