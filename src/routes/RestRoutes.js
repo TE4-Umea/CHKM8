@@ -6,7 +6,7 @@ class RestRoutes {
         var user_check_controller = new (require('../controllers/user/UserCheckController'))();
         
         var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
-        var project_controller = new (require('../controllers/project/ProjectController'));
+        var project_controller = new (require('../controllers/project/ProjectController'))();
 
         /* REST API routes */
 
@@ -88,12 +88,12 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: project
          *         description: project id to lookup.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: int
          *     tags:
@@ -262,7 +262,7 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -289,7 +289,7 @@ class RestRoutes {
          *     parameters:
          *       - name: username
          *         description: Lookup username.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -364,6 +364,50 @@ class RestRoutes {
          */
         server.app.delete('/api/project', (req, res) => {
             project_controller.destroy(req, res);
+        });
+
+        /**
+         * @swagger
+         * 
+         * /api/user/checks:
+         *   get:
+         *     description:
+         *       Gets a list of checks associated with a user.
+         *       IF the user that sends the request is admin, it is possible to get checks from multiple users. 
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: token
+         *         description: Login authentication token.
+         *         in: query
+         *         required: true
+         *         type: string
+         *       - name: start_date
+         *         description: 
+         *          Start date as unix timestamp in milliseconds. IF this is specified end_date is required.
+         *         in: query
+         *         required: false
+         *         type: int
+         *       - name: end_date
+         *         description: End date as UNIX timestamp in milliseconds. IF this is specified then start_date is required.
+         *         in: query
+         *         required: false
+         *         type: int
+         *       - name: ids
+         *         description: Array of specified user ids. Only works if the token is of a admin.
+         *         in: query
+         *         required: false
+         *         type: int[]
+         *     tags:
+         *      - user
+         *     responses:
+         *       200:
+         *         description: Returns a success message and taken boolean as json.
+         *       201:
+         *         description: Retruns a error message as json.      
+         */
+        server.app.get('/api/user/checks', (req, res) => {
+            user_check_controller.show(req, res);
         });
     }
 }
