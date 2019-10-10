@@ -214,7 +214,7 @@ class SlackAPIController {
             var user = await this.User.get_from_slack(req);
             if (user) {
                 var input = req.body.text;
-                var project_to_info = await this.Project.get(input);
+                var project_to_info = await this.Project.get_from_name(input);
                 var response = null;
                 if (input == '') {
                     var projects = await this.Project.get_projects();
