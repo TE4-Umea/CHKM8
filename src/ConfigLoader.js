@@ -17,7 +17,7 @@ class ConfigLoader {
      * @param {*} template
      */
     load(
-        path = 'config.json',
+        path = '../config.json',
         template = {
             // Port of the webserver and REST API
             port: 80,

@@ -1,11 +1,10 @@
 class UserController {
-    
     constructor() {
         this.Payload = require('../../models/PayloadModel');
         this.Response = require('../../models/ResponseModel');
         this.User = new (require('../../User'))();
     }
-    
+
     /**
      * POST api/user
      * Get client profile from token
@@ -46,43 +45,46 @@ class UserController {
                 (!payload.password ? ' password' : '') +
                 (!payload.name ? ' name' : '');
             response.error_response(message);
+            return;
             // If the username contains illegal characters.
         } else if (
             payload.username.replace(/[^a-z0-9_]+|\s+/gim, '') !==
             payload.username
         ) {
             response.error_response('Username contains illegal characters');
+            return;
             // if the username is shorter than 3 characters.
         } else if (payload.username.length < 3) {
             response.error_response(
                 'Username has to be at least three characters long'
             );
+            return;
             // if username is longer than 20 characters.
         } else if (payload.username.length > 20) {
             response.error_response('Username cannot exceed 20 characters');
             // if no space in the name was present
+            return;
         } else if (payload.name.indexOf(' ') == -1) {
             response.error_response(
                 'Please provide a full name, ex. Michael Stevens'
             );
+            return;
             // If no password was present
-        } else if (payload.password == '') {
-            response.error_response('Please enter a password.');
         }
 
-        var return_val = await this.User.create(
+        var user = await this.User.create(
             payload.username,
             payload.password,
             payload.name
         );
-        
-        if (return_val.success) {
+
+        if (user) {
             var token = await this.User.generate_token(
-                return_val.user.username
+                user.username
             );
+
+            
             response.success_response('success', { token: token });
-        } else {
-            response.success_response(return_val.text);
         }
     }
 
@@ -116,10 +118,12 @@ class UserController {
      */
     async update(req, res) {
         var payload = new this.Payload(req);
+        var response = new this.Response(res);
         var sign;
         var https = require('https');
-        var db = new (require('../Database'))();
-        var config = new (require('./ConfigLoader'))().load();
+
+        var config = new (require('../../ConfigLoader'))().load();
+        var db = new (require('../../Database'))(config);
         /* Send a request to slack to get user information from the login */
         https.get(
             `https://slack.com/api/oauth.access?client_id=${config.client_id}&client_secret=${config.client_secret}&code=${payload.sign_token}`,
@@ -140,7 +144,7 @@ class UserController {
                             data.user.id
                         );
                         if (slack_taken) {
-                            res.send(
+                            response.error_response(
                                 'This slack account is already linked to another user. Please delete that account first or ask an administrator for help.'
                             );
                             return;
@@ -154,34 +158,38 @@ class UserController {
                             avatar: data.user.image_512,
                             email: data.user.email,
                         };
+
+                        var user = await this.User.get_from_token(
+                            payload.token
+                        );
+                        if (user) {
+                            // Fill users slack information
+                            await db.query(
+                                'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
+                                [
+                                    sign.email,
+                                    sign.slack_id,
+                                    sign.slack_domain,
+                                    sign.access_token,
+                                    sign.avatar,
+                                    sign.name,
+                                    user.id,
+                                ]
+                            );
+                            res.json({
+                                success: true,
+                                redir: '/dashboard',
+                            });
+                        } else {
+                            response.error_response('Invalid CHKM8 token');
+                        }
                     } else {
-                        res.end(data.error);
+                        response.error_response(data.error);
                         return;
                     }
                 });
             }
         );
-
-        var user = await this.User.get_from_token(payload.token);
-        if (user) {
-            // Fill users slack information
-            await db.query(
-                'UPDATE users SET email = ?, slack_id = ?, slack_domain = ?, access_token = ?, avatar = ?, name = ? WHERE id = ?',
-                [
-                    sign.email,
-                    sign.slack_id,
-                    sign.slack_domain,
-                    sign.access_token,
-                    sign.avatar,
-                    sign.name,
-                    user.id,
-                ]
-            );
-            res.json({
-                success: true,
-                redir: '/dashboard',
-            });
-        }
     }
 }
 

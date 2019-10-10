@@ -1,9 +1,19 @@
 class SlackAPIController {
-    constructor(server) {
-        this.server = server;
+    constructor() {
         this.qs = require('qs');
+        this.fs = require('file-system');
+        this.config = new (require('../ConfigLoader'))().load();
         var SlackJSON = require('../SlackJSON');
         this.SlackJSON = new SlackJSON();
+
+        this.User = new (require('../User'))();
+        this.Check = new (require('../Check'))();
+        this.Project = new (require('../Project'))();
+        this.Debug = new (require('../Debug'))();
+
+        this.CheckTypes = new (require('../models/CheckTypes'))();
+
+        this.crypto = require('crypto');
 
         this.SUCCESS = '#2df763';
         this.FAIL = '#f72d4b';
@@ -12,7 +22,7 @@ class SlackAPIController {
 
     async get_slack_id_from_text(user) {
         var slack_id = user.substring(2, 11);
-        user = await this.server.User.get_from_slack_id(slack_id);
+        user = await this.User.get_from_slack_id(slack_id);
         return user;
     }
 
@@ -36,14 +46,14 @@ class SlackAPIController {
     async check_in(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project = req.body.text ? req.body.text : '';
-                var response = await this.server.Check.check_in(
+                var response = await this.Check.check_in(
                     user.id,
                     true,
                     project,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
@@ -55,13 +65,13 @@ class SlackAPIController {
     async check_out(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
-                var response = await this.server.Check.check_in(
+                var response = await this.Check.check_in(
                     user.id,
                     false,
                     null,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
@@ -73,7 +83,7 @@ class SlackAPIController {
     async remove(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var inputs = req.body.text.split(' ');
                 var user_to_remove = inputs[0];
@@ -82,13 +92,25 @@ class SlackAPIController {
                         user_to_remove
                     );
                 } else {
-                    user_to_remove = await this.server.User.get_from_username(
+                    user_to_remove = await this.User.get_from_username(
                         user_to_remove
                     );
                 }
+
+                if (!user_to_remove) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                    return;
+                }
+
                 var project_name = inputs[1];
-                var project = await this.server.Project.get(project_name);
-                var response = await this.server.Project.remove_user(
+                var project = await this.Project.get_from_name(project_name);
+                var response = await this.Project.remove_user(
                     user_to_remove,
                     project.id,
                     user
@@ -103,7 +125,7 @@ class SlackAPIController {
     async add(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var inputs = req.body.text.split(' ');
                 var user_to_add = inputs[0];
@@ -112,16 +134,28 @@ class SlackAPIController {
                         user_to_add
                     );
                 } else {
-                    user_to_add = await this.server.User.get_from_username(
+                    user_to_add = await this.User.get_from_username(
                         user_to_add
                     );
                 }
-                var project_name = inputs[1];
-                var project = await this.server.Project.get(project_name);
 
-                var response = await this.server.Project.add_user(
+                if (!user_to_add) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                    return;
+                }
+
+
+                var project_name = inputs[1];
+
+                var response = await this.Project.add_user(
                     user_to_add,
-                    project ? project.id : -1,
+                    project_name,
                     user
                 );
                 res.json(this.slack_response(response));
@@ -134,13 +168,10 @@ class SlackAPIController {
     async new_project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project_name = req.body.text;
-                var response = await this.server.Project.create(
-                    project_name,
-                    user
-                );
+                var response = await this.Project.create(project_name, user);
                 res.json(this.slack_response(response));
             } else {
                 this.user_not_found(res);
@@ -153,7 +184,7 @@ class SlackAPIController {
             'Happy Surfers Time App Help Menu',
             [
                 this.SlackJSON.SlackAttachments(
-                    this.server.fs.readFileSync('commands.md', 'utf8')
+                    this.fs.readFileSync('commands.md', 'utf8')
                 ),
             ]
         );
@@ -163,10 +194,10 @@ class SlackAPIController {
     async delete_project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project_to_delete = req.body.text;
-                var response = await this.server.delete_project(
+                var response = await this.Project.delete(
                     project_to_delete,
                     user.id
                 );
@@ -180,28 +211,26 @@ class SlackAPIController {
     async project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var input = req.body.text;
-                this.server.log('INPUT: ' + input);
+                this.Debug.log('INPUT: ' + input);
                 var response = null;
-                var project_to_info = await this.server.Project.get(input);
+                var project_to_info = await this.Project.get(input);
                 if (input == '') {
-                    this.server.log(
+                    this.Debug.log(
                         'Getting project list ' + project_to_info.name
                     );
-                    response = await this.server.Project.get_list();
+                    response = await this.Project.get_list();
                 } else {
-                    this.server.log(
+                    this.Debug.log(
                         'Getting project info for: ' + project_to_info.name
                     );
-                    response = await this.server.Project.get_data(
-                        project_to_info.id
-                    );
+                    response = await this.Project.get_data(project_to_info.id);
                     var list_members = response.project.members;
                     var members = '';
                     //TODO: fix members lenght, currently undefined
-                    this.server.log(
+                    this.Debug.log(
                         list_members.lenght + ' ' + list_members[0].name
                     );
                     for (var i = 0; list_members.lenght; i++) {
@@ -210,7 +239,7 @@ class SlackAPIController {
                             ' Time: ' +
                             list_members[i].work +
                             '\n';
-                        this.server.log('BEST TEST' + i + members);
+                        this.Debug.log('BEST TEST' + i + members);
                     }
                     var output =
                         'Owner: ' +
@@ -245,12 +274,12 @@ class SlackAPIController {
             var sig_basestring = 'v0:' + timestamp + ':' + request_body;
             var my_signature =
                 'v0=' +
-                this.server.crypto
-                    .createHmac('sha256', this.server.config.signing_secret)
+                this.crypto
+                    .createHmac('sha256', this.config.signing_secret)
                     .update(sig_basestring, 'utf8')
                     .digest('hex');
             if (
-                this.server.crypto.timingSafeEqual(
+                this.crypto.timingSafeEqual(
                     Buffer.from(my_signature, 'utf8'),
                     Buffer.from(slack_signature, 'utf8')
                 )
@@ -261,7 +290,7 @@ class SlackAPIController {
             }
         } catch (e) {
             console.log(e); // KEEP
-            this.server.log(
+            this.Debug.log(
                 'ERROR: Make sure your config.json:signing_secret is correct!'
             );
         }

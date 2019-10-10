@@ -52,7 +52,7 @@ class Server {
         this.server = this.http.createServer(this.app).listen(this.port);
 
         /**  Bind the cdn folder to the webserver, everything in it is accessable via the website */
-        this.app.use(this.express.static(__dirname + '/cdn'));
+        this.app.use(this.express.static('../cdn'));
 
         /** Load Controller class */
         new (require('./routes/Routes'))(this);
@@ -60,9 +60,7 @@ class Server {
         this.Debug = new (require('./Debug'))();
 
         /** Loading done! */
-        this.on_loaded();
-
-        
+        this.on_loaded();        
     }
 
     /**

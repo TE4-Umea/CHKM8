@@ -8,7 +8,6 @@ var Project = new (require('../Project.js'))();
 var User = new (require('../User.js'))();
 var Check = new (require('../Check.js'))();
 
-
 const server = new Server(ConfigLoader.load());
 
 var test_slack_id = 'FFF000';
@@ -40,19 +39,15 @@ describe('MYSQL connection and prep', () => {
                 'test_password',
                 test_full_name
             );
-            var user2 = await User.create(
-                test_username2,
-                'test_password',
-                test_full_name2
-            );
 
-            assert.equal(user.success, true);
-            assert.notEqual(user.user, undefined);
-            assert.equal(user.user.username, test_username);
+            await User.create(test_username2, 'test_password', test_full_name2);
+
+            assert.notEqual(user, undefined);
+            assert.equal(user.username, test_username);
 
             await server.db.query(
                 'UPDATE users SET slack_id = ? WHERE id = ?',
-                [test_slack_id, user.user.id]
+                [test_slack_id, user.id]
             );
         });
         it('Try to create user that already exists', async () => {
@@ -61,7 +56,7 @@ describe('MYSQL connection and prep', () => {
                 'test_password',
                 test_full_name
             );
-            assert.equal(user.success, false);
+            assert.equal(user, false);
         });
     });
 });
@@ -97,12 +92,7 @@ describe('Checks', () => {
     it('Check in user (toggle, no project)', async () => {
         var user = await User.get_from_username(test_username);
         assert.equal(await Check.is_checked_in(user.id), false);
-        var success = await Check.check_in(
-            user.id,
-            undefined,
-            undefined,
-            0
-        );
+        var success = await Check.check_in(user.id, undefined, undefined, 0);
 
         assert.equal(await Check.is_checked_in(user.id), true);
         assert.equal(success.success, true);
@@ -111,12 +101,7 @@ describe('Checks', () => {
     it('Check out (toggle, no project)', async () => {
         var user = await User.get_from_username(test_username);
         //assert.equal(await Check.is_checked_in(user.id), true);
-        var success = await Check.check_in(
-            user.id,
-            null,
-            undefined,
-            0
-        );
+        var success = await Check.check_in(user.id, null, undefined, 0);
 
         assert.equal(success.success, true);
         assert.equal(await Check.is_checked_in(user.id), false);
@@ -146,12 +131,7 @@ describe('Checks', () => {
 
     it('Check in (force, project name)', async () => {
         var user = await User.get_from_username(test_username);
-        var success = await Check.check_in(
-            user.id,
-            true,
-            test_project,
-            0
-        );
+        var success = await Check.check_in(user.id, true, test_project, 0);
         assert.equal(success.success, true);
         assert.equal(await Check.is_checked_in(user.id), true);
     });
@@ -181,11 +161,7 @@ describe('Projects', () => {
         var user1 = await User.get_from_username(test_username);
         var user2 = await User.get_from_username(test_username2);
         var project = await Project.get_from_name(test_project);
-        var added_user = await Project.add_user(
-            user2,
-            project.name,
-            user1
-        );
+        var added_user = await Project.add_user(user2, project.name, user1);
         assert.equal(added_user.success, true);
     });
 
@@ -200,11 +176,7 @@ describe('Projects', () => {
         var user1 = await User.get_from_username(test_username);
         var user2 = await User.get_from_username(test_username2);
         var project = await Project.get_from_name(test_project);
-        var added_user = await Project.add_user(
-            user2,
-            project.name,
-            user1
-        );
+        var added_user = await Project.add_user(user2, project.name, user1);
 
         assert.equal(added_user.success, false);
     });
@@ -217,18 +189,17 @@ describe('Projects', () => {
         var result = await Project.remove_user(user2, project.id, user2);
         assert.equal(result.success, true);
 
-        await Project.add_user(user2, project.name, user1)
+        await Project.add_user(user2, project.name, user1);
         // Add back user to project for further testing
-        
     });
 
     it('Remove user from project (by third party)', async () => {
         var user1 = await User.get_from_username(test_username);
         var user2 = await User.get_from_username(test_username2);
         var project = await Project.get_from_name(test_project);
-        
+
         var result = await Project.remove_user(user2, project.id, user1);
-        
+
         assert.equal(result.success, true);
 
         // Add back user to project for further testing
