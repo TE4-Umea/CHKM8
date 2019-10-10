@@ -1,7 +1,40 @@
 :root {
     --c-primary: blue;
+    --c-primary-hover: darkblue;
 }
 
 * {
     box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+button {
+    padding: 10px 20px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
+    background-color: var(--c-primary);
+    border: 2px solid var(--c-primary);
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background-color: var(--c-primary-hover);
+    border-color: var(--c-primary-hover);
+}
+
+button.button-active {
+    color: var(--c-primary);
+    background-color: transparent;
+}
+
+button.button-active:hover {
+    color: var(--c-primary-hover);
+    background-color: transparent;
 }

@@ -1,5 +1,4 @@
 body {
-    margin: 0;
     overflow-y: hidden;
 }
 
@@ -30,6 +29,11 @@ body {
 }
 
 #logo {
+
+}
+
+#seconds-bar-container {
+    width: 100px;
 }
 
 #top-bar {

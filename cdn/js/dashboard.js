@@ -78,7 +78,7 @@ function generate_project_card(project) {
     //TODO
     return `<div class="project" hover="false" project-name="${
         project.name
-    }"><div class='project-upper-row'><span class="project-name">${project.name.toUpperCase()}</span><span id='${project.name + "_time"}'>${active_project_time()}</div><canvas class="project-timeline"></canvas><button class="project-button mdc-button mdc-button--outlined" onclick="check_in_project('${
+    }"><div class='project-upper-row'><span class="project-name">${project.name.toUpperCase()}</span><span id='${project.name + "_time"}'>${active_project_time()}</div><canvas class="project-timeline"></canvas><button class="project-button mdc-button button--active" onclick="check_in_project('${
         project.name
     }')">${
         me.checked_in_project == project.name
@@ -334,11 +334,9 @@ function update_projects(checked_in, project_name) {
 function update_checked_in_status(checked_in) {
     var check_in_button = document.getElementById('check-in-button');
     if (checked_in) {
-        check_in_button.classList.add('mdc-button--outlined');
-        check_in_button.classList.remove('mdc-button--raised');
+        check_in_button.classList.add('button-active');
     } else {
-        check_in_button.classList.remove('mdc-button--outlined');
-        check_in_button.classList.add('mdc-button--raised');
+        check_in_button.classList.remove('button-active');
     }
 
     check_in_button.innerText = get_button_text();
