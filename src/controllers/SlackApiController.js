@@ -216,7 +216,7 @@ class SlackAPIController {
                 var input = req.body.text;
                 var project_to_info = await this.Project.get(input);
                 if (input == '') {
-                    var projects = await Project.get_projects();
+                    var projects = await this.Project.get_projects();
                     for (var i = 0; i < projects.length; i++) {
                         var value = projects[i];
                         console.log("Project: " + value.name + " Owner: " + value.username);
@@ -235,7 +235,7 @@ class SlackAPIController {
                                 "\n    Worked time: " +  this.format_time(current_member.work);
         }
                 }
-                res.json(this.slack_response(response));
+                res.json(this.slack_response(write));
             } else {
                 this.user_not_found(res);
             }
