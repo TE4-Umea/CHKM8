@@ -23,7 +23,7 @@ function update_clock() {
     time_el.innerText =
         force_length(time.getHours()) + ':' + force_length(time.getMinutes());
     sec_bar.style.width =
-        ((time.getSeconds() + time.getMilliseconds() / 1000) / 60) * 101 + 'px';
+        ((time.getSeconds() + time.getMilliseconds() / 1000) / 60) * 100 + '%';
 }
 
 function force_length(val) {
