@@ -395,7 +395,7 @@ class RestRoutes {
          *         in: formData
          *         required: false
          *         type: int
-         *       - name: id
+         *       - name: ids
          *         description: Array of specified user ids. Only works if the token is of a admin.
          *         in: formData
          *         required: false

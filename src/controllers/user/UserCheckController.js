@@ -12,15 +12,83 @@ class UserCheckController {
      * @param {Response} res express response
      * @returns Returns a json of data.
      */
-    show(req, res) {
+    async show(req, res) {
         // Get attributes from request
         var payload = new this.Payload(req);
         // Loads ResponseModel
         var response = new this.Response(res);
+        // Get user safe from token
         var user = await this.User.get_from_token(payload.token);
+        var data = [];
 
+        // if startdate and enddate is specified, fetch checks between the 2 dates.
+        // else use time now as enddate and startdate = time now -5 days.
+        var start_date = this.get_start_date(payload);
+        var end_date = this.get_end_date(payload);
 
-        
+        if (
+            user.admin &&
+            (Array.isArray(payload.ids) && payload.ids.length > 0)
+        ) {
+            payload.ids.forEach(id => {
+                data.push(this.fetch_checks(id, start_date, end_date));
+            });
+        } else {
+            data.push(this.fetch_checks(user.id, start_date, end_date));
+        }
+        response.success_response('Succesfully fetched checks', { data: data });
+    }
+
+    /**
+     * Gets the start date if it exists else it generates a one.
+     *
+     * @param {PayloadModel} payload payload model possibly containg start date.
+     * @returns {Int} returns a int timestamp of the start_date
+     */
+    get_start_date(payload) {
+        if (!payload.start_date) {
+            var d = new Date();
+            d.setHours(24, 0, 0, 0);
+            d.setDate(d.getDate() - 5);
+            return d / 1000;
+        } else {
+            return payload.start_date / 1000;
+        }
+    }
+
+    /**
+     * Gets the end date if it exists else it generates a one.
+     *
+     * @param {PayloadModel} payload
+     * @returns {Int} returns a int timestamp of the end_date
+     */
+    get_end_date(payload) {
+        if (!payload.end_date) {
+            var d = new Date();
+            d.setHours(24, 0, 0, 0);
+            return d / 1000;
+        } else {
+            return payload.end_date / 1000;
+        }
+    }
+
+    /**
+     * Returns the checks associated with a specified user between two timestamps
+     *
+     * @param {Int} user_id
+     * @param {Int} start_date
+     * @param {Int} end_date
+     * @returns {Array} Checks
+     */
+    async fetch_checks(user_id, start_date, end_date) {
+        var config = new (require('../../ConfigLoader'))().load();
+        var db = new (require('../../Database'))(config);
+        return await db.query(
+            'SELECT *,(UNIX_TIMESTAMP(`date`)*1000) as timestamp FROM `checks` WHERE `user` = ? AND ' +
+                '`date` BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?) ' +
+                'ORDER BY `id`',
+            [user_id, start_date, end_date]
+        );
     }
 
     /**
