@@ -7,6 +7,8 @@ class RestRoutes {
         
         var project_user_controller = new (require('../controllers/project/ProjectUserController'))();
         var project_controller = new (require('../controllers/project/ProjectController'));
+        var attendance_controller = new (require('../controllers/project/ProjectController'));
+
 
         /* REST API routes */
 
@@ -365,6 +367,39 @@ class RestRoutes {
         server.app.delete('/api/project', (req, res) => {
             project_controller.destroy(req, res);
         });
+
+        /**
+         * @swagger
+         * 
+         * /api/user/checks:
+         *   get:
+         *     description:
+         *       Gets a list of checks associated with a user.
+         *       If admin, you can get m
+         *     produces:
+         *       - application/json
+         *     parameters:
+         *       - name: project
+         *         description: Name of the project to be deleted
+         *         in: formData
+         *         required: true
+         *         type: string
+         *       - name: token
+         *         description: Token of the user that deletes the project
+         *         in: form
+         *         required: true
+         *         type: string
+         *     tags:
+         *      - user
+         *     responses:
+         *       200:
+         *         description: Returns a success message and taken boolean as json.
+         *       201:
+         *         description: Retruns a error message as json.      
+         */
+        server.app.get('/api/user/checks', (req, res) => {
+            user_check_controller.show(req, res);
+        })
     }
 }
 

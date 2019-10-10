@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(200) DEFAULT NULL COMMENT 'Full name of the user ',
   `password` varchar(200) DEFAULT NULL,
   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'The date the user was created',
-  `admin` tinyint(1) DEFAULT NULL COMMENT 'Boolean(0-1) if the user is an admin or not.',
+  `admin` tinyint(1) DEFAULT 0 COMMENT 'Boolean(0-1) if the user is an admin or not.',
   `email` varchar(200) DEFAULT NULL COMMENT 'Email of the user',
   `avatar` varchar(1000) DEFAULT NULL COMMENT 'Link of the username',
   `access_token` varchar(200) DEFAULT NULL COMMENT 'Access token given by slack, used to update user information',
