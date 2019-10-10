@@ -53,47 +53,59 @@ Trello board https://trello.com/b/hxbEuuSt/chkm8
 #### Users
 name | type | special | description
 --- | --- | --- | ---
-id | int | AUTO_INCREMENT, PRI | ID of the user
-username | text |none | User choosen name
-name | text | none | Full name of the user
-avatar | text | none | Link of the username
-email | text | none | Email of the user
-access_token | text | none | Access token given by slack, used to update user information
-admin | int | none | Boolean(0-1) if the user is an admin or not.
-created | BigInt | none | The date the user was created
+id | INT | AUTO_INCREMENT, PRI | ID of the user
+username | VARCHAR |NULL | User choosen name
+name | VARCHAR | NULL | Full name of the user
+password | VARCHAR | NULL | 
+created | TIMESTAMP | CURRENT_TIMESTAMP | The date the user was created
+admin | TINYINT | NULL | Boolean(0-1) if the user is an admin or not.
+email | VARCHAR | NULL | Email of the user
+avatar | VARCHAR | NULL | Link of the username
+access_token | VARCHAR | NULL | Access token given by slack, used to update user information
+slack_id | VARCHAR | NULL | 
+slack_domain | TINYTEXT | No default | 
+
+
 
 #### Checks
 name | type | special | description
 --- | --- | --- | ---
-id | int | AUTO_INCREMENT, PRI | ID of the check
-user | id |none | ID of the user
-check_in | int | none | Boolean(0-1) if the it was a check in (otherwise check out)
-project | text | NULL | Name of the project
-date | BigInt | none | Date of the
-type | text | none | Check in type (web, card, TOP SECRET)
+id | INT | AUTO_INCREMENT, PRI | ID of the check
+user | INT | No default | ID of the user
+check_in | TINYINT | No default | Boolean(0-1) if the it was a check in (otherwise check out)
+project | INT | NULL | Name of the project
+date | TIMESTAMP | CURRENT_TIMESTAMP | Date of the project
+type | INT | NULL | Check in type (web, card, TOP SECRET)
+
 
 #### Tokens
 
 name | type | special | description
 --- | --- | --- | ---
-id | int | AUTO_INCREMENT, PRI | ID of the token
-user | id |none | ID of the user
-token | text | none | Token
+id | INT | AUTO_INCREMENT, PRI | ID of the token
+user | INT | No default | ID of the user
+created | TIMESTAMP | CURRENT_TIMESTAMP | 
+ip | VARCHAR | No default | 
+token | VARCHAR | No default | Token
 
 #### Projects
 
 name | type | special | description
 --- | --- | --- | ---
-id | int | AUTO_INCREMENT, PRI | ID of the project
-name | text | none | Name of the project
+id | INT | AUTO_INCREMENT, PRI | ID of the project
+name | TEXT | No default | Name of the project
+created | TIMESTAMP | CURRENT_TIMESTAMP | 
+owner | INT | NULL | 
+color_top | TEXT | No default | 
+color_bot | TEXT | No default | 
 
 #### Joints (table name subject to change ??)
 List of who has joined what team and how much work they have done (in hours / minutes)
 
 name | type | special | description
 --- | --- | --- | ---
-id | int | AUTO_INCREMENT, PRI | ID of the joint
-project | text | none | Name of the project
-user | int | none | ID of the user
-work | BigInt | none | Work done in ms (1 hour of work = 3600000)
-date | BigInt | none | Date of joining the project
+id | INT | AUTO_INCREMENT, PRI | ID of the joint
+project | INT | NULL | Name of the project
+user | INT | NULL | ID of the user
+work | BIGINT | NULL | Work done in ms (1 hour of work = 3600000)
+date | TIMESTAMP | CURRENT_TIMESTAMP | Date of joining the project
