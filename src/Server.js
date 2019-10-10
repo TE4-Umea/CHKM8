@@ -68,7 +68,7 @@ class Server {
      */
     on_loaded() {
         this.Debug.log(
-            `Happy Surfer's TimeTracker has started on port: ${this.port}`
+            `CheckMate's TimeTracker has started on port: ${this.port}`
         );
     }
 

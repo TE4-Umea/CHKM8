@@ -1,4 +1,4 @@
-# Tidsapp av Happy Surfers
+# Tidsapp av CheckMate
 
 ## Websites
 
