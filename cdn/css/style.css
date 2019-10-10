@@ -1,6 +1,6 @@
 :root {
-    --c-primary: blue;
-    --c-primary-hover: darkblue;
+    --c-primary: #2672e3;
+    --c-primary-hover: #154fa5;
 }
 
 * {

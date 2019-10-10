@@ -69,8 +69,30 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    padding: 10px;
 }
 
+.project {
+    display: flex;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+}
+
+.project-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-upper-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.project-timeline {
+    
+}
 
 #add-new-project {
     color: var(--c-primary);
@@ -106,3 +128,14 @@ body {
     border-radius: 100px;
 }
 
+#history-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 57.14%;
+}
+
+#history {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
