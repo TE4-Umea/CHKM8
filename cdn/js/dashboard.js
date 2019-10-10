@@ -174,162 +174,6 @@ function force_length(val) {
     return val.toString().length == 2 ? val.toString() : '0' + val.toString();
 }
 
-update_clock();
-setInterval(() => {
-    update_clock();
-}, 500);
-
-on_login = () => {
-    if (me.slack_id) document.getElementById('slack-button').remove();
-    update_checked_in_status(me.checked_in);
-    document.getElementById('avatar').src = me.avatar
-        ? me.avatar
-        : 'img/avatar.png';
-    document.getElementById('logged-in-as').innerText =
-        'Logged in as ' + me.name + ' (' + me.username + ')';
-    insert_projects();
-};
-
-/**
- * Creates a project card
- */
-function insert_projects() {
-    document.getElementById('projects').innerHTML = generate_project_cards(
-        me.projects
-    );
-    for (el of document.getElementsByClassName('project')) {
-        light_up_project(el, false, false);
-    }
-
-    update_projects(me.checked_in, me.checked_in_project);
-}
-
-/**
- * Generates a group of cards as html.
- * @param {array} projects json file of all projects.
- */
-function generate_project_cards(projects) {
-    var html = '';
-    for (var project of projects) {
-        html += generate_project_card(project);
-    }
-    return html;
-}
-
-/**
- * Generates html for a projects card.
- * @param {Object} project project object containing project details.
- */
-function generate_project_card(project) {
-    //TODO
-    return `<div class="project" hover="false" project-name="${
-        project.name
-    }"><div class='project-upper-row'><span class="project-name">${project.name.toUpperCase()}</span><span id='${project.name +
-        '_time'}'>${active_project_time()}</div><canvas class="project-timeline"></canvas><button class="project-button mdc-button button--active" onclick="check_in_project('${
-        project.name
-    }')">${
-        me.checked_in_project == project.name ? get_button_text() : 'check in'
-    }</button></div>`;
-}
-
-/**
- * @returns will return a string of the corrent working time.
- */
-function active_project_time() {
-    return '0:00';
-}
-
-/**
- * Reloads the base page elements
- */
-function reload_dash() {
-    //Gets user data specified by token.
-    axios
-        .get('/api/user', {
-            params: {
-                token,
-            },
-        })
-        .then(res => {
-            var data = res.data;
-            if (data.success) {
-                me = data.profile;
-                insert_projects();
-            }
-        });
-}
-
-var hovering = false;
-document.addEventListener('mousemove', e => {
-    if (me) {
-        var hover;
-        for (var el of e.composedPath()) {
-            if (el.getAttribute) {
-                if (el.getAttribute('project-name')) {
-                    hover = el;
-                    if (el.getAttribute('hover') == 'false') {
-                        el.setAttribute('hover', true);
-                        light_up_project(el);
-                        hovering = true;
-                    }
-                }
-            }
-        }
-
-        if (hovering) {
-            var hovering_found = false;
-            for (var el of document.getElementsByClassName('project')) {
-                if (
-                    me.checked_in_project != el.getAttribute('project-name') &&
-                    hover != el
-                ) {
-                    hovering_found = true;
-                    el.setAttribute('hover', false);
-                    light_up_project(el, false, false);
-                } else {
-                    hovering_found = true;
-                }
-            }
-            if (!hovering_found) {
-                /* if(interval) clearInterval(interval) */
-                hovering = false;
-            }
-        }
-    }
-});
-
-function check_in() {
-    //Checks in user.
-    axios
-        .post('/api/user/check', {
-            token: token,
-        })
-        .then(res => {
-            var data = res.data;
-            me.checked_in = data.checked_in;
-            me.checked_in_time = 0;
-            notice(data.text, data.success);
-            if (!data.checked_in) me.checked_in_project = '';
-            update_projects(data.checked_in);
-            update_checked_in_status(data.checked_in);
-        });
-}
-
-var time_el = document.getElementById('time');
-var sec_bar = document.getElementById('seconds-bar');
-
-function update_clock() {
-    var time = new Date();
-    time_el.innerText =
-        force_length(time.getHours()) + ':' + force_length(time.getMinutes());
-    sec_bar.style.width =
-        ((time.getSeconds() + time.getMilliseconds() / 1000) / 60) * 100 + '%';
-}
-
-function force_length(val) {
-    return val.toString().length == 2 ? val.toString() : '0' + val.toString();
-}
-
 on_login = () => {
     if (me.slack_id) document.getElementById('slack-button').remove();
     update_checked_in_status(me.checked_in);
@@ -377,14 +221,16 @@ function generate_project_card(project) {
     //TODO
     return `<div class="project" hover="false" project-name="${
         project.name
-    }"><div><div class='project-upper-row'><span class="project-name">${
+    }"><div class='project-content'><div class='project-upper-row'><span class="project-name">${
         project.name
     }</span><span id='${project.name +
-        '_time'}'>${active_project_time()}</div><canvas class="project-timeline"></canvas></div><button class="project-button mdc-button button--active" onclick="check_in_project('${
+        '_time'}'>${active_project_time()}</div><canvas class="project-timeline"></canvas></div><div class="project-buttons"><button class="project-check-button" onclick="check_in_project('${
         project.name
     }')">${
         me.checked_in_project == project.name ? get_button_text() : 'check in'
-    }</button></div>`;
+    }</button><button class="project-edit-button" onclick="open_modal('${
+        project.name
+    }')">Edit project</button></div></div>`;
 }
 
 /**
@@ -606,6 +452,7 @@ function check_in_project(project_name) {
                 if (check_in) me.checked_in_time = 0;
                 me.checked_in_project = check_in ? project_name : '';
                 me.checked_in = check_in;
+                
                 update_projects(check_in, project_name);
             }
         });
@@ -622,9 +469,9 @@ function update_projects(checked_in, project_name) {
         }
         if (el.getAttribute('project-name') != project_name) {
             light_up_project(el, false, false);
-            el.getElementsByClassName("project-button")[0].innerText = 'Check in';
+            el.getElementsByClassName("project-check-button")[0].innerText = 'Check in';
         } else {
-            el.getElementsByClassName("project-button")[0].innerText = get_button_text();
+            el.getElementsByClassName("project-check-button")[0].innerText = get_button_text();
         }
     }
     update_checked_in_status(checked_in);
@@ -673,3 +520,9 @@ update_clock();
 setInterval(() => {
     update_clock();
 }, 500);
+
+function open_modal(project_name) {
+    var overlay = document.getElementById("overlay");
+
+    overlay.classList.add("open");
+}

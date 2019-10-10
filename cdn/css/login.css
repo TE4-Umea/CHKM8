@@ -1,64 +1,37 @@
-#logo{
-    position: relative;
-    margin: 0 auto;
-    display: block;
-    margin-top: 25px;
-    height: 80px;
-}
-
-.input{
-    margin: 0 auto;
-    display: block;
-    position: relative;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 18px;
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.137);
-    border-bottom: 3px var(--blu) solid;
-    width: 90%;
-    max-width: 300px;
-}
-
-*:focus{
-    outline: none;
-}
-
-#name{
-    display: none;
-}
-
-#wrap{
+#wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     height: auto;
     max-width: 400px;
+    margin: auto;
     margin-top: 25px;
 }
 
-#login-button{
-    margin: 0 auto;
-    display: block;
-    position: relative;
-    margin-top: 25px;
-    height: 45px;
-    margin-bottom: 35px;
-    width: 200px;
+.input {
+    border: none;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+    border-radius: 5px;
+    padding: 10px;
+    border-bottom: 3px var(--c-primary) solid;
 }
 
-#button-container{
-    width: 90%;
-    max-width: 300px;
-    display: block;
-    position: relative;
-    margin: 0 auto
+#button-container {
+    display: flex;
+    flex-direction: column; 
+}
+
+*:focus {
+    outline: none;
 }
 
 #disclaimer{
     font-size: 13px;
     color: rgb(34, 34, 34);
 }
-
+w
 #error-message{
     display: none;
     position: relative;

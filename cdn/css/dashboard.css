@@ -1,6 +1,5 @@
 body {
     overflow-y: hidden;
-    font-family: Roboto;
 }
 
 #wrap {
@@ -27,10 +26,10 @@ body {
 
 #side-bar {
     width: 35%;
-    border-right: 3px solid var(--c-primary);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.1);
 }
 
 #title {
@@ -39,10 +38,6 @@ body {
     align-items: center;
     width: 100%;
     padding: 0 10px;
-}
-
-#logo {
-
 }
 
 #time-container {
@@ -69,7 +64,9 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
     padding: 10px;
+    overflow-y: auto;
 }
 
 .project {
@@ -80,6 +77,7 @@ body {
 }
 
 .project-content {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
@@ -87,11 +85,34 @@ body {
 .project-upper-row {
     display: flex;
     justify-content: space-between;
-    padding: 5px;
+    padding: 10px;
+    font-size: 22px;
+}
+
+.project-name {
+    text-transform: uppercase;
 }
 
 .project-timeline {
-    
+    width: calc(100% - 20px);
+    margin: 10px;
+}
+
+.project-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-buttons button {
+    height: 50%;
+}
+
+button.project-check-button {
+    border-radius: 0 10px 0 0;
+}
+
+button.project-edit-button {
+    border-radius: 0 0 10px 0;
 }
 
 #add-new-project {
@@ -138,4 +159,22 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#overlay.open {
+    visibility: visible;
+    opacity: 1;
 }

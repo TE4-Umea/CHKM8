@@ -9,6 +9,7 @@
 
 body {
     margin: 0;
+    font-family: Roboto;
 }
 
 button {
@@ -37,4 +38,16 @@ button.button-active {
 button.button-active:hover {
     color: var(--c-primary-hover);
     background-color: transparent;
+}
+
+div ::-webkit-scrollbar {
+    width: 13px;
+}
+
+div ::-webkit-scrollbar-track {
+    background-color: #fff;
+}
+
+div ::-webkit-scrollbar-thumb {
+    border-left: 3px solid var(--c-primary);
 }

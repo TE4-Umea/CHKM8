@@ -3,17 +3,14 @@ head
     link(rel="stylesheet", href="css/index.css")
     link(rel="icon", href="img/logo.png", type="image/x-icon")
     | <link href="https://fonts.googleapis.com/css?family=Roboto|Ubuntu:700&display=swap" rel="stylesheet">
-    link(rel="stylesheet", href="css/material.css")
     link(rel="stylesheet", href="css/style.css")
     | <meta name="viewport" content="width=device-width, initial-scale=1">
 body
-    a(href="/login")
-        button(id="index-login-button") LOGIN
     div(id="index-wrap")
-        img(src="img/by-happy-surfers.png", alt="logo" id="index-logo")
+        img(src="img/indexlogo.png", alt="logo" id="index-logo")
         span(id="tag-line") Keep track of all your employee attendance
         a(href="/login")
-            button(class="mdc-button mdc-button--raised" id="index-signup-button") SIGN UP
+            button(id="index-signup-button") SIGN UP
         div(id="features-list")
             div(class="features-block")
                 img(src="img/icons/slack.png" class="features-icon" alt="")
@@ -35,7 +32,7 @@ body
                 div(class="features-text")
                     div(class="features-heading") Opensource and modular
                     div(class="features-description") All code is open source and well documented, can easily be further developed on by anyone. Check out our 
-                    a(href="/docs") Docs
+                    a(id="docspage" href="/docs") Docs
             div(class="features-block")
                 img(src="img/icons/api.png" class="features-icon" alt="")
                 div(class="features-text")
