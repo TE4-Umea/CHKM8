@@ -219,7 +219,6 @@ class SlackAPIController {
                     var projects = await this.Project.get_projects();
                     for (var i = 0; i < projects.length; i++) {
                         var value = projects[i];
-                        console.log("Project: " + value.name + " Owner: " + value.username);
                     }
                     response = await this.Project.get_list();
                 } else {
