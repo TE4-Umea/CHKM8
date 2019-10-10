@@ -237,7 +237,7 @@
 
     async help(req, res) {
         var response = this.SlackJSON.SlackResponse(
-            'Happy Surfers Time App Help Menu',
+            'CheckMate Time App Help Menu',
             [
                 this.SlackJSON.SlackAttachments(
                     this.server.fs.readFileSync('commands.md', 'utf8')

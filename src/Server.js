@@ -56,6 +56,7 @@ class Server {
 
         /** Load Controller class */
         new (require('./routes/Routes'))(this);
+        
 
         this.Debug = new (require('./Debug'))();
 
@@ -68,7 +69,7 @@ class Server {
      */
     on_loaded() {
         this.Debug.log(
-            `Happy Surfer's TimeTracker has started on port: ${this.port}`
+            `CheckMate's TimeTracker has started on port: ${this.port}`
         );
     }
 
