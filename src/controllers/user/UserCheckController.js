@@ -20,23 +20,24 @@ class UserCheckController {
         // Get user safe from token
         var user = await this.User.get_from_token(payload.token);
         var data = [];
-
-        // if startdate and enddate is specified, fetch checks between the 2 dates.
-        // else use time now as enddate and startdate = time now -5 days.
         var start_date = this.get_start_date(payload);
         var end_date = this.get_end_date(payload);
-
-        if (
+        if(!user){
+            response.error_response('Invalid token');
+            return;
+        }else if (
             user.admin &&
             (Array.isArray(payload.ids) && payload.ids.length > 0)
         ) {
-            payload.ids.forEach(id => {
-                data.push(this.fetch_checks(id, start_date, end_date));
-            });
+            for (var id of payload.ids){
+                var checks = await this.fetch_checks(id, start_date, end_date);
+                console.log('test', id);
+                data.push(...checks);
+            }
         } else {
-            data.push(this.fetch_checks(user.id, start_date, end_date));
+            data.push(...await this.fetch_checks(user.id, start_date, end_date));
         }
-        response.success_response('Succesfully fetched checks', { data: data });
+        response.success_response('Succesfully fetched checkssssdsd', { data: data });
     }
 
     /**
@@ -82,13 +83,18 @@ class UserCheckController {
      */
     async fetch_checks(user_id, start_date, end_date) {
         var config = new (require('../../ConfigLoader'))().load();
+        var check_types = new (require('../../models/CheckTypes'))();
         var db = new (require('../../Database'))(config);
-        return await db.query(
-            'SELECT *,(UNIX_TIMESTAMP(`date`)*1000) as timestamp FROM `checks` WHERE `user` = ? AND ' +
+        var res = await db.query(
+            'SELECT * FROM `checks` WHERE `user` = ? AND ' +
                 '`date` BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?) ' +
                 'ORDER BY `id`',
             [user_id, start_date, end_date]
         );
+        for (var index of res) {
+            index.type = check_types.get_name(index.type);
+        }
+        return res;
     }
 
     /**
