@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Database.js - Documentation</title>
+    <title>models/ResponseModel.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Database.js</h1>
+    <h1 class="page-title">models/ResponseModel.js</h1>
     
 
     
@@ -43,64 +43,53 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * Async database model for mysql in node
+ * A ReponseModel for sending returns Json to Requests.
  */
-
-class Database {
-    constructor(config) {
-        this.config = config;
-        this.mysql = require('mysql');
+class ResponseModel {
+    /**
+     * Constructor for creating the ResponseModel object.
+     * Saves the Response object so it does not need to be called later.
+     * @param {Response} res
+     */
+    constructor(res) {
+        this._res = res;
+        // JSONResponse is the standard response system for CHKM8
+        this._JSONResponse = require('./JSONResponseModel');
+        /* this.JSONResponse = new this.JSONResponse() */
+        this._SuccessResponse = this._JSONResponse.SuccessResponse;
+        this._ErrorResponse = this._JSONResponse.ErrorResponse;
     }
     /**
-     * Create a new mysql connection
-     * ! Make sure to destroy it after or it will cause a crash
+     * This is a abstarction layer function to render a sucess json response.
+     *
+     * @param {Response} res
+     * @param {String=} message text message
+     * @param {object=} params optional
      */
-    create_connection() {
-        return this.mysql.createConnection({
-            host: this.config.mysql_host,
-            user: this.config.mysql_user,
-            password: this.config.mysql_pass,
-            database: this.config.database,
-        });
+    async success_response(message = '', params = {}) {
+        this.json(new this._SuccessResponse(message, params));
     }
 
     /**
-     * Normal SQL query but promise based
-     * @param {*} sql query
-     * @param {*} args possible arguments
+     * This is a abstarction layer function to render a error json response.
+     *
+     * @param {Response} res
+     * @param {String=} message text message
+     * @param {object=} params optional
      */
-    query(sql, args) {
-        // Connect to mysql
-        var con = this.create_connection();
-
-        return new Promise((resolve, reject) => {
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows);
-            });
-        });
+    async error_response(message = '', params = {}) {
+        this.json(new this._ErrorResponse(message, params));
     }
-    /**
-     * SELECT only one item
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query_one(sql, args) {
-        return new Promise((resolve, reject) => {
-            /* Connect to the database */
-            var con = this.create_connection();
 
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows[0]);
-            });
-        });
+    /**
+     * This sends a Json response
+     */
+    async json(params) {
+        this._res.json(params);
     }
 }
 
-module.exports = Database;
+module.exports = ResponseModel;
 </code></pre>
         </article>
     </section>

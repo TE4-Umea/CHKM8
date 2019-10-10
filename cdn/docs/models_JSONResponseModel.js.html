@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Database.js - Documentation</title>
+    <title>models/JSONResponseModel.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Database.js</h1>
+    <h1 class="page-title">models/JSONResponseModel.js</h1>
     
 
     
@@ -42,65 +42,55 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Async database model for mysql in node
- */
-
-class Database {
-    constructor(config) {
-        this.config = config;
-        this.mysql = require('mysql');
-    }
+            <pre class="prettyprint source linenums"><code>class JSONResponse {
     /**
-     * Create a new mysql connection
-     * ! Make sure to destroy it after or it will cause a crash
+     * A response
+     * @param {String} text Message
+     * @param {Object} params Optional parameters
+     * @returns {JSONResponse} Statement
      */
-    create_connection() {
-        return this.mysql.createConnection({
-            host: this.config.mysql_host,
-            user: this.config.mysql_user,
-            password: this.config.mysql_pass,
-            database: this.config.database,
-        });
-    }
-
-    /**
-     * Normal SQL query but promise based
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query(sql, args) {
-        // Connect to mysql
-        var con = this.create_connection();
-
-        return new Promise((resolve, reject) => {
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows);
-            });
-        });
-    }
-    /**
-     * SELECT only one item
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query_one(sql, args) {
-        return new Promise((resolve, reject) => {
-            /* Connect to the database */
-            var con = this.create_connection();
-
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows[0]);
-            });
-        });
+    constructor(text, params = {}) {
+        this.text = text;
+        for (var key in params) {
+            this[key] = params[key];
+        }
+        return this;
     }
 }
 
-module.exports = Database;
+class SuccessResponse extends JSONResponse {
+    /**
+     * A response ment to indicate success.
+     * @param {String} text Success message.
+     * @param {Object} params Optional parameters
+     * @returns {SuccessResponse} success statement
+     */
+    constructor(text, params = {}) {
+        super(text, params);
+        this.success = true;
+        return this;
+    }
+}
+
+class ErrorResponse extends JSONResponse {
+    /**
+     * A response ment to indicate an error.
+     * @param {String} text Error message.
+     * @param {Object} params Optional parameters
+     * @returns {ErrorResponse} error statement
+     */
+    constructor(text, params = {}) {
+        super(text, params);
+        this.success = false;
+        return this;
+    }
+}
+
+module.exports = {
+    JSONResponse,
+    SuccessResponse,
+    ErrorResponse,
+};
 </code></pre>
         </article>
     </section>

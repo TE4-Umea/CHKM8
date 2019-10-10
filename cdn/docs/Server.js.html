@@ -27,7 +27,7 @@
 
 <nav >
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="API.html">API</a><ul class='methods'><li data-type='method'><a href="API.html#add">add</a></li><li data-type='method'><a href="API.html#checkin">checkin</a></li><li data-type='method'><a href="API.html#login">login</a></li><li data-type='method'><a href="API.html#new_project">new_project</a></li><li data-type='method'><a href="API.html#profile">profile</a></li><li data-type='method'><a href="API.html#project">project</a></li><li data-type='method'><a href="API.html#remove">remove</a></li><li data-type='method'><a href="API.html#sign">sign</a></li><li data-type='method'><a href="API.html#signup">signup</a></li><li data-type='method'><a href="API.html#username_taken">username_taken</a></li></ul></li><li><a href="Database.html">Database</a><ul class='methods'><li data-type='method'><a href="Database.html#create_connection">create_connection</a></li><li data-type='method'><a href="Database.html#query">query</a></li><li data-type='method'><a href="Database.html#query_one">query_one</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#format_time">format_time</a></li><li data-type='method'><a href="Server.html#hash">hash</a></li><li data-type='method'><a href="Server.html#log">log</a></li><li data-type='method'><a href="Server.html#on_loaded">on_loaded</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#check_in">check_in</a></li><li><a href="global.html#me">me</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Database.html">Database</a><ul class='methods'><li data-type='method'><a href="Database.html#create_connection">create_connection</a></li><li data-type='method'><a href="Database.html#query">query</a></li><li data-type='method'><a href="Database.html#query_one">query_one</a></li></ul></li><li><a href="ErrorResponse.html">ErrorResponse</a></li><li><a href="JSONResponse.html">JSONResponse</a></li><li><a href="Project.html">Project</a><ul class='methods'><li data-type='method'><a href="Project.html#add_user">add_user</a></li><li data-type='method'><a href="Project.html#create">create</a></li><li data-type='method'><a href="Project.html#delete">delete</a></li><li data-type='method'><a href="Project.html#get">get</a></li><li data-type='method'><a href="Project.html#get_data">get_data</a></li><li data-type='method'><a href="Project.html#get_from_name">get_from_name</a></li><li data-type='method'><a href="Project.html#is_joined">is_joined</a></li><li data-type='method'><a href="Project.html#new_gradient">new_gradient</a></li><li data-type='method'><a href="Project.html#remove_user">remove_user</a></li></ul></li><li><a href="ProjectMember.html">ProjectMember</a></li><li><a href="ProjectOwner.html">ProjectOwner</a></li><li><a href="ResponseModel.html">ResponseModel</a><ul class='methods'><li data-type='method'><a href="ResponseModel.html#error_response">error_response</a></li><li data-type='method'><a href="ResponseModel.html#json">json</a></li><li data-type='method'><a href="ResponseModel.html#success_response">success_response</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#format_time">format_time</a></li><li data-type='method'><a href="Server.html#hash">hash</a></li><li data-type='method'><a href="Server.html#on_loaded">on_loaded</a></li></ul></li><li><a href="SuccessResponse.html">SuccessResponse</a></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#create">create</a></li><li data-type='method'><a href="User.html#delete">delete</a></li><li data-type='method'><a href="User.html#generate_token">generate_token</a></li><li data-type='method'><a href="User.html#get">get</a></li><li data-type='method'><a href="User.html#get_data">get_data</a></li><li data-type='method'><a href="User.html#get_from_slack">get_from_slack</a></li><li data-type='method'><a href="User.html#get_from_slack_id">get_from_slack_id</a></li><li data-type='method'><a href="User.html#get_from_token">get_from_token</a></li><li data-type='method'><a href="User.html#get_from_username">get_from_username</a></li><li data-type='method'><a href="User.html#get_from_username_and_password">get_from_username_and_password</a></li><li data-type='method'><a href="User.html#hash">hash</a></li><li data-type='method'><a href="User.html#login_with_token">login_with_token</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -50,121 +50,95 @@
  */
 
 class Server {
-
     constructor(config) {
-        this.config = config
-        /**  If the program is running in test mode (npm test) */
-        this.isInTest = typeof global.it === 'function'
+        this.config = config;
 
         /** Load libraries */
 
         /** MD5 is an easy way to encrpyt text (passwords) */
-        this.md5 = require("md5")
+        this.md5 = require('md5');
         /** Body parser parses incoming traffic via express for easy use with the JSON format. */
-        this.bp = require("body-parser")
+        this.bp = require('body-parser');
         /** Express, http and https allowes us to host the API, SlackAPI, Website and Webhook */
-        this.express = require("express")
-        this.http = require("http")
-        this.https = require("https")
+        this.express = require('express');
+        this.http = require('http');
+        this.https = require('https');
         /** File system is used to read and write files (used for config) */
-        this.fs = require("file-system")
+        this.fs = require('file-system');
         /** Crypto generates a random hash that can be used as tokens (Way better than md5(random)) Use the function server.hash() to generate a new one. */
-        this.crypto = require("crypto")
+        this.crypto = require('crypto');
 
         /**  Slack API functions (routes are in /routes/Slack) */
-        this.SlackAPI = require("./controllers/SlackApiController")
-        this.SlackAPI = new this.SlackAPI(this)
-
-        /**  REST API functions (routes are in /routes/REST) */
-        this.API = require("./controllers/ApiController")
-        this.API = new this.API(this)
-
-        /** Array of users ready to be linked to slack, cleared on restart. */
-        this.slack_sign_users = []
+        this.SlackAPI = require('./controllers/SlackApiController');
+        this.SlackAPI = new this.SlackAPI(this);
 
 
         /** Database async handler */
-        var Database = require("./Database")
+        var Database = require('./Database');
         /** Setup db handler with config */
-        this.db = new Database(this.config)
+        this.db = new Database(this.config);
 
         /** Use port from config.json as the webport */
-        this.port = this.config.port        
+        this.port = this.config.port;
 
         /** Setup the web server via express */
-        this.app = this.express()
+        this.app = this.express();
 
         /** Use body-parser to read json/type in post / get requests */
-        this.app.use(this.bp.json())
-        this.app.use(this.bp.urlencoded({
-            extended: true
-        }))
+        this.app.use(this.bp.json());
+        this.app.use(
+            this.bp.urlencoded({
+                extended: true,
+            })
+        );
 
         /** Create the server and start it on the port in config.json */
-        this.server = this.http.createServer(this.app).listen(this.port)
+        this.server = this.http.createServer(this.app).listen(this.port);
 
         /**  Bind the cdn folder to the webserver, everything in it is accessable via the website */
-        this.app.use(this.express.static(__dirname + '/cdn'))
+        this.app.use(this.express.static('../cdn'));
 
         /** Load Controller class */
-        var routes = require("./routes/Routes")
-        routes = new routes(this)
+        new (require('./routes/Routes'))(this);
+        
 
-        /** Load Project class */
-        this.Project = require("./Project")
-        this.Project = new this.Project(this)
-
-        /** Load User class */
-        this.User = require("./User")
-        this.User = new this.User(this)
-
-        /** Load Check class */
-        this.Check = require("./Check")
-        this.Check = new this.Check(this)
+        this.Debug = new (require('./Debug'))();
 
         /** Loading done! */
-        this.on_loaded()
-    }
-    
-    /**
-     * Log message with timestamp
-     * Use this when a log should stay in the code
-     * @param {*} message 
-     */
-    log(message) {
-        /**  Dont display messages if it's in a test */
-        if (this.isInTest) return
-        /**  Create timestamp */
-        var date = new Date()
-        /**  Display message with timestamp */
-        console.log(`[${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}] ${message}`)
+        this.on_loaded();        
     }
 
     /**
      * This function runs when everything has been loaded.
      */
     on_loaded() {
-        this.log(`CheckMate's TimeTracker has started on port: ${this.port}`)
+        this.Debug.log(
+            `CheckMate's TimeTracker has started on port: ${this.port}`
+        );
     }
 
     /**
-     * Create a new unique hash that can be used as a token 
+     * Create a new unique hash that can be used as a token
      * (currently used in user tokens, config tokens and slack-sign-tokens)
      * NOTE: This is WAY safer and more random than md5(random)!
      */
     hash() {
-        return this.crypto.randomBytes(20).toString('hex').toUpperCase()
+        return this.crypto
+            .randomBytes(20)
+            .toString('hex')
+            .toUpperCase();
     }
 
     /** Reformat time from ms to hours and minutes (string friendly) */
     format_time(ms) {
-        var hours = Math.floor(ms / 1000 / 60 / 60)
-        var minutes = Math.floor((ms / 1000 / 60) - (hours * 60))
-        return (hours ? hours + "h " : "") + minutes + "m"
+        var hours = Math.floor(ms / 1000 / 60 / 60);
+        var minutes = Math.floor(ms / 1000 / 60 - hours * 60);
+        return (hours ? hours + 'h ' : '') + minutes + 'm';
     }
 }
 
-module.exports = Server</code></pre>
+module.exports = Server;
+</code></pre>
         </article>
     </section>
 
@@ -178,7 +152,7 @@ module.exports = Server</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Oct 03 2019 14:11:55 GMT+0200 (CEST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Oct 10 2019 15:07:36 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

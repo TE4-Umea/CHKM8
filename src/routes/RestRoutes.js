@@ -339,7 +339,7 @@ class RestRoutes {
          * @swagger
          * 
          * /api/project:
-         *   patch:
+         *   delete:
          *     description: Deletes project from database.
          *     produces:
          *       - application/json
@@ -355,7 +355,7 @@ class RestRoutes {
          *         required: true
          *         type: string
          *     tags:
-         *      - user
+         *      - project
          *     responses:
          *       200:
          *         description: Returns a success message and taken boolean as json.

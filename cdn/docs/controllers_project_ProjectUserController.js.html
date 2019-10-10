@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Database.js - Documentation</title>
+    <title>controllers/project/ProjectUserController.js - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,7 +32,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Database.js</h1>
+    <h1 class="page-title">controllers/project/ProjectUserController.js</h1>
     
 
     
@@ -42,66 +42,62 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Async database model for mysql in node
- */
+            <pre class="prettyprint source linenums"><code>class ProjectUserController {
 
-class Database {
-    constructor(config) {
-        this.config = config;
-        this.mysql = require('mysql');
-    }
-    /**
-     * Create a new mysql connection
-     * ! Make sure to destroy it after or it will cause a crash
-     */
-    create_connection() {
-        return this.mysql.createConnection({
-            host: this.config.mysql_host,
-            user: this.config.mysql_user,
-            password: this.config.mysql_pass,
-            database: this.config.database,
-        });
+    constructor() {
+        this.Payload = require('../../models/PayloadModel');
+        this.Response = require('../../models/ResponseModel');
+        this.User = new (require('../../User'))();
+        this.Project = new (require('../../Project'))();
     }
 
     /**
-     * Normal SQL query but promise based
-     * @param {*} sql query
-     * @param {*} args possible arguments
+     * Adds a user to a project and stores it in a piviot table.
+     * @param {*} req
+     * @param {*} res
+     * @returns A json response with success or fail
      */
-    query(sql, args) {
-        // Connect to mysql
-        var con = this.create_connection();
+    async store(req, res) {
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        /** Load user safe from token */
+        var user = await this.User.get_from_token(payload.token);
+        /** Load user that will be added */
+        var user_to_add = await this.User.get_from_username(payload.username);
 
-        return new Promise((resolve, reject) => {
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows);
-            });
-        });
+        var project = await this.Project.get(payload.project);
+        /** Add the user to the project via the requesting user */
+        /** Responde to the user */
+        response.json(
+            await this.Project.add_user(user_to_add, project.id, user)
+        );
     }
-    /**
-     * SELECT only one item
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query_one(sql, args) {
-        return new Promise((resolve, reject) => {
-            /* Connect to the database */
-            var con = this.create_connection();
 
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows[0]);
-            });
-        });
+    /**
+     * Remove user from project
+     * @param {*} req
+     * @param {*} res
+     * @returns A json response with success or fail
+     */
+    async destroy(req, res) {
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        var user_to_remove = await this.User.get_from_username(
+            payload.username
+        );
+        var user = await this.User.get_from_token(payload.token);
+        var project = await this.project.get_from_name(payload.project);
+        response.json(
+            await this.Project.remove_user(user_to_remove, project.id, user)
+        );
     }
 }
 
-module.exports = Database;
-</code></pre>
+module.exports = ProjectUserController;</code></pre>
         </article>
     </section>
 

@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Database.js - Documentation</title>
+    <title>SuccessResponse - Documentation</title>
     
     
     <script src="scripts/prettify/prettify.js"></script>
@@ -32,78 +32,235 @@
 
 <div id="main">
     
-    <h1 class="page-title">Database.js</h1>
+    <h1 class="page-title">SuccessResponse</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Async database model for mysql in node
- */
+        <h2>
+        SuccessResponse
+        </h2>
+        
+    
+</header>
 
-class Database {
-    constructor(config) {
-        this.config = config;
-        this.mysql = require('mysql');
-    }
-    /**
-     * Create a new mysql connection
-     * ! Make sure to destroy it after or it will cause a crash
-     */
-    create_connection() {
-        return this.mysql.createConnection({
-            host: this.config.mysql_host,
-            user: this.config.mysql_user,
-            password: this.config.mysql_pass,
-            database: this.config.database,
-        });
-    }
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-    /**
-     * Normal SQL query but promise based
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query(sql, args) {
-        // Connect to mysql
-        var con = this.create_connection();
+    
 
-        return new Promise((resolve, reject) => {
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows);
-            });
-        });
-    }
-    /**
-     * SELECT only one item
-     * @param {*} sql query
-     * @param {*} args possible arguments
-     */
-    query_one(sql, args) {
-        return new Promise((resolve, reject) => {
-            /* Connect to the database */
-            var con = this.create_connection();
+    <h4 class="name" id="SuccessResponse"><span class="type-signature"></span>new SuccessResponse<span class="signature">(text, params)</span><span class="type-signature"> &rarr; {<a href="SuccessResponse.html">SuccessResponse</a>}</span></h4>
 
-            con.query(sql, args, (err, rows) => {
-                con.destroy();
-                if (err) return reject(err);
-                resolve(rows[0]);
-            });
-        });
-    }
-}
+    
 
-module.exports = Database;
-</code></pre>
-        </article>
-    </section>
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="models_JSONResponseModel.js.html">models/JSONResponseModel.js</a>, <a href="models_JSONResponseModel.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>A response ment to indicate success.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Success message.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Optional parameters</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>success statement</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="SuccessResponse.html">SuccessResponse</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+    
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

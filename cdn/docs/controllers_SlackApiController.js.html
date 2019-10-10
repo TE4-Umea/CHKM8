@@ -27,7 +27,7 @@
 
 <nav >
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="API.html">API</a><ul class='methods'><li data-type='method'><a href="API.html#add">add</a></li><li data-type='method'><a href="API.html#checkin">checkin</a></li><li data-type='method'><a href="API.html#login">login</a></li><li data-type='method'><a href="API.html#new_project">new_project</a></li><li data-type='method'><a href="API.html#profile">profile</a></li><li data-type='method'><a href="API.html#project">project</a></li><li data-type='method'><a href="API.html#remove">remove</a></li><li data-type='method'><a href="API.html#sign">sign</a></li><li data-type='method'><a href="API.html#signup">signup</a></li><li data-type='method'><a href="API.html#username_taken">username_taken</a></li></ul></li><li><a href="Database.html">Database</a><ul class='methods'><li data-type='method'><a href="Database.html#create_connection">create_connection</a></li><li data-type='method'><a href="Database.html#query">query</a></li><li data-type='method'><a href="Database.html#query_one">query_one</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#format_time">format_time</a></li><li data-type='method'><a href="Server.html#hash">hash</a></li><li data-type='method'><a href="Server.html#log">log</a></li><li data-type='method'><a href="Server.html#on_loaded">on_loaded</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#check_in">check_in</a></li><li><a href="global.html#me">me</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Database.html">Database</a><ul class='methods'><li data-type='method'><a href="Database.html#create_connection">create_connection</a></li><li data-type='method'><a href="Database.html#query">query</a></li><li data-type='method'><a href="Database.html#query_one">query_one</a></li></ul></li><li><a href="ErrorResponse.html">ErrorResponse</a></li><li><a href="JSONResponse.html">JSONResponse</a></li><li><a href="Project.html">Project</a><ul class='methods'><li data-type='method'><a href="Project.html#add_user">add_user</a></li><li data-type='method'><a href="Project.html#create">create</a></li><li data-type='method'><a href="Project.html#delete">delete</a></li><li data-type='method'><a href="Project.html#get">get</a></li><li data-type='method'><a href="Project.html#get_data">get_data</a></li><li data-type='method'><a href="Project.html#get_from_name">get_from_name</a></li><li data-type='method'><a href="Project.html#is_joined">is_joined</a></li><li data-type='method'><a href="Project.html#new_gradient">new_gradient</a></li><li data-type='method'><a href="Project.html#remove_user">remove_user</a></li></ul></li><li><a href="ProjectMember.html">ProjectMember</a></li><li><a href="ProjectOwner.html">ProjectOwner</a></li><li><a href="ResponseModel.html">ResponseModel</a><ul class='methods'><li data-type='method'><a href="ResponseModel.html#error_response">error_response</a></li><li data-type='method'><a href="ResponseModel.html#json">json</a></li><li data-type='method'><a href="ResponseModel.html#success_response">success_response</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#format_time">format_time</a></li><li data-type='method'><a href="Server.html#hash">hash</a></li><li data-type='method'><a href="Server.html#on_loaded">on_loaded</a></li></ul></li><li><a href="SuccessResponse.html">SuccessResponse</a></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#create">create</a></li><li data-type='method'><a href="User.html#delete">delete</a></li><li data-type='method'><a href="User.html#generate_token">generate_token</a></li><li data-type='method'><a href="User.html#get">get</a></li><li data-type='method'><a href="User.html#get_data">get_data</a></li><li data-type='method'><a href="User.html#get_from_slack">get_from_slack</a></li><li data-type='method'><a href="User.html#get_from_slack_id">get_from_slack_id</a></li><li data-type='method'><a href="User.html#get_from_token">get_from_token</a></li><li data-type='method'><a href="User.html#get_from_username">get_from_username</a></li><li data-type='method'><a href="User.html#get_from_username_and_password">get_from_username_and_password</a></li><li data-type='method'><a href="User.html#hash">hash</a></li><li data-type='method'><a href="User.html#login_with_token">login_with_token</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -42,12 +42,22 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>class SlackAPI {
-    constructor(server) {
-        this.server = server;
+            <pre class="prettyprint source linenums"><code>class SlackAPIController {
+    constructor() {
         this.qs = require('qs');
+        this.fs = require('file-system');
+        this.config = new (require('../ConfigLoader'))().load();
         var SlackJSON = require('../SlackJSON');
         this.SlackJSON = new SlackJSON();
+
+        this.User = new (require('../User'))();
+        this.Check = new (require('../Check'))();
+        this.Project = new (require('../Project'))();
+        this.Debug = new (require('../Debug'))();
+
+        this.CheckTypes = new (require('../models/CheckTypes'))();
+
+        this.crypto = require('crypto');
 
         this.SUCCESS = '#2df763';
         this.FAIL = '#f72d4b';
@@ -56,7 +66,7 @@
 
     async get_slack_id_from_text(user) {
         var slack_id = user.substring(2, 11);
-        user = await this.server.User.get_from_slack_id(slack_id);
+        user = await this.User.get_from_slack_id(slack_id);
         return user;
     }
 
@@ -69,68 +79,25 @@
      */
     async auth(req, res) {
         if (req.query.code) {
-            /* Send a request to slack to get user information from the login */
-            this.server.https.get(
-                `https://slack.com/api/oauth.access?client_id=${this.server.config.client_id}&amp;client_secret=${this.server.config.client_secret}&amp;code=${req.query.code}`,
-                resp => {
-                    var data = '';
-                    resp.on('data', chunk => {
-                        data += chunk;
-                    });
-                    resp.on('end', () => {
-                        /* Once the data has been downloaded, parse it into a JSON */
-                        data = JSON.parse(data);
-                        /* If the request and code was successfull */
-                        if (data.ok) {
-                            (async () => {
-                                /* Check if the user is already signed up */
-                                var slack_taken = await this.server.db.query_one(
-                                    'SELECT * FROM users WHERE slack_id = ?',
-                                    data.user.id
-                                );
-                                if (slack_taken) {
-                                    res.send(
-                                        'This slack account is already linked to another user. Please   that account first or ask an administrator for help.'
-                                    );
-                                    return;
-                                }
-
-                                var sign_token = this.server.hash();
-                                this.server.slack_sign_users.push({
-                                    access_token: data.access_token,
-                                    slack_domain: data.team.domain,
-                                    slack_id: data.user.id,
-                                    name: data.user.name,
-                                    avatar: data.user.image_512,
-                                    email: data.user.email,
-                                    token: sign_token,
-                                });
-                                res.render('dashboard', {
-                                    token: sign_token,
-                                });
-                            })();
-                        } else {
-                            res.end(data.error);
-                        }
-                    });
-                }
-            );
+            res.render('dashboard', {
+                token: req.query.code,
+            });
         } else {
-            res.end('Error..?');
+            res.end('This link should only be visited via a slack login.');
         }
     }
 
     async check_in(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project = req.body.text ? req.body.text : '';
-                var response = await this.server.Check.check_in(
+                var response = await this.Check.check_in(
                     user.id,
                     true,
                     project,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
@@ -142,13 +109,13 @@
     async check_out(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
-                var response = await this.server.Check.check_in(
+                var response = await this.Check.check_in(
                     user.id,
                     false,
                     null,
-                    'slack'
+                    this.CheckTypes.get_id('slack')
                 );
                 res.json(this.slack_response(response));
             } else {
@@ -160,7 +127,7 @@
     async remove(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var inputs = req.body.text.split(' ');
                 var user_to_remove = inputs[0];
@@ -169,13 +136,25 @@
                         user_to_remove
                     );
                 } else {
-                    user_to_remove = await this.server.User.get_from_username(
+                    user_to_remove = await this.User.get_from_username(
                         user_to_remove
                     );
                 }
+
+                if (!user_to_remove) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                    return;
+                }
+
                 var project_name = inputs[1];
-                var project = await this.server.Project.get(project_name);
-                var response = await this.server.Project.remove_user(
+                var project = await this.Project.get_from_name(project_name);
+                var response = await this.Project.remove_user(
                     user_to_remove,
                     project.id,
                     user
@@ -190,7 +169,7 @@
     async add(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var inputs = req.body.text.split(' ');
                 var user_to_add = inputs[0];
@@ -199,16 +178,28 @@
                         user_to_add
                     );
                 } else {
-                    user_to_add = await this.server.User.get_from_username(
+                    user_to_add = await this.User.get_from_username(
                         user_to_add
                     );
                 }
-                var project_name = inputs[1];
-                var project = await this.server.Project.get(project_name);
 
-                var response = await this.server.Project.add_user(
+                if (!user_to_add) {
+                    res.json(
+                        this.slack_response({
+                            text:
+                                'User not found, make sure they have linked their Slack Account',
+                            success: false,
+                        })
+                    );
+                    return;
+                }
+
+
+                var project_name = inputs[1];
+
+                var response = await this.Project.add_user(
                     user_to_add,
-                    project ? project.id : -1,
+                    project_name,
                     user
                 );
                 res.json(this.slack_response(response));
@@ -221,13 +212,10 @@
     async new_project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project_name = req.body.text;
-                var response = await this.server.Project.create(
-                    project_name,
-                    user
-                );
+                var response = await this.Project.create(project_name, user);
                 res.json(this.slack_response(response));
             } else {
                 this.user_not_found(res);
@@ -237,10 +225,10 @@
 
     async help(req, res) {
         var response = this.SlackJSON.SlackResponse(
-            'CheckMate Time App Help Menu',
+            'CheckMate\'s Time App Help Menu',
             [
                 this.SlackJSON.SlackAttachments(
-                    this.server.fs.readFileSync('commands.md', 'utf8')
+                    this.fs.readFileSync('commands.md', 'utf8')
                 ),
             ]
         );
@@ -250,10 +238,10 @@
     async delete_project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var project_to_delete = req.body.text;
-                var response = await this.server.delete_project(
+                var response = await this.Project.delete(
                     project_to_delete,
                     user.id
                 );
@@ -267,28 +255,26 @@
     async project(req, res) {
         var success = this.verify_slack_request(req);
         if (success) {
-            var user = await this.server.User.get_from_slack(req);
+            var user = await this.User.get_from_slack(req);
             if (user) {
                 var input = req.body.text;
-                this.server.log('INPUT: ' + input);
+                this.Debug.log('INPUT: ' + input);
                 var response = null;
-                var project_to_info = await this.server.Project.get(input);
+                var project_to_info = await this.Project.get(input);
                 if (input == '') {
-                    this.server.log(
+                    this.Debug.log(
                         'Getting project list ' + project_to_info.name
                     );
-                    response = await this.server.Project.get_list();
+                    response = await this.Project.get_list();
                 } else {
-                    this.server.log(
+                    this.Debug.log(
                         'Getting project info for: ' + project_to_info.name
                     );
-                    response = await this.server.Project.get_data(
-                        project_to_info.id
-                    );
+                    response = await this.Project.get_data(project_to_info.id);
                     var list_members = response.project.members;
                     var members = '';
                     //TODO: fix members lenght, currently undefined
-                    this.server.log(
+                    this.Debug.log(
                         list_members.lenght + ' ' + list_members[0].name
                     );
                     for (var i = 0; list_members.lenght; i++) {
@@ -297,7 +283,7 @@
                             ' Time: ' +
                             list_members[i].work +
                             '\n';
-                        this.server.log('BEST TEST' + i + members);
+                        this.Debug.log('BEST TEST' + i + members);
                     }
                     var output =
                         'Owner: ' +
@@ -332,12 +318,12 @@
             var sig_basestring = 'v0:' + timestamp + ':' + request_body;
             var my_signature =
                 'v0=' +
-                this.server.crypto
-                    .createHmac('sha256', this.server.config.signing_secret)
+                this.crypto
+                    .createHmac('sha256', this.config.signing_secret)
                     .update(sig_basestring, 'utf8')
                     .digest('hex');
             if (
-                this.server.crypto.timingSafeEqual(
+                this.crypto.timingSafeEqual(
                     Buffer.from(my_signature, 'utf8'),
                     Buffer.from(slack_signature, 'utf8')
                 )
@@ -348,7 +334,7 @@
             }
         } catch (e) {
             console.log(e); // KEEP
-            this.server.log(
+            this.Debug.log(
                 'ERROR: Make sure your config.json:signing_secret is correct!'
             );
         }
@@ -376,7 +362,7 @@
     }
 }
 
-module.exports = SlackAPI;
+module.exports = SlackAPIController;
 </code></pre>
         </article>
     </section>
@@ -391,7 +377,7 @@ module.exports = SlackAPI;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Oct 03 2019 14:11:55 GMT+0200 (CEST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Oct 10 2019 15:07:36 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

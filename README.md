@@ -27,6 +27,10 @@ Run tests with the command ```npm test```
 
 All tests are located in ```/test/test.js```.
 
+## Build docs
+
+Build docs by running ```npm docs``` in src folder.
+
 ## Sructure
 
 All webpages (except docs) is written in PUG, they are found in ```/views```
