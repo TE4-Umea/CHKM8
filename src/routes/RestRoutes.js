@@ -375,20 +375,31 @@ class RestRoutes {
          *   get:
          *     description:
          *       Gets a list of checks associated with a user.
-         *       If admin, you can get m
+         *       \nIF the user that sends the request is admin, it is possible to get checks from multiple users. 
          *     produces:
          *       - application/json
          *     parameters:
-         *       - name: project
-         *         description: Name of the project to be deleted
+         *       - name: token
+         *         description: Login authentication token.
          *         in: formData
          *         required: true
          *         type: string
-         *       - name: token
-         *         description: Token of the user that deletes the project
-         *         in: form
-         *         required: true
-         *         type: string
+         *       - name: start_date
+         *         description: 
+         *          Start date as unix timestamp in milliseconds. IF this is specified end_date is required.
+         *         in: formData
+         *         required: false
+         *         type: int
+         *       - name: end_date
+         *         description: End date as UNIX timestamp in milliseconds. IF this is specified then start_date is required.
+         *         in: formData
+         *         required: false
+         *         type: int
+         *       - name: id
+         *         description: Array of specified user ids. Only works if the token is of a admin.
+         *         in: formData
+         *         required: false
+         *         type: int[]
          *     tags:
          *      - user
          *     responses:
