@@ -214,43 +214,26 @@ class SlackAPIController {
             var user = await this.User.get_from_slack(req);
             if (user) {
                 var input = req.body.text;
-                this.Debug.log('INPUT: ' + input);
-                var response = null;
                 var project_to_info = await this.Project.get(input);
                 if (input == '') {
-                    this.Debug.log(
-                        'Getting project list ' + project_to_info.name
-                    );
+                    var projects = await Project.get_projects();
+                    for (var i = 0; i < projects.length; i++) {
+                        var value = projects[i];
+                        console.log("Project: " + value.name + " Owner: " + value.username);
+                    }
                     response = await this.Project.get_list();
                 } else {
-                    this.Debug.log(
-                        'Getting project info for: ' + project_to_info.name
-                    );
-                    response = await this.Project.get_data(project_to_info.id);
-                    var list_members = response.project.members;
-                    var members = '';
-                    //TODO: fix members lenght, currently undefined
-                    this.Debug.log(
-                        list_members.lenght + ' ' + list_members[0].name
-                    );
-                    for (var i = 0; list_members.lenght; i++) {
-                        members +=
-                            list_members[i].name +
-                            ' Time: ' +
-                            list_members[i].work +
-                            '\n';
-                        this.Debug.log('BEST TEST' + i + members);
-                    }
-                    var output =
-                        'Owner: ' +
-                        response.project.owner.name +
-                        '\n Members: ' +
-                        members;
-                    response.text =
-                        'Project info for ' +
-                        project_to_info.name +
-                        ':\n' +
-                        output;
+                    var data = await this.Project.get_data(project_to_info.id);
+                    var write = "Project name: " + project_to_info.name +
+                                "\nOwner Username: " + data.project.owner.username + 
+                                "\nOwner Name: " + data.project.owner.name + 
+                                "\nMembers: ";
+                    for (var i = 0; i < data.project.members.length; i++) {
+                        var current_member = data.project.members[i];
+                        write += "\n    Username: " + current_member.username +
+                                "\n    Name: " + current_member.name + 
+                                "\n    Worked time: " +  this.format_time(current_member.work);
+        }
                 }
                 res.json(this.slack_response(response));
             } else {
@@ -315,6 +298,12 @@ class SlackAPIController {
                 [this.SlackJSON.SlackAttachments('https://hs.ygstr.com/login')]
             )
         );
+    }
+
+    format_time(ms) {
+        var hours = Math.floor(ms / 1000 / 60 / 60);
+        var minutes = Math.floor(ms / 1000 / 60 - hours * 60);
+        return (hours ? hours + 'h ' : '') + minutes + 'm';
     }
 }
 

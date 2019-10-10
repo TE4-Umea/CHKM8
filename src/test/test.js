@@ -212,7 +212,9 @@ describe('Projects', () => {
         assert.notEqual(project_data, undefined);
         assert.notEqual(project_data.project.members[0].name, undefined);
     });
+    
 });
+
 
 describe('Delete user and cleanup', () => {
     it('Delete project', async () => {

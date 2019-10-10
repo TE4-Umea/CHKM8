@@ -335,6 +335,15 @@ class Project {
             );
         return gradients[Math.floor(Math.random() * gradients.length)];
     }
+
+    /**
+     * Gets all the projects and their owner
+     * 
+     */
+    async get_projects() {
+        var projects_list = await this.db.query('SELECT projects.name, users.username FROM projects JOIN users WHERE users.id = owner;');
+        return JSON.parse(JSON.stringify(projects_list));
+    }
 }
 
 class ProjectOwner {
