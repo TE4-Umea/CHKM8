@@ -220,7 +220,7 @@ class SlackAPIController {
                     for (var i = 0; i < projects.length; i++) {
                         var value = projects[i];
                     }
-                    response = await this.Project.get_list();
+                    response = await this.Project.get_projects();
                 } else {
                     var data = await this.Project.get_data(project_to_info.id);
                     var write = "Project name: " + project_to_info.name +
