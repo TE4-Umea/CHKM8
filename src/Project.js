@@ -353,25 +353,25 @@ class Project {
 
     async get_project_info_slack(project_name) {
         var project_to_info = await this.get_from_name(project_name);
-        if (project_to_info) {
-            var data = await this.get_data(project_to_info.id);
-            var project_info = "Project name: " + project_to_info.name +
-                        "\nOwner Username: " + data.project.owner.username + 
-                        "\nOwner Name: " + data.project.owner.name + 
-                        "\nMembers: ";
-            for (var i = 0; i < data.project.members.length; i++) {
-                var current_member = data.project.members[i];
-                project_info += "\n    Username: " + current_member.username +
-                        "\n    Name: " + current_member.name + 
-                        "\n    Worked time: " +  this.format_time(current_member.work);
-            }
-            return new this.SuccessResponse(project_info);
-        } else {
-            return new this.ErrorResponse("Unknown project! Please specify a project from /project");
+        if (!project_to_info) {
+            return new this.ErrorResponse(
+                'Project: ' + project_name + ' not found'
+            );
         }
-    }
+        var data = await this.get_data(project_to_info.id);
+        var project_info = "Project name: " + project_to_info.name +
+                    "\nOwner Username: " + data.project.owner.username + 
+                    "\nOwner Name: " + data.project.owner.name + 
+                    "\nMembers: ";
+        for (var i = 0; i < data.project.members.length; i++) {
+            var current_member = data.project.members[i];
+            project_info += "\n    Username: " + current_member.username +
+                    "\n    Name: " + current_member.name + 
+                    "\n    Worked time: " +  this.format_time(current_member.work);
+        }
+        return new this.SuccessResponse(project_info);
+        } 
 }
-
 class ProjectOwner {
     /**
      * @param {Number} id
