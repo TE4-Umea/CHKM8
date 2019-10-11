@@ -351,7 +351,7 @@ class RestRoutes {
          *         type: string
          *       - name: token
          *         description: Token of the user that deletes the project
-         *         in: form
+         *         in: formData
          *         required: true
          *         type: string
          *     tags:
