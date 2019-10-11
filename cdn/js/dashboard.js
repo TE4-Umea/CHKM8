@@ -88,7 +88,7 @@ var history_progress = undefined;
 var total_width = 0;
 var check_bounds = [];
 var rendered_canvas = new Image();
-var names_of_days = ['Sun', 'Mon', 'Thu', 'Wed', 'Thu', 'Fri', 'Sat'];
+var names_of_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /**
  * Draws the graph for attendance
