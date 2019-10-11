@@ -21,17 +21,17 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: username
          *         description: User's username.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: project
          *         description: Specified project id that user wants to be added to.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -57,12 +57,12 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: project
          *         description: Specified project name.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -120,12 +120,12 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token for user that is removing others from project.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: username
          *         description: Authenticate which user to remove.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: project
@@ -155,18 +155,18 @@ class RestRoutes {
          *     parameters:
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: check_in
          *         description: Variable responsible for checking whether user is already checked in.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: boolean
          *       - name: project
          *         description: Specified project id that user is checking in with.
          *         required: false
-         *         in: formData
+         *         in: query
          *         type: int
          *     tags:
          *       - user
@@ -192,12 +192,12 @@ class RestRoutes {
          *     parameters:
          *       - name: username
          *         description: User username.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: password
          *         description: User password.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -224,17 +224,17 @@ class RestRoutes {
          *     parameters:
          *       - name: username
          *         description: new users username.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: password
          *         description: User password.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: name
          *         description: Users full name.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -316,12 +316,12 @@ class RestRoutes {
          *     parameters:
          *       - name: sign_token
          *         description: Slack linking token from slack OAuth.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: token
          *         description: Login authentication token.
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
@@ -346,12 +346,12 @@ class RestRoutes {
          *     parameters:
          *       - name: project
          *         description: Name of the project to be deleted
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *       - name: token
          *         description: Token of the user that deletes the project
-         *         in: formData
+         *         in: query
          *         required: true
          *         type: string
          *     tags:
