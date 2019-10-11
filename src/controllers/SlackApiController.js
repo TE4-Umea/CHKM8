@@ -218,7 +218,7 @@ class SlackAPIController {
                 if (input == '') {
                     response = await this.Project.get_projects();
                 } else {
-                    response = await this.Project.get_project_info_slack(intput);
+                    response = await this.Project.get_project_info_slack(input);
                 }
                 res.json(this.slack_response(response));
             } else {
