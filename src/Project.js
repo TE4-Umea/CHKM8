@@ -370,7 +370,13 @@ class Project {
                     "\n    Worked time: " +  this.format_time(current_member.work);
         }
         return new this.SuccessResponse(project_info);
-        } 
+    } 
+
+    format_time(ms) {
+        var hours = Math.floor(ms / 1000 / 60 / 60);
+        var minutes = Math.floor(ms / 1000 / 60 - hours * 60);
+        return (hours ? hours + 'h ' : '') + minutes + 'm';
+    }
 }
 class ProjectOwner {
     /**
