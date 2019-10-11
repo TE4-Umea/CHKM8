@@ -342,7 +342,33 @@ class Project {
      */
     async get_projects() {
         var projects_list = await this.db.query('SELECT projects.name, users.username FROM projects JOIN users WHERE users.id = owner;');
-        return JSON.parse(JSON.stringify(projects_list));
+        var projects = JSON.parse(JSON.stringify(projects_list));
+        var returns = "List of projects:";
+        for (var i = 0; i < projects.length; i++) {
+            var value = projects[i];
+            returns += "\nProject: " + value.name + " Owner: " + value.username;
+        }
+        return new this.SuccessResponse(returns);
+    }
+
+    async get_project_info_slack(project_name) {
+        var project_to_info = await this.get_from_name(project_name);
+        if (project_to_info) {
+            var data = await this.get_data(project_to_info.id);
+            var project_info = "Project name: " + project_to_info.name +
+                        "\nOwner Username: " + data.project.owner.username + 
+                        "\nOwner Name: " + data.project.owner.name + 
+                        "\nMembers: ";
+            for (var i = 0; i < data.project.members.length; i++) {
+                var current_member = data.project.members[i];
+                project_info += "\n    Username: " + current_member.username +
+                        "\n    Name: " + current_member.name + 
+                        "\n    Worked time: " +  this.format_time(current_member.work);
+            }
+            return new this.SuccessResponse(project_info);
+        } else {
+            return new this.ErrorResponse("Unknown project! Please specify a project from /project");
+        }
     }
 }
 
