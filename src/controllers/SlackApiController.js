@@ -214,26 +214,11 @@ class SlackAPIController {
             var user = await this.User.get_from_slack(req);
             if (user) {
                 var input = req.body.text;
-                var project_to_info = await this.Project.get_from_name(input);
                 var response = null;
                 if (input == '') {
-                    var projects = await this.Project.get_projects();
-                    for (var i = 0; i < projects.length; i++) {
-                        var value = projects[i];
-                    }
                     response = await this.Project.get_projects();
                 } else {
-                    var data = await this.Project.get_data(project_to_info.id);
-                    var response = "Project name: " + project_to_info.name +
-                                "\nOwner Username: " + data.project.owner.username + 
-                                "\nOwner Name: " + data.project.owner.name + 
-                                "\nMembers: ";
-                    for (var i = 0; i < data.project.members.length; i++) {
-                        var current_member = data.project.members[i];
-                        response += "\n    Username: " + current_member.username +
-                                "\n    Name: " + current_member.name + 
-                                "\n    Worked time: " +  this.format_time(current_member.work);
-                    }
+                    response = await this.Project.get_project_info_slack(intput);
                 }
                 res.json(this.slack_response(response));
             } else {
