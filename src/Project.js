@@ -346,7 +346,7 @@ class Project {
         var returns = "List of projects:";
         for (var i = 0; i < projects.length; i++) {
             var value = projects[i];
-            returns += "\nProject: " + value.name + " Owner: " + value.username;
+            returns += "\nProject: " + value.name + "\n    Owner: " + value.username;
         }
         return new this.SuccessResponse(returns);
     }
@@ -367,7 +367,7 @@ class Project {
             var current_member = data.project.members[i];
             project_info += "\n    Username: " + current_member.username +
                     "\n    Name: " + current_member.name + 
-                    "\n    Worked time: " +  this.format_time(current_member.work);
+                    "\n    Worked time: " +  this.format_time(current_member.work) + "\n";
         }
         return new this.SuccessResponse(project_info);
     } 
