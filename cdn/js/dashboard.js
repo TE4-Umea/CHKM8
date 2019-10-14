@@ -17,6 +17,13 @@ if (sign_token) {
         });
 }
 
+function toggle_darkmode(enabled = undefined) {
+    var dark = get_cookie('dark');
+    dark = enabled !== undefined ? enabled : !dark;
+    set_cookie("dark", dark)
+    location.reload()
+}
+
 var days;
 
 function format_days(h) {
@@ -55,25 +62,24 @@ function format_days(h) {
             days_index++;
 
             if (checked_in) {
-                var last_checks = days[days_indexes[days_index-1]];
-                var last_check = last_checks[last_checks.length-1]
+                var last_checks = days[days_indexes[days_index - 1]];
+                var last_check = last_checks[last_checks.length - 1];
                 var midnight = new Date(last_check.time);
                 midnight.setHours(17);
                 midnight.setMinutes(0);
 
                 days[days_indexes[days_index - 1]].push({
                     check_in: false,
-                    time: midnight.getTime()
+                    time: midnight.getTime(),
                 });
 
-                var morning = new Date(days_indexes[days_index])
-                    morning.setHours(7)<
-
-                days[days_indexes[days_index]].push({
-                    check_in: true,
-                    project: last_check.project,
-                    time: morning.getTime()
-                })
+                var morning = new Date(days_indexes[days_index]);
+                morning.setHours(7) <
+                    days[days_indexes[days_index]].push({
+                        check_in: true,
+                        project: last_check.project,
+                        time: morning.getTime(),
+                    });
             }
 
             /* day = get_day(check.time); */
@@ -105,7 +111,12 @@ function format_days(h) {
     function get_day(ms) {
         var date = new Date(ms);
         return (
-            date.getMonth()+1 + '.' + date.getDate()  + '.' + date.getFullYear()
+            date.getMonth() +
+            1 +
+            '.' +
+            date.getDate() +
+            '.' +
+            date.getFullYear()
         );
     }
 }
@@ -174,7 +185,12 @@ function render_history(clear = true) {
                     project = check.project;
                 } else if (!check.check_in && check_in) {
                     // Creates a gray gradient
-                    var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    var gradient = ctx.createLinearGradient(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
                     gradient.addColorStop(0, '#ededed');
                     gradient.addColorStop(1, '#dbdbdb');
 
@@ -183,7 +199,12 @@ function render_history(clear = true) {
                         project = get_project(project);
                         // If the project specified could be found
                         if (project) {
-                            gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                            gradient = ctx.createLinearGradient(
+                                0,
+                                0,
+                                canvas.width,
+                                canvas.height
+                            );
                             gradient.addColorStop(0, project.color_top);
                             gradient.addColorStop(1, project.color_bot);
                         }
@@ -243,6 +264,7 @@ function render_history(clear = true) {
 }
 
 var rendering_info = false;
+
 function update_hover_view() {
     if (rendering_info) {
         render_history(true);
@@ -364,7 +386,7 @@ function update_hover_view() {
     }
 }
 
-CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
     this.beginPath();
@@ -395,9 +417,9 @@ function force_length(val) {
 on_login = () => {
     if (me.slack_id) document.getElementById('slack-button').remove();
     update_checked_in_status(me.checked_in);
-    document.getElementById('avatar').src = me.avatar
-        ? me.avatar
-        : 'img/avatar.png';
+    document.getElementById('avatar').src = me.avatar ?
+        me.avatar :
+        'img/avatar.png';
     document.getElementById('logged-in-as').innerText =
         'Logged in as ' + me.name + ' (' + me.username + ')';
 
@@ -706,9 +728,9 @@ function update_checked_in_status(checked_in) {
 }
 
 function get_button_text() {
-    return me.checked_in
-        ? 'CHECK OUT (' + format_time(me.checked_in_time) + ')'
-        : 'CHECK IN';
+    return me.checked_in ?
+        'CHECK OUT (' + format_time(me.checked_in_time) + ')' :
+        'CHECK IN';
 }
 
 function format_time(ms) {

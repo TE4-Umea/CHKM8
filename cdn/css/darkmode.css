@@ -1,0 +1,29 @@
+body{
+    background: rgb(12, 12, 12);
+    color: white;
+}
+
+#wrap{
+    background: rgb(22, 22, 22);
+}
+
+#side-bar{
+    background: rgb(29, 29, 29);
+}
+
+.project{
+    background: rgb(24, 24, 24);
+}
+
+.project > button{
+    color: white !important;
+}
+
+.input{
+    background: rgb(36, 36, 36);
+    color: white;
+}
+
+#seconds-bar-container{
+    background: rgb(41, 41, 41);
+}
