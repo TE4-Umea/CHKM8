@@ -40,25 +40,27 @@ function format_days(h) {
         days_indexes.push(date);
     }
 
-    var day = get_day(h[0].time);
+    var day = days_indexes[0];
     var days_index = 0;
     var checked_in = false;
     var out = false;
 
     for (var check of h) {
         while (get_day(check.time) != day) {
-            if (days_index > days.length) {
+            if (days_index > Object.keys(days).length) {
                 out = true;
                 break;
             }
             // New day
             days_index++;
-            day = get_day(check.time);
+            /* day = get_day(check.time); */
+            day = days_indexes[days_index]
             checked_in = false;
         }
+        
         if (out) break;
-
         if (check.check_in != checked_in) {
+            
             days[days_indexes[days_index]].push(check);
             checked_in = check.check_in;
         }
