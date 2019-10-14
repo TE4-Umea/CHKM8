@@ -111,7 +111,8 @@ class UserCheckController {
         var user = await this.User.get_from_token(payload.token);
         if (user) {
             var Check = new (require('../../Check'))();
-            payload.check_in = this.parse_bool(payload.check_in);
+            if (typeof payload.check_in !== 'undefined')
+                payload.check_in = this.parse_bool(payload.check_in);
             // Check in the user
             response.json(
                 await Check.check_in(
@@ -135,7 +136,7 @@ class UserCheckController {
         if (['1', true, 'true', 'True'].indexOf(check) > -1)
             return true;
         return false;
-    }   
+    }
 }
 
 module.exports = UserCheckController;
