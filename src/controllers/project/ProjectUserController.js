@@ -27,7 +27,7 @@ class ProjectUserController {
         /** Add the user to the project via the requesting user */
         /** Responde to the user */
         response.json(
-            await this.Project.add_user(user_to_add, project.id, user)
+            await this.Project.add_user(user_to_add, project.name, user)
         );
     }
 
