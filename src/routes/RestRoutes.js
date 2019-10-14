@@ -161,7 +161,7 @@ class RestRoutes {
          *       - name: check_in
          *         description: Variable responsible for checking whether user is already checked in.
          *         in: query
-         *         required: true
+         *         required: false
          *         type: boolean
          *       - name: project
          *         description: Specified project id that user is checking in with.
