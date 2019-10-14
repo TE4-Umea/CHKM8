@@ -22,12 +22,10 @@ class ProjectUserController {
         var user = await this.User.get_from_token(payload.token);
         /** Load user that will be added */
         var user_to_add = await this.User.get_from_username(payload.username);
-
-        var project = await this.Project.get(payload.project);
         /** Add the user to the project via the requesting user */
         /** Responde to the user */
         response.json(
-            await this.Project.add_user(user_to_add, project.name, user)
+            await this.Project.add_user(user_to_add, payload.project, user)
         );
     }
 
