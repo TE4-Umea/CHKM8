@@ -49,18 +49,43 @@ function format_days(h) {
         while (get_day(check.time) != day) {
             if (days_index > Object.keys(days).length) {
                 out = true;
-                break;
             }
+
             // New day
             days_index++;
+
+            if (checked_in) {
+                var last_checks = days[days_indexes[days_index-1]];
+                var last_check = last_checks[last_checks.length-1]
+                var midnight = new Date(last_check.time);
+                midnight.setHours(17);
+                midnight.setMinutes(0);
+
+                days[days_indexes[days_index - 1]].push({
+                    check_in: false,
+                    time: midnight.getTime(),
+                    comment: 'MIDNIGHT',
+                });
+
+                var morning = new Date(days_indexes[days_index])
+                    morning.setHours(7)
+
+                days[days_indexes[days_index]].push({
+                    check_in: true,
+                    project: last_check.project,
+                    time: morning.getTime()
+                })
+            }
+
             /* day = get_day(check.time); */
-            day = days_indexes[days_index]
-            checked_in = false;
+            day = days_indexes[days_index];
+            /* checked_in = false; */
         }
-        
-        if (out) break;
+
+        if (out) {
+            break;
+        }
         if (check.check_in != checked_in) {
-            
             days[days_indexes[days_index]].push(check);
             checked_in = check.check_in;
         }
@@ -81,7 +106,7 @@ function format_days(h) {
     function get_day(ms) {
         var date = new Date(ms);
         return (
-            date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear()
+            date.getMonth() + '.' + date.getDate()  + '.' + date.getFullYear()
         );
     }
 }
@@ -131,14 +156,8 @@ function render_history(clear = true) {
         for (var i = 0; i < Object.keys(days).length; i++) {
             ctx.fillStyle = 'grey';
             ctx.textAlign = 'right';
-            var day_in_string = days_indexes[i].split('.');
-            var day_in_date = new Date(
-                [
-                    Number(day_in_string[1]) + 1,
-                    day_in_string[0],
-                    day_in_string[2],
-                ].join('-')
-            );
+
+            var day_in_date = new Date(days_indexes[i]);
             //Writes out the day of the week
             ctx.fillText(
                 names_of_days[day_in_date.getDay()],
@@ -156,7 +175,7 @@ function render_history(clear = true) {
                     project = check.project;
                 } else if (!check.check_in && check_in) {
                     // Creates a gray gradient
-                    var gradient = ctx.createLinearGradient(20, 0, 220, 0);
+                    var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                     gradient.addColorStop(0, '#ededed');
                     gradient.addColorStop(1, '#dbdbdb');
 
@@ -165,6 +184,7 @@ function render_history(clear = true) {
                         project = get_project(project);
                         // If the project specified could be found
                         if (project) {
+                            gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                             gradient.addColorStop(0, project.color_top);
                             gradient.addColorStop(1, project.color_bot);
                         }
