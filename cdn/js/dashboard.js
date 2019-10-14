@@ -63,12 +63,11 @@ function format_days(h) {
 
                 days[days_indexes[days_index - 1]].push({
                     check_in: false,
-                    time: midnight.getTime(),
-                    comment: 'MIDNIGHT',
+                    time: midnight.getTime()
                 });
 
                 var morning = new Date(days_indexes[days_index])
-                    morning.setHours(7)
+                    morning.setHours(7)<
 
                 days[days_indexes[days_index]].push({
                     check_in: true,
@@ -106,7 +105,7 @@ function format_days(h) {
     function get_day(ms) {
         var date = new Date(ms);
         return (
-            date.getMonth() + '.' + date.getDate()  + '.' + date.getFullYear()
+            date.getMonth()+1 + '.' + date.getDate()  + '.' + date.getFullYear()
         );
     }
 }
