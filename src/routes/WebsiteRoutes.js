@@ -17,8 +17,10 @@ class WebsiteRoutes {
          *         description: Returns dashboard page
          */
         server.app.get('/dashboard', (req, res) => {
+            var dark = req.headers.cookie.indexOf("dark=true") != -1
+            
             res.render('dashboard', {
-                client_id: server.config.client_id,
+                client_id: server.config.client_id, dark: dark
             });
         });
 
