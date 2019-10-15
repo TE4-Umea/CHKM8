@@ -7,22 +7,26 @@ var me
 var on_login = () => {}
 
 var token = localStorage.getItem("token")
-if (token) {
-    //Gets user data specified by token.
-    axios.get("/api/user", {
-        params: {
-            token
-        }
-    }).then(res => {
-        var data = res.data
-        if (data.success) {
-            me = data.profile
-            on_login()
-        } else {
-            localStorage.removeItem("token")
-            location.href = "/"
-        }
-    })
+window.onload = () => {
+    if (token) {
+        //Gets user data specified by token.
+        axios.get("/api/user", {
+            params: {
+                token
+            }
+        }).then(res => {
+            var data = res.data
+            if (data.success) {
+                me = data.profile
+                on_login()
+            } else {
+                localStorage.removeItem("token")
+                location.href = "/"
+            }
+        })
+    } else {
+        console.warn("Token not found, please visit /login")
+    }
 }
 
 
