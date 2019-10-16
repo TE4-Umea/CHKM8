@@ -17,22 +17,45 @@ if (sign_token) {
         });
 }
 
+const dark = document.getElementById('dark') ? true : false;
+
+window.onresize = () => {
+    total_width = 0;
+    history_progress = undefined;
+    render_history();
+};
+
+function resize_canvas(canvas) {
+    // look up the size the canvas is being displayed
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    // If it's resolution does not match change it
+    if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+    }
+}
+
 function toggle_darkmode(enabled = undefined) {
     var dark = get_cookie('dark');
     dark = enabled !== undefined ? enabled : !dark;
-    set_cookie("dark", dark)
-    location.reload()
+    set_cookie('dark', dark, 365 * 100); // Expired in 100 years. (Cookies need to expire at some point.)
+    location.reload();
 }
 
 var days;
+var work = 0;
 
-function format_days(h) {
-    if (h.length == 0) {
+function format_days() {
+    work = calcualte_time(checks_data);
+    resize_canvas(document.getElementById('history'));
+    if (checks_data.length == 0) {
         render_history();
         return;
     }
 
-    for (check of h) {
+    for (check of checks_data) {
         check.time = new Date(check.date).getTime();
     }
 
@@ -41,7 +64,7 @@ function format_days(h) {
     window.days_indexes = [];
     for (var i = 0; i < 5; i++) {
         var date = get_day(
-            new Date(h[0].date).getTime() + 1000 * 60 * 60 * 24 * i
+            new Date(checks_data[0].date).getTime() + 1000 * 60 * 60 * 24 * i
         );
         days[date] = [];
         days_indexes.push(date);
@@ -52,7 +75,7 @@ function format_days(h) {
     var checked_in = false;
     var out = false;
 
-    for (var check of h) {
+    for (var check of checks_data) {
         while (get_day(check.time) != day) {
             if (days_index > Object.keys(days).length) {
                 out = true;
@@ -133,6 +156,7 @@ var names_of_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
  */
 
 function render_history(clear = true) {
+    work = calcualte_time(checks_data);
     //Array containing the bounds of the drawn, needed in order to check if you are hovering over the drawn bars
     check_bounds = [];
     //The width of the drawn bar
@@ -140,6 +164,9 @@ function render_history(clear = true) {
     //Get the canvas from the html document
     var canvas = document.getElementById('history');
     var ctx = canvas.getContext('2d');
+
+    resize_canvas(canvas);
+
     //If clear is true, the background will be cleared
     if (clear) ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -191,8 +218,8 @@ function render_history(clear = true) {
                         canvas.width,
                         canvas.height
                     );
-                    gradient.addColorStop(0, '#ededed');
-                    gradient.addColorStop(1, '#dbdbdb');
+                    gradient.addColorStop(0, dark ? '#4f4f4f' : '#ededed');
+                    gradient.addColorStop(1, dark ? '#3b3b3b' : '#dbdbdb');
 
                     // If a project has been specified in the token
                     if (project) {
@@ -256,6 +283,12 @@ function render_history(clear = true) {
                 }
             }
         }
+
+        ctx.fillStyle = dark ? "#d1d1d1" : "#454545"
+        ctx.font = ctx.font = `20px Ubuntu`;
+        ctx.textAlign = "left"
+        ctx.fillText(format_time(work), 25, canvas.height - 10)
+
         if (history_progress == undefined) history_progress = 0;
         history_progress += 0.06 - history_progress * 0.059;
         if (history_progress < 1) requestAnimationFrame(render_history);
@@ -280,7 +313,6 @@ function update_hover_view() {
         y: mouse.y - rect.top,
     };
 
-    ctx.strokeStyle = 'black';
     var outline_width = 3;
     var box;
     // Detect bound block and draw outline
@@ -291,6 +323,13 @@ function update_hover_view() {
             mouse_on_canvas.x < bound.x + bound.width &&
             mouse_on_canvas.y < bound.y + bound.height
         ) {
+            box = bound;
+            var project_color = box.project
+                ? box.project.color_top
+                : dark
+                ? '#e0e0e0'
+                : 'grey';
+            ctx.strokeStyle = project_color;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.roundRect(
                 bound.x - outline_width,
@@ -300,23 +339,47 @@ function update_hover_view() {
                 100
             ).stroke();
             rendering_info = true;
-            box = bound;
         }
     }
 
     if (box) {
-        ctx.save();
-        canvas.style.cursor = 'pointer';
-        render_history(false);
-
         // Draw info box
         var box_height = 50;
-        var box_width = 200;
         var box_top = -10;
         var box_left = 15;
 
         var box_x = box.x + box_left;
         var box_y = box.y + (box_top - box_height);
+
+        // Assemble and measure texts
+        var title_size = 18;
+        ctx.font = `${title_size}px Ubuntu`;
+        var title_x = box_x + 10;
+        var title_y = box_y + 20;
+        var title = (box.project ? box.project.name.toUpperCase() : 'ATTENDANCE');
+
+        ctx.textAlign = 'left';
+
+        var title_width = ctx.measureText(title).width;
+
+        var day = names_of_days[box.check_in.getDay()].toUpperCase();
+        var check_in = `${force_length(box.check_in.getHours())}:${force_length(
+            box.check_in.getMinutes()
+        )}`;
+        var check_out = `${force_length(
+            box.check_out.getHours()
+        )}:${force_length(box.check_out.getMinutes())}`;
+        var bottom_text = `${(format_time(box.check_out.getTime() - box.check_in.getTime()))} ${day} ${check_in} - ${check_out}`;
+
+        ctx.font = 'italic 13px Georga';
+        var bottom_text_width = ctx.measureText(bottom_text).width;
+        var box_width =
+            bottom_text_width > title_width ? bottom_text_width : title_width;
+        box_width += 20;
+
+        ctx.save();
+        canvas.style.cursor = 'pointer';
+        render_history(false);
 
         //Create extra canvas, which is a copy of the drawn image in order to blur the background of the info-box
         var temp_canvas = document.createElement('canvas');
@@ -324,10 +387,10 @@ function update_hover_view() {
         temp_canvas.height = canvas.height;
         var temp_ctx = temp_canvas.getContext('2d');
         temp_ctx.filter = 'blur(2.5px)';
-        temp_ctx.fillStyle = 'white';
+        temp_ctx.fillStyle = dark ? '#111' : 'white';
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
         temp_ctx.drawImage(rendered_canvas, 0, 0);
-        temp_ctx.fillStyle = 'rgba(255, 255, 255, .5)';
+        temp_ctx.fillStyle = `rgba(255, 255, 255, ${dark ? '.1' : '.5'})`;
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
 
         ctx.roundRect(box_x, box_y, box_width, box_height, 10).fill();
@@ -348,45 +411,49 @@ function update_hover_view() {
 
         ctx.restore();
 
-        var title_x = box_x + 10;
-        var title_y = box_y + 20;
-        var title_background_padding = 3;
-        var title = box.project ? box.project.name.toUpperCase() : 'ATTENDANCE';
-        var project_color = box.project ? box.project.color_top : 'grey';
-        var title_size = 18;
-
-        // Draw texts
-        ctx.font = `${title_size}px Ubuntu`;
-
-        ctx.textAlign = 'left';
-
         ctx.strokeStyle = project_color;
         ctx.roundRect(box_x, box_y, box_width, box_height, 10).stroke();
 
         // Draw title background
-
+        ctx.font = `${title_size}px Ubuntu`;
         ctx.fillStyle = project_color;
         ctx.fillText(title, title_x, title_y);
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = dark ? 'white' : 'black';
         ctx.font = 'italic 13px Georga';
-        var day = names_of_days[box.check_in.getDay()].toUpperCase();
-        var check_in = `${force_length(box.check_in.getHours())}:${force_length(
-            box.check_in.getMinutes()
-        )}`;
-        var check_out = `${force_length(
-            box.check_out.getHours()
-        )}:${force_length(box.check_out.getMinutes())}`;
-        ctx.fillText(
-            `${day} ${check_in} - ${check_out}`,
-            title_x,
-            title_y + 18
-        );
+
+        ctx.fillText(bottom_text, title_x, title_y + 18);
     } else {
         canvas.style.cursor = null;
     }
 }
 
-CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+function calcualte_time(checks = [], project = undefined) {
+    var checked_in = false;
+    var checked_in_date = false;
+    var checked_in_project = false;
+
+    var time = 0;
+    for (check of checks) {
+        if (check.check_in) {
+            checked_in = true;
+            checked_in_date = new Date(check.date);
+            project = check.project;
+        } else {
+            if (checked_in) {
+                if (checked_in_project == project || !project)
+                    time +=
+                        new Date(check.date).getTime() -
+                        checked_in_date.getTime();
+            }
+            checked_in = false;
+            checked_in_date = false;
+            checked_in_project = false;
+        }
+    }
+    return time;
+}
+
+CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
     if (w < 2 * r) r = w / 2;
     if (h < 2 * r) r = h / 2;
     this.beginPath();
@@ -398,6 +465,8 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
     this.closePath();
     return this;
 };
+
+var checks_data;
 
 var time_el = document.getElementById('time');
 var sec_bar = document.getElementById('seconds-bar');
@@ -417,9 +486,9 @@ function force_length(val) {
 on_login = () => {
     if (me.slack_id) document.getElementById('slack-button').remove();
     update_checked_in_status(me.checked_in);
-    document.getElementById('avatar').src = me.avatar ?
-        me.avatar :
-        'img/avatar.png';
+    document.getElementById('avatar').src = me.avatar
+        ? me.avatar
+        : 'img/avatar.png';
     document.getElementById('logged-in-as').innerText =
         'Logged in as ' + me.name + ' (' + me.username + ')';
 
@@ -432,7 +501,8 @@ on_login = () => {
             },
         })
         .then(res => {
-            format_days(res.data.checks);
+            checks_data = res.data.checks;
+            format_days();
         });
 };
 
@@ -551,7 +621,7 @@ function render_canvas(canvas, project, progress = 0) {
     var width = canvas.width;
     var height = canvas.height;
     var margin = 10; // px
-    var max = -1;
+    var max = 1;
     var min = 0;
     var dot_size = 4;
     ctx.lineWidth = 3;
@@ -565,11 +635,16 @@ function render_canvas(canvas, project, progress = 0) {
 
     var difference = max - min;
 
-    var grey_gradient = ctx.createLinearGradient(0, 0, 0, 100);
-    grey_gradient.addColorStop(0, '#b5b5b5');
-    grey_gradient.addColorStop(1, '#4a4a4a');
+    var grey_gradient = ctx.createLinearGradient(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    grey_gradient.addColorStop(0, dark ? '#d9d9d9' : '#b5b5b5');
+    grey_gradient.addColorStop(1, dark ? '#bfbfbf' : '#4a4a4a');
 
-    var gradient = ctx.createLinearGradient(0, 0, 0, 100);
+    var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, project.color_top);
     gradient.addColorStop(1, project.color_bot);
 
@@ -628,8 +703,8 @@ function light_up_project(el, light_up = true, animate = true) {
     var project = get_project_from_name(project_name);
 
     var gradient = [
-        light_up ? project.color_top : '#b5b5b5',
-        light_up ? project.color_bot : '#757575',
+        light_up ? project.color_top : dark ? '#d9d9d9' : '#b5b5b5',
+        light_up ? project.color_bot : dark ? '#bfbfbf' : '#757575',
     ];
     el.children[3].style.fill = 'url(#' + project.name + '-gradient)';
     document
@@ -723,20 +798,13 @@ function update_checked_in_status(checked_in) {
         check_in_button.classList.remove('mdc-button--outlined');
         check_in_button.classList.add('mdc-button--raised');
     }
-
     check_in_button.innerText = get_button_text();
 }
 
 function get_button_text() {
-    return me.checked_in ?
-        'CHECK OUT (' + format_time(me.checked_in_time) + ')' :
-        'CHECK IN';
-}
-
-function format_time(ms) {
-    var hours = Math.floor(ms / 1000 / 60 / 60);
-    var minutes = Math.floor(ms / 1000 / 60 - hours * 60);
-    return (hours ? hours + 'h ' : '') + minutes + 'm';
+    return me.checked_in
+        ? 'CHECK OUT (' + format_time(me.checked_in_time) + ')'
+        : 'CHECK IN';
 }
 
 function new_project() {
@@ -758,5 +826,11 @@ function new_project() {
 
 update_clock();
 setInterval(() => {
+    // Update the clock 2 times a second
     update_clock();
 }, 500);
+
+// Update history every minute
+setInterval(() => {
+    render_history();
+}, 1000 * 60);

@@ -41,8 +41,8 @@ class User {
             .toUpperCase();
     }
     /**
-     * 
-     * @param {*} req 
+     *
+     * @param {*} req
      */
     async get_from_slack(req) {
         const SlackAPI = new (require('./controllers/SlackApiController'))();
@@ -90,8 +90,8 @@ class User {
     }
 
     /**
-     * 
-     * @param {String} username 
+     *
+     * @param {String} username
      * @param {String} password
      * @returns {Object|JSONResponse}
      */
@@ -108,8 +108,8 @@ class User {
     }
 
     /**
-     * 
-     * @param {String} username 
+     *
+     * @param {String} username
      * @param {String} ip
      * @returns {String|JSONResponse} user token | ErrorResponse if no user is found.
      */
@@ -177,7 +177,7 @@ class User {
     /**
      * Get user from username
      * @param {*} username
-     * @param {String} username 
+     * @param {String} username
      * @returns {Object|JSONResponse} user object from database | ErrorResponse on fail.
      */
     async get_from_username(username) {
@@ -268,21 +268,64 @@ class User {
                 user.id
             );
 
+            const UserCheckController = new (require('./controllers/user/UserCheckController'))();
+            var today = new Date();
+            today.setHours(23);
+            today.setMinutes(59);
+            today = Math.round(today.getTime() / 1000);
+
+            var one_day = 60 * 60 * 24;
+
             // Load and compile projects the user has joined.
             for (var joint of joints) {
                 var project = await Project.get(joint.project);
                 project.work = joint.work;
-                project.activity = [
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                    Math.random(),
-                ];
+
+                project.activity = [];
+                for (var i = 5; i > 0; i--) {
+                    var checks = await UserCheckController.fetch_checks(
+                        user_id,
+                        today - one_day * (i + 1),
+                        today - one_day * i
+                    );
+                    var time = this.calcualte_time(checks, joint.project);
+                    project.activity[i] = time;
+                }
                 user.projects.push(project);
             }
             return user;
         }
+    }
+
+    /**
+     * Calcualte time of checks
+     * @param {*} checks List of checks to count
+     * @param {*} project Limit to only one project ID
+     */
+    calcualte_time(checks, project = undefined) {
+        var checked_in = false;
+        var checked_in_date = false;
+        var checked_in_project = false;
+
+        var time = 0;
+        for (var check of checks) {
+            if (check.check_in) {
+                checked_in = true;
+                checked_in_date = new Date(check.date);
+                checked_in_project = check.project;
+            } else {
+                if (checked_in) {
+                    if (checked_in_project == project || project === undefined)
+                        time +=
+                            new Date(check.date).getTime() -
+                            checked_in_date.getTime();
+                    checked_in = false;
+                    checked_in_date = false;
+                    checked_in_project = false;
+                }
+            }
+        }
+        return time;
     }
 }
 
