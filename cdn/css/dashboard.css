@@ -168,3 +168,10 @@
     top: 50px;
     /* background: rgb(41, 41, 41); */
 }
+
+#history{
+    width: 100%;
+    display: block;
+    max-height: 400px;
+    height: calc(100vh - 150px);
+}

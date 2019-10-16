@@ -2,7 +2,8 @@ extends dash
 block head
     link(rel="stylesheet", href="css/dashboard.css")
     if dark
-        link(rel="stylesheet", href="css/darkmode.css")
+        link(rel="stylesheet", href="css/dark.css")
+        p(hidden id="dark")
 block header 
     span(id="time") --:--
     div(id="seconds-bar-container")
@@ -17,7 +18,7 @@ block content
     div(id="logged-in-as")
     img(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", alt="Profile" id="avatar" onclick="toggle_darkmode()" title="Profile settings")
     
-    canvas(id="history" width="700" height="400")
+    canvas(id="history")
 
     a(href='https://slack.com/oauth/authorize?scope=identity.basic,identity.email,identity.team,identity.avatar&client_id=' + client_id id="slack-button")
         <img alt=""Sign in with Slack"" height="40" width="172" src="https://platform.slack-edge.com/img/sign_in_with_slack.png" srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x" />
