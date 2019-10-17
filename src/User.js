@@ -282,7 +282,8 @@ class User {
                 project.work = joint.work;
 
                 project.activity = [];
-                for (var i = 0; i < 5; i++) {
+                var amount_in_history = 14;
+                for (var i = 0; i < amount_in_history; i++) {
                     var checks = await UserCheckController.fetch_checks(
                         user_id,
                         today - one_day * (i + 1),
@@ -290,7 +291,7 @@ class User {
                     );
 
                     var time = this.calcualte_time(checks, joint.project);
-                    project.activity[4 - i] = time;
+                    project.activity[(amount_in_history-1) - i] = time;
                 }
                 user.projects.push(project);
             }
