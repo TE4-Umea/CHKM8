@@ -282,14 +282,15 @@ class User {
                 project.work = joint.work;
 
                 project.activity = [];
-                for (var i = 5; i > 0; i--) {
+                for (var i = 0; i < 5; i++) {
                     var checks = await UserCheckController.fetch_checks(
                         user_id,
                         today - one_day * (i + 1),
                         today - one_day * i
                     );
+
                     var time = this.calcualte_time(checks, joint.project);
-                    project.activity[i] = time;
+                    project.activity[4 - i] = time;
                 }
                 user.projects.push(project);
             }
@@ -309,16 +310,17 @@ class User {
 
         var time = 0;
         for (var check of checks) {
-            if (check.check_in) {
+            if (check.check_in && !checked_in) {
                 checked_in = true;
                 checked_in_date = new Date(check.date);
                 checked_in_project = check.project;
-            } else {
+            } else if (!check.check_in) {
                 if (checked_in) {
-                    if (checked_in_project == project || project === undefined)
+                    if (project === undefined || checked_in_project == project)
                         time +=
                             new Date(check.date).getTime() -
                             checked_in_date.getTime();
+
                     checked_in = false;
                     checked_in_date = false;
                     checked_in_project = false;

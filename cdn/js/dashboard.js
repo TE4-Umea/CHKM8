@@ -206,37 +206,37 @@ function render_history(clear = true) {
             var check_in_date;
             var project;
             for (var check of days[days_indexes[i]]) {
+                // Creates a gray gradient
+                var gradient = ctx.createLinearGradient(
+                    0, 0, canvas.width, canvas.height
+                );
+                gradient.addColorStop(
+                    0,
+                    dark ? '#4f4f4f' : '#ededed'
+                );
+                gradient.addColorStop(
+                    1,
+                    dark ? '#3b3b3b' : '#dbdbdb'
+                );
+
+                // If a project has been specified in the token
+                if (project) {
+                    project = get_project(project);
+                    // If the project specified could be found
+                    if (project) {
+                        gradient = ctx.createLinearGradient(
+                            0, 0, canvas.width, canvas.height
+                        );
+                        gradient.addColorStop(0, project.color_top);
+                        gradient.addColorStop(1, project.color_bot);
+                    }
+                }
+
                 if (check.check_in) {
                     check_in = true;
                     check_in_date = new Date(check.time);
                     project = check.project;
                 } else if (!check.check_in && check_in) {
-                    // Creates a gray gradient
-                    var gradient = ctx.createLinearGradient(
-                        0,
-                        0,
-                        canvas.width,
-                        canvas.height
-                    );
-                    gradient.addColorStop(0, dark ? '#4f4f4f' : '#ededed');
-                    gradient.addColorStop(1, dark ? '#3b3b3b' : '#dbdbdb');
-
-                    // If a project has been specified in the token
-                    if (project) {
-                        project = get_project(project);
-                        // If the project specified could be found
-                        if (project) {
-                            gradient = ctx.createLinearGradient(
-                                0,
-                                0,
-                                canvas.width,
-                                canvas.height
-                            );
-                            gradient.addColorStop(0, project.color_top);
-                            gradient.addColorStop(1, project.color_bot);
-                        }
-                    }
-
                     ctx.fillStyle = gradient;
                     var check_out_date = new Date(check.time);
                     var start_x =
@@ -247,19 +247,30 @@ function render_history(clear = true) {
                         (check_out_date.getHours() - hours[0]) * hours_width +
                         margin +
                         (check_out_date.getMinutes() / 60) * hours_width;
+
                     if (history_progress === undefined)
                         total_width += stop_x - start_x;
                     else {
+                        
                         if (
                             check_out_date.getTime() - check_in_date.getTime() >
                             1000 * 60 * 10
                         ) {
                             var width_left =
-                                total_width * history_progress - drawn_width;
-                            if (width_left < 0) break;
+                                total_width * (history_progress * 1.05) -
+                                drawn_width;
+
+                            if (width_left <= 0) {
+                                break;
+                            }
                             var width = stop_x - start_x;
-                            if (width > width_left) width = width_left;
-                            drawn_width += width;
+
+                            if (width > width_left) {
+                                width = width_left;
+                            }
+
+                            
+
                             ctx.roundRect(
                                 start_x,
                                 margin + margin_top + i * day_height,
@@ -267,6 +278,7 @@ function render_history(clear = true) {
                                 20,
                                 100
                             ).fill();
+                            drawn_width += width;
 
                             // Last frame save bounding boxes
                             check_bounds.push({
@@ -284,15 +296,16 @@ function render_history(clear = true) {
             }
         }
 
-        ctx.fillStyle = dark ? "#d1d1d1" : "#454545"
+        ctx.fillStyle = dark ? '#d1d1d1' : '#454545';
         ctx.font = ctx.font = `20px Ubuntu`;
-        ctx.textAlign = "left"
-        ctx.fillText(format_time(work), 25, canvas.height - 10)
+        ctx.textAlign = 'left';
+        ctx.fillText(format_time(work), 25, canvas.height - 10);
 
-        if (history_progress == undefined) history_progress = 0;
-        history_progress += 0.06 - history_progress * 0.059;
-        if (history_progress < 1) requestAnimationFrame(render_history);
-        else rendered_canvas.src = canvas.toDataURL();
+        if (!history_progress || history_progress < 1) {
+            if (history_progress === undefined) history_progress = 0;
+            history_progress += 0.06 - history_progress * 0.059;
+            requestAnimationFrame(render_history);
+        } else rendered_canvas.src = canvas.toDataURL();
     }
 }
 
@@ -356,7 +369,7 @@ function update_hover_view() {
         ctx.font = `${title_size}px Ubuntu`;
         var title_x = box_x + 10;
         var title_y = box_y + 20;
-        var title = (box.project ? box.project.name.toUpperCase() : 'ATTENDANCE');
+        var title = box.project ? box.project.name.toUpperCase() : 'ATTENDANCE';
 
         ctx.textAlign = 'left';
 
@@ -369,7 +382,9 @@ function update_hover_view() {
         var check_out = `${force_length(
             box.check_out.getHours()
         )}:${force_length(box.check_out.getMinutes())}`;
-        var bottom_text = `${(format_time(box.check_out.getTime() - box.check_in.getTime()))} ${day} ${check_in} - ${check_out}`;
+        var bottom_text = `${format_time(
+            box.check_out.getTime() - box.check_in.getTime()
+        )} ${day} ${check_in} - ${check_out}`;
 
         ctx.font = 'italic 13px Georga';
         var bottom_text_width = ctx.measureText(bottom_text).width;
@@ -390,7 +405,7 @@ function update_hover_view() {
         temp_ctx.fillStyle = dark ? '#111' : 'white';
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
         temp_ctx.drawImage(rendered_canvas, 0, 0);
-        temp_ctx.fillStyle = `rgba(255, 255, 255, ${dark ? '.1' : '.5'})`;
+        temp_ctx.fillStyle = `rgba(${dark ? '20, 20, 20' : '255 , 255 , 255'}, .5)`;
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
 
         ctx.roundRect(box_x, box_y, box_width, box_height, 10).fill();
@@ -427,27 +442,32 @@ function update_hover_view() {
     }
 }
 
-function calcualte_time(checks = [], project = undefined) {
+/**
+ * Calcualte time of checks
+ * @param {*} checks List of checks to count
+ * @param {*} project Limit to only one project ID
+ */
+function calcualte_time(checks, project = undefined) {
     var checked_in = false;
     var checked_in_date = false;
     var checked_in_project = false;
 
     var time = 0;
-    for (check of checks) {
+    for (var check of checks) {
         if (check.check_in) {
             checked_in = true;
             checked_in_date = new Date(check.date);
-            project = check.project;
+            checked_in_project = check.project;
         } else {
             if (checked_in) {
-                if (checked_in_project == project || !project)
+                if (checked_in_project == project || project === undefined)
                     time +=
                         new Date(check.date).getTime() -
                         checked_in_date.getTime();
+                checked_in = false;
+                checked_in_date = false;
+                checked_in_project = false;
             }
-            checked_in = false;
-            checked_in_date = false;
-            checked_in_project = false;
         }
     }
     return time;
@@ -493,7 +513,7 @@ on_login = () => {
         'Logged in as ' + me.name + ' (' + me.username + ')';
 
     insert_projects();
-
+    
     axios
         .get('/api/user/checks', {
             params: {
@@ -831,6 +851,9 @@ setInterval(() => {
 }, 500);
 
 // Update history every minute
-setInterval(() => {
-    render_history();
+setTimeout(() => {
+    setInterval(() => {
+        format_days();
+        render_history();
+    }, 1000 * 60);
 }, 1000 * 60);
