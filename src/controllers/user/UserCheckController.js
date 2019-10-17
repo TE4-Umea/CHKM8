@@ -88,7 +88,7 @@ class UserCheckController {
         var res = await db.query(
             'SELECT * FROM `checks` WHERE `user` = ? AND ' +
                 '`date` BETWEEN FROM_UNIXTIME(?) AND FROM_UNIXTIME(?) ' +
-                'ORDER BY `id`',
+                'ORDER BY `id` ASC',
             [user_id, start_date, end_date]
         );
         for (var index of res) {
