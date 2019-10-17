@@ -643,8 +643,8 @@ function render_canvas(canvas, project, progress = 0) {
     var margin = 10; // px
     var max = 1;
     var min = 0;
-    var dot_size = 4;
-    ctx.lineWidth = 3;
+    var dot_size = 3;
+    ctx.lineWidth = 2;
     var spacing = (canvas.width - margin * 2) / (project.activity.length - 1);
 
     for (var pro of me.projects) {
