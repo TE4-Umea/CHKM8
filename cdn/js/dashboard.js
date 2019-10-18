@@ -37,6 +37,17 @@ function resize_canvas(canvas) {
     }
 }
 
+var is_expanded = false;
+function expand_time_break_down() {
+    is_expanded = !is_expanded;
+    var summary = document.getElementById('week-summary');
+    if (is_expanded) {
+        summary.style.height = 'calc(100vh - 530px)';
+    } else {
+        summary.style.height = '30px';
+    }
+}
+
 function toggle_darkmode(enabled = undefined) {
     var dark = get_cookie('dark');
     dark = enabled !== undefined ? enabled : !dark;
@@ -129,12 +140,33 @@ function format_days() {
         }
     }
 
-    var standing_color = me.work.standing > 0 ? '#03fc4e' : '#fc0339'
-    document.getElementById('week-summary').innerHTML = 
-    `<span style="color:grey;">Week ${me.work.this_week.week}:</span> ${format_time(me.work.this_week.time)}
-    <svg xmlns="http://www.w3.org/2000/svg" id="standing-arrow" style="fill: ${standing_color}; transform:scale(${me.work.standing > 0 ? '-90deg' : '90deg'})" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/></svg>
-     <span style="color:${standing_color}">${Math.abs(me.work.standing)}%</span>`
-     
+    var standing_color = me.work.standing > 0 ? '#03fc4e' : '#fc0339';
+    var summary = document.getElementById('week-summary');
+    var projects_info = '';
+    for (var project of me.projects) {
+        projects_info += `<span class="project-info">
+        <div class="color-blob" style="background:linear-gradient(90deg, ${project.color_bot}, ${project.color_top} 200%);"></div>
+        <span class="project-info-text"><span style="color:grey;">${project.name.toUpperCase()}</span> <span class="project-time-info">${format_time(project.work_this_week)}</span></span>
+        `;
+    }
+
+    summary.innerHTML = `<span id="title-info"><span style="color:grey;">Week ${
+        me.work.this_week.week
+    }:</span> ${format_time(me.work.this_week.time)}
+    <svg xmlns="http://www.w3.org/2000/svg" id="standing-arrow" style="fill: ${standing_color}; transform:rotate(${
+        me.work.standing > 0 ? '-90deg' : '90deg'
+    })" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/></svg>
+     <span style="color:${standing_color}">${Math.abs(me.work.standing)}%</span>
+    </span>
+        ${projects_info}
+    </span>
+    `;
+
+
+    summary.title = `Last week: ${format_time(me.work.last_week.time)}, ${
+        me.work.last_week.days
+    } active days, ${me.work.standing}% predicted standing`;
+
     render_history();
 
     function get_day(ms) {
@@ -178,13 +210,14 @@ function render_history(clear = true) {
     var height = canvas.height;
     var margin = 50;
     //The canvas will draw between these two hours
-    var hours = [7, 18];
+    var hours = [7, 20];
     //Width of each hour part drawn in the canvas
     var hours_width = (canvas.width - margin * 2) / (hours[1] - hours[0] - 1); // px
-    
-    var margin_top = canvas.height/10;
 
-    var day_height = (canvas.height - (margin_top) - (margin*2)) / Object.keys(days).length;
+    var margin_top = canvas.height / 10;
+
+    var day_height =
+        (canvas.height - margin_top - margin * 2) / Object.keys(days).length;
 
     ctx.fillStyle = 'grey';
     ctx.font = '10px Roboto';
@@ -342,19 +375,24 @@ function update_hover_view() {
         ) {
             box = bound;
             var project_color = box.project
-                ? box.project.color_top
+                ? box.project.color_bot
                 : dark
                 ? '#e0e0e0'
                 : 'grey';
             ctx.strokeStyle = project_color;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.roundRect(
-                bound.x - outline_width,
-                bound.y - outline_width,
-                bound.width + outline_width * 2,
-                bound.height + outline_width * 2,
-                100
-            ).stroke();
+            for (var b of check_bounds) {
+                if (b.project == bound.project) {
+                    ctx.roundRect(
+                        b.x - outline_width,
+                        b.y - outline_width,
+                        b.width + outline_width * 2,
+                        b.height + outline_width * 2,
+                        100
+                    ).stroke();
+                }
+            }
+
             rendering_info = true;
         }
     }
@@ -729,8 +767,8 @@ function light_up_project(el, light_up = true, animate = true) {
     var project = get_project_from_name(project_name);
 
     var gradient = [
-        light_up ? project.color_top : dark ? '#d9d9d9' : '#b5b5b5',
-        light_up ? project.color_bot : dark ? '#bfbfbf' : '#757575',
+        light_up ? project.color_top : dark ? '#404040' : '#b5b5b5',
+        light_up ? project.color_bot : dark ? '#5c5c5c' : '#757575',
     ];
     el.children[3].style.fill = 'url(#' + project.name + '-gradient)';
     document
@@ -790,6 +828,15 @@ function check_in_project(project_name) {
                 if (check_in) me.checked_in_time = 0;
                 me.checked_in_project = check_in ? project_name : '';
                 me.checked_in = check_in;
+                for(var i = 0; i < me.projects.length; i++){
+                    var project = me.projects[i]
+                    if(project.name.toLowerCase() == project_name.toLowerCase()){
+                        me.projects.splice(i, 1)
+                        me.projects.unshift(project)
+                    }
+                    
+                }
+                insert_projects()
                 update_projects(check_in, project_name);
             }
         });

@@ -1,3 +1,9 @@
+:root{
+    --bg: rgb(36, 36, 36);
+    --hover-bg: rgb(32, 32, 32);
+   
+}
+
 body{
     background: rgb(12, 12, 12);
     color: white;

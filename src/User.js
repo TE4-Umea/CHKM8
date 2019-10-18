@@ -284,14 +284,44 @@ class User {
             today.setMinutes(59);
             today = Math.round(today.getTime() / 1000);
 
+            var this_week_end = new Date();
+            var this_week_start = this.get_monday(new Date());
+            var last_week_start = new Date();
+            last_week_start.setDate(-7);
+            last_week_start = this.get_monday(last_week_start);
+
+            var checks_this_week = await UserCheckController.fetch_checks(
+                user_id,
+                Math.round(this_week_start.getTime() / 1000),
+                Math.round(this_week_end.getTime() / 1000)
+            );
+
+            var checks_last_week = await UserCheckController.fetch_checks(
+                user_id,
+                Math.round(last_week_start.getTime() / 1000),
+                Math.round(this_week_start.getTime() / 1000)
+            );
+
             var one_day = 60 * 60 * 24;
 
             // Load and compile projects the user has joined.
             for (var joint of joints) {
                 var project = await Project.get(joint.project);
                 project.work = joint.work;
+                project.work_this_week = this.calcualte_time(
+                    checks_this_week,
+                    project.id
+                );
+
+                project.last_check_in = await this.db.query_one(
+                    'SELECT date FROM checks WHERE user = ? AND project = ? ORDER BY id DESC LIMIT 1',
+                    [user_id, project.id]
+                );
+
+                project.last_check_in = project.last_check_in.date;
 
                 project.activity = [];
+
                 var amount_in_history = 14;
                 for (var i = 0; i < amount_in_history; i++) {
                     var checks = await UserCheckController.fetch_checks(
@@ -305,25 +335,6 @@ class User {
                 }
                 user.projects.push(project);
             }
-
-            var this_week_end = new Date();
-            var this_week_start = this.get_monday(new Date());
-
-            var checks_this_week = await UserCheckController.fetch_checks(
-                user_id,
-                Math.round(this_week_start.getTime() / 1000),
-                Math.round(this_week_end.getTime() / 1000)
-            );
-
-            var last_week_start = new Date();
-            last_week_start.setDate(-7);
-            last_week_start = this.get_monday(last_week_start);
-
-            var checks_last_week = await UserCheckController.fetch_checks(
-                user_id,
-                Math.round(last_week_start.getTime() / 1000),
-                Math.round(this_week_start.getTime() / 1000)
-            );
 
             user.work = {};
             user.work.this_week = {
@@ -343,15 +354,21 @@ class User {
             if (day == -1) day = 6;
             if (day > 4) day = 4;
 
-            user.work.standing = Math.round(
+            user.work.standing = (
                 user.work.this_week.time /
-                    (user.work.last_week.time / (4 - day || 1))
-            );
+                (user.work.last_week.time / (4 - day || 1))
+            ).toFixed(2);
 
             user.work.standing =
                 user.work.standing > 1
-                    ? (Math.round(user.work.standing * 1000) / 10) - 100
-                    : -(100 - Math.round(user.work.standing * 1000) / 10);
+                    ? user.work.standing * 100 - 100
+                    : -(100 - user.work.standing * 100);
+            user.work.standing = user.work.standing.toFixed(2);
+
+            user.projects = user.projects.sort((a, b) => {
+                return b.last_check_in - a.last_check_in;
+            });
+
             return user;
         }
     }
