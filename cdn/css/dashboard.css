@@ -175,3 +175,24 @@
     max-height: 400px;
     height: calc(100vh - 150px);
 }
+
+#week-summary{
+    display: inline-block;
+    position: relative;
+    height: 30px;
+    font-size: 20px;
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-top: -20px;
+    position: relative;
+}
+
+#standing-arrow{
+    fill: rgb(54, 54, 54);
+    height: 30px;
+    transform: rotate(-90deg);
+    position: relative;
+    top: 8px;
+    margin-right: -10px;
+    margin-left: -5px;
+}

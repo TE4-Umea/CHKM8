@@ -27,6 +27,16 @@ class User {
         this.Debug = new (require('./Debug'))();
 
         this.Check = new (require('./Check'))();
+
+        Date.prototype.getWeekNumber = function() {
+            var d = new Date(
+                Date.UTC(this.getFullYear(), this.getMonth(), this.getDate())
+            );
+            var dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+        };
     }
 
     /**
@@ -291,12 +301,106 @@ class User {
                     );
 
                     var time = this.calcualte_time(checks, joint.project);
-                    project.activity[(amount_in_history-1) - i] = time;
+                    project.activity[amount_in_history - 1 - i] = time;
                 }
                 user.projects.push(project);
             }
+
+            var this_week_end = new Date();
+            var this_week_start = this.get_monday(new Date());
+
+            var checks_this_week = await UserCheckController.fetch_checks(
+                user_id,
+                Math.round(this_week_start.getTime() / 1000),
+                Math.round(this_week_end.getTime() / 1000)
+            );
+
+            var last_week_start = new Date();
+            last_week_start.setDate(-7);
+            last_week_start = this.get_monday(last_week_start);
+
+            var checks_last_week = await UserCheckController.fetch_checks(
+                user_id,
+                Math.round(last_week_start.getTime() / 1000),
+                Math.round(this_week_start.getTime() / 1000)
+            );
+
+            user.work = {};
+            user.work.this_week = {
+                time: this.calcualte_time(checks_this_week),
+                week: this_week_start.getWeekNumber(),
+            };
+
+            user.work.last_week = {
+                time: this.calcualte_time(checks_last_week),
+                week: user.work.this_week.week - 1,
+            };
+
+            user.work.last_week.days = this.get_days(checks_last_week);
+
+            var day = new Date().getDay();
+            day--;
+            if (day == -1) day = 6;
+            if (day > 4) day = 4;
+
+            user.work.standing = Math.round(
+                user.work.this_week.time /
+                    (user.work.last_week.time / (4 - day || 1))
+            );
+
+            user.work.standing =
+                user.work.standing > 1
+                    ? (Math.round(user.work.standing * 1000) / 10) - 100
+                    : -(100 - Math.round(user.work.standing * 1000) / 10);
             return user;
         }
+    }
+
+    getWeekNumber(d) {
+        // Copy date so don't modify original
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        // Set to nearest Thursday: current date + 4 - current day number
+        // Make Sunday's day number 7
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        // Get first day of year
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        // Calculate full weeks to nearest Thursday
+        var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+        // Return array of year and week number
+        return [d.getUTCFullYear(), weekNo];
+    }
+
+    /**
+     * Get how many days where active in an array of checks
+     * @param {*} checks
+     */
+    get_days(checks = []) {
+        var days = {};
+        for (var check of checks) {
+            var date = get_day(new Date(check.date).getTime());
+            if (days[date]) continue;
+            days[date] = true;
+        }
+
+        function get_day(ms) {
+            var date = new Date(ms);
+            return (
+                date.getMonth() +
+                1 +
+                '.' +
+                date.getDate() +
+                '.' +
+                date.getFullYear()
+            );
+        }
+
+        return Object.keys(days).length;
+    }
+
+    get_monday(date) {
+        var day = date.getDay() || 7;
+        if (day !== 1) date.setHours(-24 * (day - 1));
+        return date;
     }
 
     /**

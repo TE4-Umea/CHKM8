@@ -129,6 +129,12 @@ function format_days() {
         }
     }
 
+    var standing_color = me.work.standing > 0 ? '#03fc4e' : '#fc0339'
+    document.getElementById('week-summary').innerHTML = 
+    `<span style="color:grey;">Week ${me.work.this_week.week}:</span> ${format_time(me.work.this_week.time)}
+    <svg xmlns="http://www.w3.org/2000/svg" id="standing-arrow" style="fill: ${standing_color}; transform:scale(${me.work.standing > 0 ? '-90deg' : '90deg'})" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M16.01 11H4v2h12.01v3L20 12l-3.99-4z"/></svg>
+     <span style="color:${standing_color}">${Math.abs(me.work.standing)}%</span>`
+     
     render_history();
 
     function get_day(ms) {
@@ -156,7 +162,6 @@ var names_of_days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
  */
 
 function render_history(clear = true) {
-    work = calcualte_time(checks_data);
     //Array containing the bounds of the drawn, needed in order to check if you are hovering over the drawn bars
     check_bounds = [];
     //The width of the drawn bar
@@ -176,8 +181,10 @@ function render_history(clear = true) {
     var hours = [7, 18];
     //Width of each hour part drawn in the canvas
     var hours_width = (canvas.width - margin * 2) / (hours[1] - hours[0] - 1); // px
-    var day_height = 50;
-    var margin_top = 25;
+    
+    var margin_top = canvas.height/10;
+
+    var day_height = (canvas.height - (margin_top) - (margin*2)) / Object.keys(days).length;
 
     ctx.fillStyle = 'grey';
     ctx.font = '10px Roboto';
@@ -208,16 +215,13 @@ function render_history(clear = true) {
             for (var check of days[days_indexes[i]]) {
                 // Creates a gray gradient
                 var gradient = ctx.createLinearGradient(
-                    0, 0, canvas.width, canvas.height
-                );
-                gradient.addColorStop(
                     0,
-                    dark ? '#4f4f4f' : '#ededed'
+                    0,
+                    canvas.width,
+                    canvas.height
                 );
-                gradient.addColorStop(
-                    1,
-                    dark ? '#3b3b3b' : '#dbdbdb'
-                );
+                gradient.addColorStop(0, dark ? '#4f4f4f' : '#ededed');
+                gradient.addColorStop(1, dark ? '#3b3b3b' : '#dbdbdb');
 
                 // If a project has been specified in the token
                 if (project) {
@@ -225,7 +229,10 @@ function render_history(clear = true) {
                     // If the project specified could be found
                     if (project) {
                         gradient = ctx.createLinearGradient(
-                            0, 0, canvas.width, canvas.height
+                            0,
+                            0,
+                            canvas.width,
+                            canvas.height
                         );
                         gradient.addColorStop(0, project.color_top);
                         gradient.addColorStop(1, project.color_bot);
@@ -251,7 +258,6 @@ function render_history(clear = true) {
                     if (history_progress === undefined)
                         total_width += stop_x - start_x;
                     else {
-                        
                         if (
                             check_out_date.getTime() - check_in_date.getTime() >
                             1000 * 60 * 10
@@ -268,8 +274,6 @@ function render_history(clear = true) {
                             if (width > width_left) {
                                 width = width_left;
                             }
-
-                            
 
                             ctx.roundRect(
                                 start_x,
@@ -296,10 +300,10 @@ function render_history(clear = true) {
             }
         }
 
-        ctx.fillStyle = dark ? '#d1d1d1' : '#454545';
+        /*         ctx.fillStyle = dark ? '#d1d1d1' : '#454545';
         ctx.font = ctx.font = `20px Ubuntu`;
         ctx.textAlign = 'left';
-        ctx.fillText(format_time(work), 25, canvas.height - 10);
+        ctx.fillText(format_time(work), 25, canvas.height - 10); */
 
         if (!history_progress || history_progress < 1) {
             if (history_progress === undefined) history_progress = 0;
@@ -405,7 +409,9 @@ function update_hover_view() {
         temp_ctx.fillStyle = dark ? '#111' : 'white';
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
         temp_ctx.drawImage(rendered_canvas, 0, 0);
-        temp_ctx.fillStyle = `rgba(${dark ? '20, 20, 20' : '255 , 255 , 255'}, .5)`;
+        temp_ctx.fillStyle = `rgba(${
+            dark ? '20, 20, 20' : '255 , 255 , 255'
+        }, .5)`;
         temp_ctx.fillRect(0, 0, temp_canvas.width, temp_canvas.height);
 
         ctx.roundRect(box_x, box_y, box_width, box_height, 10).fill();
@@ -513,7 +519,7 @@ on_login = () => {
         'Logged in as ' + me.name + ' (' + me.username + ')';
 
     insert_projects();
-    
+
     axios
         .get('/api/user/checks', {
             params: {
