@@ -318,7 +318,7 @@ class User {
                     [user_id, project.id]
                 );
 
-                project.last_check_in = project.last_check_in.date;
+                project.last_check_in = project.last_check_in ? project.last_check_in.date : 0;
 
                 project.activity = [];
 
@@ -417,6 +417,8 @@ class User {
     get_monday(date) {
         var day = date.getDay() || 7;
         if (day !== 1) date.setHours(-24 * (day - 1));
+        date.setHours(0);
+        date.setMinutes(0);
         return date;
     }
 
