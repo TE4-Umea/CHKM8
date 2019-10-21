@@ -417,6 +417,8 @@ class User {
     get_monday(date) {
         var day = date.getDay() || 7;
         if (day !== 1) date.setHours(-24 * (day - 1));
+        date.setHours(0);
+        date.setMinutes(0);
         return date;
     }
 
