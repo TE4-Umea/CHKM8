@@ -318,7 +318,7 @@ class User {
                     [user_id, project.id]
                 );
 
-                project.last_check_in = project.last_check_in.date;
+                project.last_check_in = project.last_check_in ? project.last_check_in.date : 0;
 
                 project.activity = [];
 
