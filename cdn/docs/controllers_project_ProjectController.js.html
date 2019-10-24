@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>controllers/project/ProjectController.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Database.html">Database</a><ul class='methods'><li data-type='method'><a href="Database.html#create_connection">create_connection</a></li><li data-type='method'><a href="Database.html#query">query</a></li><li data-type='method'><a href="Database.html#query_one">query_one</a></li></ul></li><li><a href="ErrorResponse.html">ErrorResponse</a></li><li><a href="JSONResponse.html">JSONResponse</a></li><li><a href="Project.html">Project</a><ul class='methods'><li data-type='method'><a href="Project.html#add_user">add_user</a></li><li data-type='method'><a href="Project.html#create">create</a></li><li data-type='method'><a href="Project.html#delete">delete</a></li><li data-type='method'><a href="Project.html#get">get</a></li><li data-type='method'><a href="Project.html#get_data">get_data</a></li><li data-type='method'><a href="Project.html#get_from_name">get_from_name</a></li><li data-type='method'><a href="Project.html#is_joined">is_joined</a></li><li data-type='method'><a href="Project.html#new_gradient">new_gradient</a></li><li data-type='method'><a href="Project.html#remove_user">remove_user</a></li></ul></li><li><a href="ProjectMember.html">ProjectMember</a></li><li><a href="ProjectOwner.html">ProjectOwner</a></li><li><a href="ResponseModel.html">ResponseModel</a><ul class='methods'><li data-type='method'><a href="ResponseModel.html#error_response">error_response</a></li><li data-type='method'><a href="ResponseModel.html#json">json</a></li><li data-type='method'><a href="ResponseModel.html#success_response">success_response</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#format_time">format_time</a></li><li data-type='method'><a href="Server.html#hash">hash</a></li><li data-type='method'><a href="Server.html#on_loaded">on_loaded</a></li></ul></li><li><a href="SuccessResponse.html">SuccessResponse</a></li><li><a href="User.html">User</a><ul class='methods'><li data-type='method'><a href="User.html#create">create</a></li><li data-type='method'><a href="User.html#delete">delete</a></li><li data-type='method'><a href="User.html#generate_token">generate_token</a></li><li data-type='method'><a href="User.html#get">get</a></li><li data-type='method'><a href="User.html#get_data">get_data</a></li><li data-type='method'><a href="User.html#get_from_slack">get_from_slack</a></li><li data-type='method'><a href="User.html#get_from_slack_id">get_from_slack_id</a></li><li data-type='method'><a href="User.html#get_from_token">get_from_token</a></li><li data-type='method'><a href="User.html#get_from_username">get_from_username</a></li><li data-type='method'><a href="User.html#get_from_username_and_password">get_from_username_and_password</a></li><li data-type='method'><a href="User.html#hash">hash</a></li><li data-type='method'><a href="User.html#login_with_token">login_with_token</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">controllers/project/ProjectController.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>class ProjectController {
+    constructor() {
+        this.Payload = require('../../models/PayloadModel');
+        this.Response = require('../../models/ResponseModel');
+        this.User = new (require('../../User'))();
+        this.Project = new (require('../../Project'))();
+    }
+
+    /**
+     * POST /api/project. Returns a json with the status of a given project.
+     * Get information of a project and all the members
+     * @param {Request} req
+     * @param {Response} res
+     */
+    async index(req, res) {
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+
+        /** Read from server via attributes */
+        var user = await this.User.get_from_token(payload.token);
+        var project = await this.Project.get(payload.project);
+        var project_data = await this.Project.get_data(project.id);
+        /** Make sure user and project exists */
+        if (user &amp;&amp; project) {
+            var has_access = await this.Project.is_joined(user.id, project.id);
+            // Make sure the project data exists.
+            if (project_data) {
+                if (has_access) {
+                    response.success_response('sucess', {
+                        project: project_data,
+                    });
+                } else {
+                    response.error_response(
+                        `You don't have access to this project`
+                    );
+                }
+            }
+        } else if (!user) {
+            // If user does not exist, invalid token.
+            response.error_response('Invalid token');
+        } else if (!project) {
+            // If project does not exist, then prject not found.
+            response.error_response('Project not found');
+        } else if (!project_data) {
+            // If project data does not exist, then project data is corrupt.
+            response.error_response('Project data corrupt');
+        } else {
+            response.error_response('Something went wrong.');
+        }
+    }
+
+    /**
+     * Deletes a project from the database via the web page, 
+     * checks if user has access to the project
+     * @param {project} req 
+     * @param {token} res 
+     */
+    async destroy(req, res){
+        // Gets attributes from request
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+
+        var project_to_delete = await this.Project.get_from_name(
+            payload.Project
+        );
+        var user = await this.User.get_from_token(payload.token);
+        var project = await this.Project.get_from_name(payload.project);
+        // Checks if user has access to the project
+        var has_access = await this.Project.is_joined(user.id, project.id);
+        if (has_access) {
+            response.json(
+                await this.Project.delete_project(project_to_delete, project.id, user)
+            );
+        }
+    }
+
+    /**
+     * Create a new project
+     * REQ: {token, project}
+     * @param {*} req
+     * @param {*} res
+     */
+    async store(req, res) {
+        /** Get attributes from request */
+        var payload = new this.Payload(req);
+        // Loads ResponseModel
+        var response = new this.Response(res);
+        /** Get the user safley from token */
+        var user = await this.User.get_from_token(payload.token);
+        /** Make sure user is loaded correctly */
+        if (user) {
+            /** Create the project via the user and project name and respond to the request with res */
+            response.json(await this.Project.create(payload.project, user));
+        } else {
+            response.error_response('Invalid Token');
+        }
+    }
+}
+
+module.exports = ProjectController;</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Thu Oct 10 2019 15:07:36 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+extends main
+block head
+    link(rel="stylesheet", href="css/login.css")
+block content
+    img(src="img/checkmate-logo.png", alt="logo" id="logo")
+    input(type="text" class="input" id="username" oninput="check_usersname(this)" placeholder="Username")
+    input(type="password" class="input" id="password" placeholder="Password")
+    input(type="text" class="input" id="name" placeholder="Full Name")
+    div(id="button-container")
+        span(id="disclaimer") By using this service, you agree to our 
+            a(href="/terms.html") Terms of Service
+        span(id="error-message")
+        button(class="mdc-button mdc-button--raised" id="login-button" disabled title="Please enter a username" onclick="login()") Sign up / log in
+    script(src="js/login.js")
