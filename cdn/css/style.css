@@ -3,6 +3,8 @@
     --dark-blu: #185cc3;
     --mdc-theme-primary: var(--blu);
     --mdc-theme-secondary: #c7c7c7;
+    --bg: rgb(248, 248, 248);
+    --hover-bg: rgb(235, 235, 235);
 }
 
 body {
@@ -109,7 +111,7 @@ a{
 }
 
 a:hover{
-    color: rgb(87, 87, 87);
+    color: rgb(202, 202, 202);
 }
 
 .notice{
